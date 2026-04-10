@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panier — FreelaSkill</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page-anim cart-page">
+
+<nav>
+    <div class="logo">
+        <i class="fa-solid fa-shapes"></i>
+        Freela<span>Skill</span>
+    </div>
+    <div class="nav-right">
+        <a href="home.html" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+    </div>
+</nav>
+
+<section class="hero-banner">
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
+    <div class="hero-content">
+        <div class="hero-tag"><i class="fa-solid fa-cart-shopping"></i> Mon panier</div>
+        <h1 class="hero-title">Vos articles sélectionnés</h1>
+        <p class="hero-sub">Vérifiez votre commande, modifiez les quantités et confirmez votre achat.</p>
+    </div>
+</section>
+
+<div class="page-body">
+    <aside class="filters">
+        <div class="filter-section">
+            <div class="filter-title">Votre panier</div>
+            <div class="filter-option active">
+                <span>Articles ajoutés</span>
+            </div>
+            <div class="filter-option">
+                <span>Peut être modifié avant paiement</span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="filter-section">
+            <div class="filter-title">Conseil</div>
+            <div class="filter-option active">
+                <span>Ajoutez un article, puis cliquez sur Valider la commande.</span>
+            </div>
+        </div>
+    </aside>
+
+    <div class="products-area">
+        <div class="products-toolbar">
+            <p class="result-count"><strong id="cart-qty">0</strong> article(s) dans le panier</p>
+            <div class="toolbar-right">
+                <button class="view-btn active" title="Panier"><i class="fa-solid fa-cart-shopping"></i></button>
+            </div>
+        </div>
+
+        <div class="cart-content">
+            <div class="cart-items" id="cart-items"></div>
+            <aside class="checkout-card">
+                <div class="checkout-title">Résumé de commande</div>
+                <div class="checkout-row"><span>Sous-total</span><span id="cart-subtotal">0 DT</span></div>
+                <div class="checkout-row total"><span>Total</span><span id="cart-total">0 DT</span></div>
+                <button id="checkout-btn" class="btn-cart">Valider la commande</button>
+                <a href="home.html" class="cart-btn">Continuer mes achats</a>
+            </aside>
+        </div>
+
+        <div class="cart-empty" id="cart-empty">
+            <h2>Votre panier est vide</h2>
+            <p>Ajoutez des produits depuis la page Marketplace puis revenez ici pour finaliser votre commande.</p>
+            <a href="home.html" class="cart-btn">Retour à la boutique</a>
+        </div>
+    </div>
+</div>
+
+<script src="../assets/js.js"></script>
+</body>
+</html>

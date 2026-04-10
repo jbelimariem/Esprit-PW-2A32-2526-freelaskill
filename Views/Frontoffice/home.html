@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marketplace — FreelaSkill</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/style.css">
+</head>
+<body class="page-anim home-page">
+
+<!-- NAVBAR -->
+<nav>
+    <div class="logo">
+        <i class="fa-solid fa-shapes"></i>
+        Freela<span>Skill</span>
+    </div>
+    <ul class="nav-links">
+        <li><a href="#">Accueil</a></li>
+        <li><a href="#">Missions</a></li>
+        <li><a href="#" class="active">Marketplace</a></li>
+        <li><a href="#">Freelancers</a></li>
+        <li><a href="#">Blog</a></li>
+    </ul>
+    <div class="nav-right">
+        <a href="panier.html" class="cart-btn">
+            <i class="fa-solid fa-cart-shopping"></i> Panier
+            <span class="cart-count">0</span>
+        </a>
+        <div class="nav-avatar">AH</div>
+    </div>
+</nav>
+
+<!-- HERO BANNER -->
+<section class="hero-banner">
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
+    <div class="hero-content">
+        <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Marketplace Tunisia</div>
+        <h1 class="hero-title">Trouvez les outils<br>qu'il vous <span>faut</span></h1>
+        <p class="hero-sub">Équipements tech, licences logiciels, accessoires créatifs — livrés partout en Tunisie.</p>
+        <div class="search-container">
+            <div class="search-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" placeholder="Rechercher un produit, une marque…">
+            </div>
+            <button class="btn-search"><i class="fa-solid fa-search"></i> Rechercher</button>
+        </div>
+        <div class="action-row" style="display:flex; align-items:center; gap:.75rem; margin-top:1.25rem; max-width:700px;">
+            <span style="color:#475569; font-size:.82rem;">
+                Vous vendez ? <strong style="color:#94A3B8; font-weight:500;">Déposez votre annonce gratuitement</strong>
+            </span>
+            <a href="vendreproduit.html" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap;">
+                + Vendre un produit
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- PAGE BODY -->
+<div class="page-body">
+
+    <!-- FILTERS -->
+    <aside class="filters">
+
+        <div class="filter-section">
+            <div class="filter-title">Catégorie</div>
+            <div class="filter-option active">
+                <span>Tous les produits</span>
+                <span class="filter-count">48</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Informatique</span>
+                <span class="filter-count">14</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Audio & Son</span>
+                <span class="filter-count">8</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Design & Créatif</span>
+                <span class="filter-count">12</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Développement</span>
+                <span class="filter-count">9</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Accessoires</span>
+                <span class="filter-count">5</span>
+                <span class="filter-dot"></span>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="filter-section">
+            <div class="filter-title">Prix (DT)</div>
+            <div class="price-range">
+                <div class="price-inputs">
+                    <input class="price-input" type="number" placeholder="Min" value="0">
+                    <span class="price-sep">—</span>
+                    <input class="price-input" type="number" placeholder="Max" value="3000">
+                </div>
+                <input type="range" min="0" max="3000" value="3000">
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="filter-section">
+            <div class="filter-title">Disponibilité</div>
+            <div class="filter-option active">
+                <span>En stock</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Stock faible</span>
+                <span class="filter-dot"></span>
+            </div>
+            <div class="filter-option">
+                <span>Tous</span>
+                <span class="filter-dot"></span>
+            </div>
+        </div>
+
+    </aside>
+
+    <!-- PRODUCTS -->
+    <div class="products-area">
+
+        <!-- Toolbar -->
+        <div class="products-toolbar">
+            <p class="result-count"><strong>48 produits</strong> trouvés</p>
+            <div class="toolbar-right">
+                <select class="sort-select">
+                    <option>Trier : Pertinence</option>
+                    <option>Prix croissant</option>
+                    <option>Prix décroissant</option>
+                    <option>Meilleures notes</option>
+                    <option>Nouveautés</option>
+                </select>
+                <div class="view-toggle">
+                    <button class="view-btn active" title="Grille"><i class="fa-solid fa-grip"></i></button>
+                    <button class="view-btn" title="Liste"><i class="fa-solid fa-list"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active filter chips -->
+        <div class="active-filters">
+            <div class="chip">Tous les produits <button>✕</button></div>
+            <div class="chip">En stock <button>✕</button></div>
+        </div>
+
+        <!-- Grid -->
+        <div class="products-grid">
+
+            <!-- Card 1 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1e3a5f);">
+                    💻
+                    <span class="card-badge badge-new">NOUVEAU</span>
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Informatique</div>
+                    <div class="card-title">Laptop Dell XPS 15 — Intel Core i7 / 16GB RAM</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.9 (32 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">2,499</span>
+                            <span class="price-currency">DT</span>
+                            <span class="price-old">2,799 DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> En stock</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1a2a1a);">
+                    📱
+                    <span class="card-badge badge-popular">POPULAIRE</span>
+                    <button class="wishlist-btn active"><i class="fa-solid fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Mobile</div>
+                    <div class="card-title">Samsung Galaxy S24 Ultra — 256 Go / Titanium Black</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.8 (87 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">1,199</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info low-stock"><span class="stock-dot"></span> Stock faible (2)</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #2a1a2a);">
+                    🎧
+                    <span class="card-badge badge-promo">-20%</span>
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Audio & Son</div>
+                    <div class="card-title">Sony WH-1000XM5 — Réduction de bruit active</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0 (44 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">389</span>
+                            <span class="price-currency">DT</span>
+                            <span class="price-old">489 DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> En stock</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 4 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1a1a2e);">
+                    ⌨️
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Accessoires</div>
+                    <div class="card-title">Clavier Mécanique RGB Keychron K8 Pro — Sans fil</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★☆</span>
+                        <span class="rating-text">4.3 (19 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">189</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> En stock (25)</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 5 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1f2a1a);">
+                    🖱️
+                    <span class="card-badge badge-new">NOUVEAU</span>
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Accessoires</div>
+                    <div class="card-title">Logitech MX Master 3S — Souris ergonomique silencieuse</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.7 (56 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">279</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> En stock</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 6 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #2a1f0d);">
+                    🖥️
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Informatique</div>
+                    <div class="card-title">Écran LG UltraWide 34" — QHD 160Hz IPS</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★☆</span>
+                        <span class="rating-text">4.6 (28 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">1,090</span>
+                            <span class="price-currency">DT</span>
+                            <span class="price-old">1,290 DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> En stock</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 7 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1a1f2e);">
+                    🎨
+                    <span class="card-badge badge-popular">POPULAIRE</span>
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Design & Créatif</div>
+                    <div class="card-title">Tablette Wacom Intuos Pro M — Stylet Pro Pen 2</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.9 (61 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">549</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info low-stock"><span class="stock-dot"></span> Presque épuisé (3)</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 8 -->
+            <div class="product-card">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1a0d0d);">
+                    💡
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Développement</div>
+                    <div class="card-title">Licence JetBrains All Products — 1 An</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">5.0 (102 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">350</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info in-stock"><span class="stock-dot"></span> Disponible</div>
+                    </div>
+                    <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                </div>
+            </div>
+
+            <!-- Card 9 — épuisé -->
+            <div class="product-card" style="opacity:0.6">
+                <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #111);">
+                    📷
+                    <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
+                </div>
+                <div class="card-body">
+                    <div class="card-category">Design & Créatif</div>
+                    <div class="card-title">Appareil Sony Alpha A7 IV — Boîtier nu</div>
+                    <div class="card-rating">
+                        <span class="stars">★★★★★</span>
+                        <span class="rating-text">4.8 (14 avis)</span>
+                    </div>
+                    <div class="card-footer">
+                        <div class="price-block">
+                            <span class="price-main">3,299</span>
+                            <span class="price-currency">DT</span>
+                        </div>
+                        <div class="stock-info out-stock"><span class="stock-dot"></span> Rupture de stock</div>
+                    </div>
+                    <button class="btn-cart" disabled><i class="fa-solid fa-ban"></i> Indisponible</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="pag-btn" disabled><i class="fa-solid fa-chevron-left"></i></button>
+            <button class="pag-btn active">1</button>
+            <button class="pag-btn">2</button>
+            <button class="pag-btn">3</button>
+            <button class="pag-btn">…</button>
+            <button class="pag-btn">6</button>
+            <button class="pag-btn"><i class="fa-solid fa-chevron-right"></i></button>
+        </div>
+
+    </div>
+</div>
+
+<script src="../assets/js.js"></script>
+
+</body>
+</html>
