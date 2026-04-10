@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Validations</title>
+  <link rel="stylesheet" href="../Frontoffice/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
+    .sidebar { width: 280px; background: rgba(17,24,39,0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); padding: 2rem 0; position: fixed; height: 100vh; }
+    .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; }
+    .nav-item.active, .nav-item:hover { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+    .table-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 3rem; overflow: hidden; }
+    .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+    table { width: 100%; border-collapse: collapse; color: white; }
+    th, td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    th { background: rgba(255,255,255,0.05); }
+    .btn { padding: 0.5rem 1rem; border: none; border-radius: 8px; cursor: pointer; text-decoration: none; display: inline-block; margin-right: 0.5rem; }
+    .btn-approve { background: #10B981; color: white; }
+    .btn-reject { background: #EF4444; color: white; }
+    .status { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-pending { background: #F59E0B; color: black; }
+    .status-approved { background: #10B981; color: white; }
+    .status-rejected { background: #EF4444; color: white; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div style="padding: 0 2rem; margin-bottom: 3rem;">
+      <div class="logo"><i class="fa-solid fa-shapes" style="color: var(--tech-blue);"></i> Freela<span>Skill</span></div>
+      <p style="font-size:0.75rem; color: var(--text-muted); margin-top:0.5rem;">Admin Control v3.0</p>
+    </div>
+    <a href="admin_dashboard.html" class="nav-item"><i class="fa-solid fa-chart-line"></i> Dashboard Central</a>
+    <a href="admin_approbations.html" class="nav-item active"><i class="fa-solid fa-check-circle"></i> Validations</a>
+    <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-exclamation-triangle"></i> Litiges</a>
+    <a href="admin_contracts.html" class="nav-item"><i class="fa-solid fa-file-contract"></i> Contrats</a>
+    <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-archive"></i> Archive</a>
+  </aside>
+
+  <main class="main-panel">
+    <header style="margin-bottom: 3rem;">
+      <h1 style="color:white;">Validations</h1>
+      <p style="color: var(--text-muted);">Approuver ou rejeter les soumissions de projets et profils.</p>
+    </header>
+
+    <section class="table-container">
+      <div class="table-header">
+        <h3 style="color:white;">Soumissions en Attente</h3>
+        <button class="btn btn-primary" onclick="refreshApprovals()">Actualiser</button>
+      </div>
+      <div style="padding: 2rem;">
+        <table id="approvals-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Type</th>
+              <th>Nom</th>
+              <th>Soumis par</th>
+              <th>Date</th>
+              <th>Statut</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data will be loaded here -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Sample data
+    const approvalsData = [
+      { id: 1, type: 'Projet', name: 'Développement Web', user: 'User1', date: '2023-10-01', status: 'pending' },
+      { id: 2, type: 'Profil', name: 'Designer UI/UX', user: 'User2', date: '2023-10-02', status: 'pending' },
+      { id: 3, type: 'Projet', name: 'App Mobile', user: 'User3', date: '2023-10-03', status: 'approved' },
+    ];
+
+    function loadApprovals() {
+      const tbody = document.querySelector('#approvals-table tbody');
+      tbody.innerHTML = '';
+      approvalsData.forEach(item => {
+        const statusClass = item.status === 'pending' ? 'status-pending' : item.status === 'approved' ? 'status-approved' : 'status-rejected';
+        const statusText = item.status === 'pending' ? 'En attente' : item.status === 'approved' ? 'Approuvé' : 'Rejeté';
+        const actions = item.status === 'pending' ? 
+          `<button class="btn btn-approve" onclick="approve(${item.id})">Approuver</button><button class="btn btn-reject" onclick="reject(${item.id})">Rejeter</button>` : 
+          '-';
+        const row = `<tr>
+          <td>${item.id}</td>
+          <td>${item.type}</td>
+          <td>${item.name}</td>
+          <td>${item.user}</td>
+          <td>${item.date}</td>
+          <td><span class="status ${statusClass}">${statusText}</span></td>
+          <td>${actions}</td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function approve(id) {
+      const item = approvalsData.find(a => a.id === id);
+      if (item) {
+        item.status = 'approved';
+        loadApprovals();
+        alert(`Soumission ${id} approuvée`);
+      }
+    }
+
+    function reject(id) {
+      const item = approvalsData.find(a => a.id === id);
+      if (item) {
+        item.status = 'rejected';
+        loadApprovals();
+        alert(`Soumission ${id} rejetée`);
+      }
+    }
+
+    function refreshApprovals() {
+      loadApprovals();
+    }
+
+    // Load data on page load
+    window.onload = loadApprovals;
+  </script>
+</body>
+</html>

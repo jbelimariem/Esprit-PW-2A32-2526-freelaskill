@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Dashboard</title>
+  <link rel="stylesheet" href="../Frontoffice/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
+    .sidebar { width: 280px; background: rgba(17,24,39,0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); padding: 2rem 0; position: fixed; height: 100vh; }
+    .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; }
+    .nav-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 2rem; color: var(--text-muted); text-decoration: none; }
+    .nav-item.active, .nav-item:hover { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+    .table-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; margin-bottom: 3rem; overflow: hidden; }
+    .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; }
+    .metric-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 18px; padding: 1.5rem; text-align: center; }
+    .metric-card h3 { color: white; margin: 0; font-size: 2rem; }
+    .metric-card p { color: var(--text-muted); margin: 0.5rem 0 0 0; }
+    .chart-container { height: 300px; background: rgba(255,255,255,0.02); border-radius: 18px; padding: 1rem; margin-bottom: 2rem; }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div style="padding: 0 2rem; margin-bottom: 3rem;">
+      <div class="logo"><i class="fa-solid fa-shapes" style="color: var(--tech-blue);"></i> Freela<span>Skill</span></div>
+      <p style="font-size:0.75rem; color: var(--text-muted); margin-top:0.5rem;">Admin Control v3.0</p>
+    </div>
+    <a href="admin_dashboard.html" class="nav-item active"><i class="fa-solid fa-chart-line"></i> Dashboard Central</a>
+    <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-circle"></i> Validations</a>
+    <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-exclamation-triangle"></i> Litiges</a>
+    <a href="admin_contracts.html" class="nav-item"><i class="fa-solid fa-file-contract"></i> Contrats</a>
+    <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-archive"></i> Archive</a>
+  </aside>
+
+  <main class="main-panel">
+    <header style="margin-bottom: 3rem;">
+      <h1 style="color:white;">Dashboard Central</h1>
+      <p style="color: var(--text-muted);">Vue d'ensemble des statistiques et activités de la plateforme.</p>
+    </header>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-bottom: 3rem;">
+      <div class="metric-card">
+        <h3 id="total-users">0</h3>
+        <p>Utilisateurs Actifs</p>
+      </div>
+      <div class="metric-card">
+        <h3 id="total-projects">0</h3>
+        <p>Projets en Cours</p>
+      </div>
+      <div class="metric-card">
+        <h3 id="pending-approvals">0</h3>
+        <p>Validations en Attente</p>
+      </div>
+      <div class="metric-card">
+        <h3 id="open-disputes">0</h3>
+        <p>Litiges Ouverts</p>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+      <section class="table-container">
+        <div class="table-header">
+          <h3 style="color:white;">Activités Récentes</h3>
+        </div>
+        <div style="padding: 2rem;">
+          <ul style="color: white; list-style: none; padding: 0;">
+            <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">Nouveau projet soumis par User1</li>
+            <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">Validation approuvée pour Projet A</li>
+            <li style="padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);">Litige résolu pour Projet B</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="table-container">
+        <div class="table-header">
+          <h3 style="color:white;">Graphique des Utilisations</h3>
+        </div>
+        <div class="chart-container" id="chart-container">
+          <!-- Placeholder for chart -->
+          <p style="color: var(--text-muted); text-align: center; line-height: 300px;">Graphique à implémenter avec une bibliothèque comme Chart.js</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // Sample data
+    const stats = {
+      totalUsers: 1250,
+      totalProjects: 340,
+      pendingApprovals: 15,
+      openDisputes: 5
+    };
+
+    function loadStats() {
+      document.getElementById('total-users').textContent = stats.totalUsers;
+      document.getElementById('total-projects').textContent = stats.totalProjects;
+      document.getElementById('pending-approvals').textContent = stats.pendingApprovals;
+      document.getElementById('open-disputes').textContent = stats.openDisputes;
+    }
+
+    // Load stats on page load
+    window.onload = loadStats;
+  </script>
+</body>
+</html>

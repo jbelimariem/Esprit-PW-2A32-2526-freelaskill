@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Créer un Contrat - FreelaSkill</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="engagements.html">Mes Engagements</a></li>
+        <li><a href="contract_creation.html" class="active">Contrat</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="card-futuristic">
+        <div class="card-content">
+          <span class="badge-tunisia">Contrat d'Engagement</span>
+          <h2 class="card-title">Créer un nouveau contrat</h2>
+          <p class="card-desc">Définissez le cadre de votre projet avec un contrat clair, sécurisé et adapté à votre budget.</p>
+          <form id="contract-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="project-title">Titre du Projet</label>
+                <input class="form-control" type="text" id="project-title" name="project-title" required>
+              </div>
+              <div class="form-group">
+                <label for="freelance-name">Nom du Freelance</label>
+                <input class="form-control" type="text" id="freelance-name" name="freelance-name" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="start-date">Date de Début</label>
+                <input class="form-control" type="date" id="start-date" name="start-date" required>
+              </div>
+              <div class="form-group">
+                <label for="end-date">Date de Fin</label>
+                <input class="form-control" type="date" id="end-date" name="end-date" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="budget">Budget (€)</label>
+                <input class="form-control" type="number" id="budget" name="budget" min="0" step="0.01" required>
+              </div>
+              <div class="form-group">
+                <label for="payment-terms">Modalités de Paiement</label>
+                <select class="form-control" id="payment-terms" name="payment-terms" required>
+                  <option value="">Sélectionner</option>
+                  <option value="milestone">Par jalons</option>
+                  <option value="monthly">Mensuel</option>
+                  <option value="final">À la livraison</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="description">Description du Projet</label>
+              <textarea class="form-control" id="description" name="description" placeholder="Décrivez les tâches, les livrables attendus, etc." required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="terms">Conditions Spéciales</label>
+              <textarea class="form-control" id="terms" name="terms" placeholder="Ajoutez des conditions particulières, clauses de confidentialité, etc."></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Créer le Contrat</button>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 FreelaSkill. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    document.getElementById('contract-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      // Collect form data
+      const formData = new FormData(this);
+      const contractData = Object.fromEntries(formData);
+
+      // Simple validation
+      const startDate = new Date(contractData['start-date']);
+      const endDate = new Date(contractData['end-date']);
+
+      if (endDate <= startDate) {
+        alert('La date de fin doit être postérieure à la date de début.');
+        return;
+      }
+
+      // In a real app, this would be sent to the server
+      console.log('Contract data:', contractData);
+      alert('Contrat créé avec succès ! Il sera soumis pour validation.');
+
+      // Reset form or redirect
+      this.reset();
+    });
+  </script>
+</body>
+</html>
