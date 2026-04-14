@@ -183,24 +183,16 @@ if (checkoutButton) {
 
 // Open detail page when clicking a product card on the home page only
 if (document.body.classList.contains('home-page')) {
-    document.querySelectorAll('.product-card').forEach(card => {
+    document.querySelectorAll('.product-card[data-id]').forEach(card => {
         card.addEventListener('click', e => {
             if (e.target.closest('.btn-cart') || e.target.closest('.wishlist-btn') || e.target.closest('button')) {
                 return;
             }
-            window.location.href = 'detailproduit.html';
+            const productId = card.dataset.id;
+            if (productId) {
+                window.location.href = `detailproduit.php?id=${productId}`;
+            }
         });
     });
 }
 
-// Sell form confirmation
-const sellForm = document.querySelector('#sell-form');
-if (sellForm) {
-    sellForm.addEventListener('submit', e => {
-        e.preventDefault();
-        const confirmation = document.querySelector('#sell-confirmation');
-        confirmation.innerHTML = '<i class="fa-solid fa-circle-check" style="margin-right: 8px;"></i> Je viens de poster un produit ! Votre annonce a bien été enregistrée.';
-        confirmation.style.display = 'block';
-        confirmation.scrollIntoView({ behavior: 'smooth' });
-    });
-}

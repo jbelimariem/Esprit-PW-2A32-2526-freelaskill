@@ -16,7 +16,7 @@
         Freela<span>Skill</span>
     </div>
     <div class="nav-right">
-        <a href="home.html" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
+        <a href="home.php" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
             <i class="fa-solid fa-arrow-left"></i> Retour
         </a>
     </div>
@@ -69,14 +69,14 @@
                 <div class="checkout-row"><span>Sous-total</span><span id="cart-subtotal">0 DT</span></div>
                 <div class="checkout-row total"><span>Total</span><span id="cart-total">0 DT</span></div>
                 <button id="checkout-btn" class="btn-cart">Valider la commande</button>
-                <a href="home.html" class="cart-btn">Continuer mes achats</a>
+                <a href="home.php" class="cart-btn">Continuer mes achats</a>
             </aside>
         </div>
 
         <div class="cart-empty" id="cart-empty">
             <h2>Votre panier est vide</h2>
             <p>Ajoutez des produits depuis la page Marketplace puis revenez ici pour finaliser votre commande.</p>
-            <a href="home.html" class="cart-btn">Retour à la boutique</a>
+            <a href="home.php" class="cart-btn">Retour à la boutique</a>
         </div>
     </div>
 </div>

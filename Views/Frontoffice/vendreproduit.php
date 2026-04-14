@@ -1,3 +1,26 @@
+<?php
+require_once __DIR__ . '/../../Models/Produit.php';
+require_once __DIR__ . '/../../Models/Category_prod.php';
+
+$categoryModel = new Category_prod();
+$categories = $categoryModel->getAll();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $produitModel = new Produit();
+    $data = [
+        'nom' => $_POST['title'],
+        'description' => $_POST['description'],
+        'prix' => $_POST['price'],
+        'category_id' => $_POST['category'],
+        'statut' => 'pending',
+        'stock' => 1,
+        'image' => ''
+    ];
+    $produitModel->create($data);
+    header('Location: home.php');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
 <head>
@@ -16,7 +39,7 @@
         Freela<span>Skill</span>
     </div>
     <div class="nav-right">
-        <a href="home.html" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
+        <a href="home.php" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
             <i class="fa-solid fa-arrow-left"></i> Retour
         </a>
     </div>
@@ -43,7 +66,7 @@
 
         <div class="product-card" style="opacity: 1; max-width: 850px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
             <div class="card-body" style="padding: 2.5rem;">
-                <form id="sell-form" action="#" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <form id="sell-form" action="vendreproduit.php" method="POST" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                     
                     <div style="grid-column: 1 / -1;">
                         <label for="title" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Titre du produit</label>
@@ -54,11 +77,9 @@
                         <label for="category" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Catégorie</label>
                         <select id="category" name="category" class="price-input" style="width: 100%;" required>
                             <option value="">Sélectionnez une catégorie</option>
-                            <option>Informatique</option>
-                            <option>Mobile</option>
-                            <option>Audio & Son</option>
-                            <option>Design & Créatif</option>
-                            <option>Accessoires</option>
+                            <?php foreach ($categories as $category): ?>
+                                <option value="<?= $category['idCategory'] ?>"><?= htmlspecialchars($category['nom']) ?></option>
+                            <?php endforeach; ?>
                         </select>
                     </div>
                     
