@@ -1,6 +1,5 @@
 <?php
 // views/backoffice/edit_job_admin.php — Admin: Modifier une offre
-
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../Models/JobOffer.php';
 
@@ -50,131 +49,129 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modifier offre #<?= $offre['id'] ?> — Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="admin.css">
+    <title>Modifier offre #<?= $offre['id'] ?> | Admin</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="admin.css?v=<?= time() ?>">
 </head>
-<body>
+<body class="page-anim">
+    
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
 
-<aside class="sidebar">
-    <div class="logo">
-        <i class="fa-solid fa-briefcase"></i>
-        Core<span>Panel</span>
-        <small>Admin Jobs v1.0</small>
-    </div>
-    <div class="nav-section-title">Navigation</div>
-    <a href="dashboard.php" class="nav-item" id="sidebar-dashboard"><i class="fa-solid fa-gauge-high"></i> Tableau de bord</a>
-    <a href="add_job_admin.php" class="nav-item" id="sidebar-add"><i class="fa-solid fa-plus"></i> Ajouter une offre</a>
-    <div class="sidebar-footer">
-        <a href="../frontoffice/home.php" class="nav-item" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-            <i class="fa-solid fa-globe"></i> Interface Client
-        </a>
-    </div>
-</aside>
-
-<main class="main-panel">
-
-    <div class="topbar">
-        <div>
-            <h1 class="topbar-title">Modifier <span>offre #<?= $offre['id'] ?></span></h1>
-            <p style="color:var(--text-muted); font-size:.82rem; margin-top:.2rem;">
-                Publiée le <?= date('d/m/Y à H:i', strtotime($offre['date_creation'])) ?>
-            </p>
-        </div>
-        <div style="display:flex; gap:.75rem;">
-            <a href="detail_job_admin.php?id=<?= $offre['id'] ?>" id="view-detail-btn" class="btn btn-outline">
-                <i class="fa-solid fa-eye"></i> Voir détail
-            </a>
-            <a href="dashboard.php" class="btn btn-outline" id="back-dashboard-edit">
-                <i class="fa-solid fa-arrow-left"></i> Dashboard
-            </a>
-        </div>
-    </div>
-
-    <?php if (!empty($errors)): ?>
-    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; color:var(--tunisian-red); font-size:.88rem;">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <strong style="margin-left:.4rem;">Erreurs :</strong>
-        <ul style="margin-top:.5rem; padding-left:1.5rem;">
-            <?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?>
-        </ul>
-    </div>
-    <?php endif; ?>
-
-    <form id="admin-edit-form" action="edit_job_admin.php?id=<?= $offre['id'] ?>" method="POST" novalidate>
-        <div class="form-section animate-fade-up">
-            <h3 style="color:white; font-size:1rem; margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
-                <i class="fa-solid fa-pen-to-square" style="color:#F59E0B;"></i> Modifier les informations
-            </h3>
-
-            <div class="form-group">
-                <label class="form-label" for="edit-titre">Titre <span>*</span></label>
-                <input id="edit-titre" name="titre" type="text" class="form-input <?= isset($errors['titre'])?'error':'' ?>"
-                       value="<?= htmlspecialchars($data['titre']) ?>" minlength="5" maxlength="255" required>
-                <?php if (isset($errors['titre'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['titre']) ?></div><?php endif; ?>
+    <div class="admin-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
             </div>
+            
+            <nav class="admin-nav">
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Menu Principal</div>
+                <a href="dashboard.php" class="admin-nav-item">
+                    <i class="fa-solid fa-briefcase"></i> Gestion des Missions
+                </a>
 
-            <div class="form-grid-2">
-                <div class="form-group">
-                    <label class="form-label" for="edit-budget">Budget (DT) <span>*</span></label>
-                    <input id="edit-budget" name="budget" type="number" min="1" step="0.01"
-                           class="form-input <?= isset($errors['budget'])?'error':'' ?>"
-                           value="<?= htmlspecialchars($data['budget']) ?>" required>
-                    <?php if (isset($errors['budget'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['budget']) ?></div><?php endif; ?>
+                <div style="margin: 1.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Actions</div>
+                <a href="add_job_admin.php" class="admin-nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Ajouter une Offre
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="admin-main">
+            <!-- TOPBAR -->
+            <header class="admin-topbar">
+                <div style="color: var(--text-muted); font-size: 0.9rem;">
+                    Back-office / Missions / <span style="color: white;">Modifier #<?= $offre['id'] ?></span>
+                </div>
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn"><i class="fa-regular fa-bell"></i></div>
+                    <div class="nav-avatar">AH</div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <div class="admin-content" style="max-width: 900px;">
+                <div class="admin-header-row">
+                    <div>
+                        <h1 class="admin-page-title">Modifier la <span>Mission</span></h1>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem;">Édition des détails de l'offre ID: #<?= $offre['id'] ?></p>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label class="form-label" for="edit-delai">Délai <span>*</span></label>
-                    <select id="edit-delai" name="delai" class="form-input <?= isset($errors['delai'])?'error':'' ?>" required>
-                        <option value="">Sélectionnez</option>
-                        <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois","Plus de 6 mois"] as $d): ?>
-                        <option value="<?= $d ?>" <?= $data['delai']===$d?'selected':'' ?>><?= $d ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors['delai'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['delai']) ?></div><?php endif; ?>
+                <div class="glass-card">
+                    <form action="edit_job_admin.php?id=<?= $offre['id'] ?>" method="POST">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <!-- Titre -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Titre de la mission</label>
+                                <input type="text" name="titre" value="<?= htmlspecialchars($data['titre']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                <?php if(isset($errors['titre'])): ?><small style="color: var(--tunisian-red);"><?= $errors['titre'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Budget -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Budget (DT)</label>
+                                <input type="number" name="budget" value="<?= htmlspecialchars($data['budget']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                <?php if(isset($errors['budget'])): ?><small style="color: var(--tunisian-red);"><?= $errors['budget'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Délai -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Délai estimé</label>
+                                <select name="delai" style="width: 100%; background: rgba(2,6,23,0.9); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                    <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois"] as $d): ?>
+                                        <option value="<?= $d ?>" <?= $data['delai']===$d?'selected':'' ?>><?= $d ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if(isset($errors['delai'])): ?><small style="color: var(--tunisian-red);"><?= $errors['delai'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Compétences -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Compétences (virgules)</label>
+                                <input type="text" name="competences" value="<?= htmlspecialchars($data['competences']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                <?php if(isset($errors['competences'])): ?><small style="color: var(--tunisian-red);"><?= $errors['competences'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Description -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Description</label>
+                                <textarea name="description" rows="5" 
+                                          style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;"><?= htmlspecialchars($data['description']) ?></textarea>
+                                <?php if(isset($errors['description'])): ?><small style="color: var(--tunisian-red);"><?= $errors['description'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Statut -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Statut de l'offre</label>
+                                <select name="statut" style="width: 100%; background: rgba(2,6,23,0.9); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                    <option value="pending" <?= $data['statut']==='pending'?'selected':'' ?>>En attente</option>
+                                    <option value="approved" <?= $data['statut']==='approved'?'selected':'' ?>>Approuvée</option>
+                                    <option value="rejected" <?= $data['statut']==='rejected'?'selected':'' ?>>Rejetée</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                            <a href="dashboard.php" class="btn btn-outline">Annuler</a>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <div class="form-group">
-                <label class="form-label" for="edit-competences">Compétences requises <span>*</span></label>
-                <input id="edit-competences" name="competences" type="text"
-                       class="form-input <?= isset($errors['competences'])?'error':'' ?>"
-                       value="<?= htmlspecialchars($data['competences']) ?>" required>
-                <?php if (isset($errors['competences'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['competences']) ?></div><?php endif; ?>
-            </div>
-
-            <div class="form-group">
-                <label class="form-label" for="edit-description">Description <span>*</span></label>
-                <textarea id="edit-description" name="description" rows="6"
-                          class="form-input <?= isset($errors['description'])?'error':'' ?>"
-                          minlength="20" maxlength="2000" required><?= htmlspecialchars($data['description']) ?></textarea>
-                <?php if (isset($errors['description'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['description']) ?></div><?php endif; ?>
-            </div>
-
-            <!-- Statut — admin peut changer le statut directement -->
-            <div class="form-group">
-                <label class="form-label" for="edit-statut">Statut de l'offre</label>
-                <select id="edit-statut" name="statut" class="form-input">
-                    <option value="pending"  <?= $data['statut']==='pending' ?'selected':'' ?>>⏳ En attente</option>
-                    <option value="approved" <?= $data['statut']==='approved'?'selected':'' ?>>✅ Approuvée</option>
-                    <option value="rejected" <?= $data['statut']==='rejected'?'selected':'' ?>>❌ Rejetée</option>
-                </select>
-                <div style="font-size:.76rem; color:#475569; margin-top:.3rem;"><i class="fa-solid fa-circle-info"></i> L'admin peut changer le statut directement.</div>
-            </div>
-        </div>
-
-        <div style="display:flex; gap:1rem; align-items:center;">
-            <button type="submit" id="admin-save-btn" class="btn btn-primary" style="padding:.85rem 2.5rem;">
-                <i class="fa-solid fa-floppy-disk"></i> Sauvegarder
-            </button>
-            <a href="detail_job_admin.php?id=<?= $offre['id'] ?>" class="btn btn-outline">
-                <i class="fa-solid fa-eye"></i> Annuler
-            </a>
-        </div>
-    </form>
-
-</main>
+        </main>
+    </div>
 </body>
 </html>

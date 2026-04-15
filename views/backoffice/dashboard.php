@@ -1,6 +1,5 @@
 <?php
-// views/backoffice/dashboard.php — Admin: Tableau de bord
-
+// views/backoffice/dashboard.php — Admin: Tableau de bord synchronisé
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../Models/JobOffer.php';
 
@@ -37,20 +36,6 @@ if (!empty($searchTitre) || !empty($searchDate)) {
     $offres = $model->getAll();
 }
 
-// ── Export CSV admin ──────────────────────────────────────────────────
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $allOffres = $model->getAll();
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="admin_offres_' . date('Ymd_His') . '.csv"');
-    $out = fopen('php://output', 'w');
-    fprintf($out, chr(0xEF).chr(0xBB).chr(0xBF));
-    fputcsv($out, ['ID','Titre','Description','Compétences','Budget (DT)','Délai','Statut','Client ID','Date création'], ';');
-    foreach ($allOffres as $o) {
-        fputcsv($out, [$o['id'],$o['titre'],$o['description'],$o['competences'],$o['budget'],$o['delai'],$o['statut'],$o['client_id'],$o['date_creation']], ';');
-    }
-    fclose($out); exit;
-}
-
 // ── Stats ─────────────────────────────────────────────────────────────
 $totalAll      = $model->countAll();
 $totalPending  = $model->countByStatut('pending');
@@ -71,276 +56,278 @@ function statutBadge($s) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel — FreelaSkill Jobs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="admin.css">
+    <title>Administration | FreelaSkill</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="admin.css?v=<?= time() ?>">
+    <!-- PDF Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 </head>
-<body>
+<body class="page-anim">
+    
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
 
-<?php if ($success): ?>
-<div class="toast <?= $success === 'deleted' || $success === 'rejected' ? 'toast-error' : 'toast-success' ?>" id="admin-toast">
-    <?php if ($success === 'approved'): ?><i class="fa-solid fa-circle-check"></i> Offre approuvée !
-    <?php elseif ($success === 'rejected'): ?><i class="fa-solid fa-circle-xmark"></i> Offre rejetée.
-    <?php elseif ($success === 'deleted'): ?><i class="fa-solid fa-trash"></i> Offre supprimée.
-    <?php elseif ($success === 'added'): ?><i class="fa-solid fa-plus"></i> Offre ajoutée !
-    <?php elseif ($success === 'updated'): ?><i class="fa-solid fa-floppy-disk"></i> Modifications sauvegardées !
-    <?php endif; ?>
-</div>
-<script>setTimeout(()=>{const t=document.getElementById('admin-toast');if(t)t.style.opacity='0';},3500);</script>
-<?php endif; ?>
-
-<!-- ══ SIDEBAR ════════════════════════════════════════════════════ -->
-<aside class="sidebar animate-fade-up">
-    <div class="logo">
-        <i class="fa-solid fa-briefcase"></i>
-        Core<span>Panel</span>
-        <small>Admin Jobs v1.0</small>
-    </div>
-
-    <div class="nav-section-title">Navigation</div>
-    <a href="dashboard.php" class="nav-item active" id="nav-dashboard">
-        <i class="fa-solid fa-gauge-high"></i> Tableau de bord
-    </a>
-    <a href="dashboard.php?filtre=pending" class="nav-item" id="nav-pending">
-        <i class="fa-solid fa-hourglass-half"></i> En attente
-        <?php if ($totalPending > 0): ?>
-        <span style="margin-left:auto; background:rgba(245,158,11,0.2); color:#F59E0B; font-size:.65rem; padding:2px 7px; border-radius:var(--radius-full); font-weight:700;"><?= $totalPending ?></span>
-        <?php endif; ?>
-    </a>
-    <a href="dashboard.php?filtre=approved" class="nav-item" id="nav-approved">
-        <i class="fa-solid fa-circle-check"></i> Approuvées
-    </a>
-    <a href="dashboard.php?filtre=rejected" class="nav-item" id="nav-rejected">
-        <i class="fa-solid fa-circle-xmark"></i> Rejetées
-    </a>
-
-    <div class="nav-section-title" style="margin-top:.5rem;">Actions</div>
-    <a href="add_job_admin.php" class="nav-item" id="nav-add">
-        <i class="fa-solid fa-plus"></i> Ajouter une offre
-    </a>
-    <a href="dashboard.php?export=csv" class="nav-item" id="nav-export">
-        <i class="fa-solid fa-file-csv"></i> Exporter CSV
-    </a>
-
-    <div class="sidebar-footer">
-        <a href="../frontoffice/home.php" class="nav-item" id="nav-frontoffice" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-            <i class="fa-solid fa-globe"></i> Interface Client
-        </a>
-    </div>
-</aside>
-
-<!-- ══ MAIN PANEL ════════════════════════════════════════════════ -->
-<main class="main-panel">
-    <div style="position:absolute; top:-100px; right:-100px; width:500px; height:500px; background:radial-gradient(circle,rgba(59,130,246,0.08),transparent 60%); pointer-events:none;"></div>
-
-    <!-- TOPBAR -->
-    <div class="topbar animate-fade-up">
-        <div>
-            <h1 class="topbar-title">Gestion des <span>Offres Job</span></h1>
-            <p style="color:var(--text-muted); font-size:.82rem; margin-top:.2rem;">Modération, validation et gestion complète des offres freelance</p>
-        </div>
-        <div class="topbar-right">
-            <a href="dashboard.php?export=csv" id="topbar-export" class="btn btn-export">
-                <i class="fa-solid fa-file-csv"></i> Exporter CSV
-            </a>
-            <a href="add_job_admin.php" id="topbar-add" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Ajouter offre
-            </a>
-        </div>
-    </div>
-
-    <!-- STAT CARDS -->
-    <div class="metric-grid animate-fade-up delay-1">
-        <div class="metric-card">
-            <div class="metric-icon" style="background:rgba(59,130,246,0.1); color:var(--tech-blue);"><i class="fa-solid fa-briefcase"></i></div>
-            <div class="metric-label">Total offres</div>
-            <div class="metric-value"><?= $totalAll ?></div>
-            <div class="metric-sub"><i class="fa-solid fa-database"></i> Toutes les offres</div>
-        </div>
-        <div class="metric-card" style="border-color:rgba(245,158,11,0.2);">
-            <div class="metric-icon" style="background:rgba(245,158,11,0.1); color:#F59E0B;"><i class="fa-solid fa-hourglass-half"></i></div>
-            <div class="metric-label">En attente</div>
-            <div class="metric-value" style="color:#F59E0B;"><?= $totalPending ?></div>
-            <div class="metric-sub"><i class="fa-solid fa-triangle-exclamation" style="color:#F59E0B;"></i> Requiert attention</div>
-        </div>
-        <div class="metric-card" style="border-color:rgba(16,185,129,0.2);">
-            <div class="metric-icon" style="background:rgba(16,185,129,0.1); color:var(--tech-green);"><i class="fa-solid fa-circle-check"></i></div>
-            <div class="metric-label">Approuvées</div>
-            <div class="metric-value" style="color:var(--tech-green);"><?= $totalApproved ?></div>
-            <div class="metric-sub trend-up"><i class="fa-solid fa-arrow-trend-up"></i> Visibles freelancers</div>
-        </div>
-        <div class="metric-card" style="border-color:rgba(239,68,68,0.2);">
-            <div class="metric-icon" style="background:rgba(239,68,68,0.1); color:var(--tunisian-red);"><i class="fa-solid fa-circle-xmark"></i></div>
-            <div class="metric-label">Rejetées</div>
-            <div class="metric-value" style="color:var(--tunisian-red);"><?= $totalRejected ?></div>
-            <div class="metric-sub"><i class="fa-solid fa-ban"></i> Non publiées</div>
-        </div>
-    </div>
-
-    <!-- TABLE SECTION -->
-    <div class="admin-card animate-fade-up delay-2">
-
-        <div class="admin-card-header">
-            <div>
-                <div class="admin-card-title">Liste des offres d'emploi</div>
-                <div class="admin-card-sub">
-                    <?= count($offres) ?> offre<?= count($offres) > 1 ? 's' : '' ?> affichée<?= count($offres) > 1 ? 's' : '' ?>
-                </div>
+    <div class="admin-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
             </div>
+            
+            <nav class="admin-nav">
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Menu Principal</div>
+                
+                <a href="dashboard.php" class="admin-nav-item <?= empty($_GET['filtre']) || $_GET['filtre']==='all' ? 'active' : '' ?>">
+                    <i class="fa-solid fa-briefcase"></i> Gestion des Missions
+                </a>
 
-            <!-- Actions header -->
-            <div style="display:flex; align-items:center; gap:.75rem; flex-wrap:wrap;">
-                <!-- Search -->
-                <form method="GET" action="dashboard.php" style="display:flex; gap:.5rem; align-items:center;">
+                <div style="margin: 1.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Actions</div>
+                
+                <a href="add_job_admin.php" class="admin-nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Ajouter une Offre
+                </a>
+                
+                <button onclick="exportToPDF()" class="admin-nav-item" style="width: 100%; border: none; background: none; cursor: pointer; text-align: left;">
+                    <i class="fa-solid fa-file-pdf"></i> Télécharger PDF
+                </button>
+
+            </nav>
+            
+            <div style="padding: 1.5rem; border-top: 1px solid var(--border);">
+                <a href="#" class="admin-nav-item" style="color: var(--tunisian-red);">
+                    <i class="fa-solid fa-power-off"></i> Déconnexion
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="admin-main">
+            
+            <!-- TOPBAR -->
+            <header class="admin-topbar">
+                <form class="admin-search" method="GET">
                     <input type="hidden" name="filtre" value="<?= htmlspecialchars($filtre) ?>">
-                    <div class="admin-search">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" name="titre" id="admin-search-titre" placeholder="Rechercher par titre…" value="<?= htmlspecialchars($searchTitre) ?>">
-                    </div>
-                    <div class="admin-search" style="width:auto;">
-                        <i class="fa-solid fa-calendar"></i>
-                        <input type="date" name="date" id="admin-search-date" value="<?= htmlspecialchars($searchDate) ?>" style="color:<?= empty($searchDate)?'#334155':'white' ?>;">
-                    </div>
-                    <button type="submit" class="btn btn-outline" id="admin-search-btn"><i class="fa-solid fa-search"></i></button>
-                    <?php if (!empty($searchTitre)||!empty($searchDate)): ?>
-                    <a href="dashboard.php?filtre=<?= $filtre ?>" class="btn btn-outline"><i class="fa-solid fa-xmark"></i></a>
-                    <?php endif; ?>
+                    <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+                    <input type="text" name="titre" placeholder="Rechercher par titre..." value="<?= htmlspecialchars($searchTitre) ?>">
+                    <input type="date" name="date" value="<?= htmlspecialchars($searchDate) ?>" style="width: 140px; color: var(--text-muted); cursor: pointer;">
+                    <button type="submit" style="display:none;"></button>
                 </form>
-            </div>
-        </div>
+                
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn">
+                        <i class="fa-regular fa-bell"></i>
+                    </div>
+                    <div class="nav-avatar">AH</div>
+                </div>
+            </header>
 
-        <!-- FILTER TABS -->
-        <div style="padding:1rem 2rem; border-bottom:1px solid rgba(255,255,255,0.05);">
-            <div class="filter-tabs">
-                <a href="dashboard.php?filtre=all" class="filter-tab <?= $filtre==='all'?'active':'' ?>" id="tab-all">
-                    <i class="fa-solid fa-list"></i> Toutes <span class="tab-count"><?= $totalAll ?></span>
-                </a>
-                <a href="dashboard.php?filtre=pending" class="filter-tab <?= $filtre==='pending'?'active':'' ?>" id="tab-pending">
-                    <i class="fa-solid fa-clock"></i> En attente <span class="tab-count"><?= $totalPending ?></span>
-                </a>
-                <a href="dashboard.php?filtre=approved" class="filter-tab <?= $filtre==='approved'?'active':'' ?>" id="tab-approved">
-                    <i class="fa-solid fa-check"></i> Approuvées <span class="tab-count"><?= $totalApproved ?></span>
-                </a>
-                <a href="dashboard.php?filtre=rejected" class="filter-tab <?= $filtre==='rejected'?'active':'' ?>" id="tab-rejected">
-                    <i class="fa-solid fa-xmark"></i> Rejetées <span class="tab-count"><?= $totalRejected ?></span>
-                </a>
-            </div>
-        </div>
+            <!-- CONTENT -->
+            <div class="admin-content">
+                
+                <div class="admin-header-row">
+                    <div>
+                        <h1 class="admin-page-title">Gestion des <span>Missions</span></h1>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem;">
+                            Administrez les offres d'emploi et modérez les publications en temps réel.
+                        </p>
+                    </div>
+                    <div style="display: flex; gap: 1rem;">
+                        <a href="add_job_admin.php" class="btn btn-primary">
+                            <i class="fa-solid fa-plus"></i> Nouvelle Mission
+                        </a>
+                    </div>
+                </div>
 
-        <!-- TABLE -->
-        <div style="overflow-x:auto;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Titre</th>
-                        <th>Compétences</th>
-                        <th>Budget</th>
-                        <th>Délai</th>
-                        <th>Statut</th>
-                        <th>Date</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                <?php if (empty($offres)): ?>
-                    <tr class="empty-row">
-                        <td colspan="8">
-                            <i class="fa-solid fa-folder-open"></i>
-                            Aucune offre trouvée
-                        </td>
-                    </tr>
-                <?php else: ?>
-                    <?php foreach ($offres as $offre):
-                        $badge = statutBadge($offre['statut']);
-                        $comps = array_slice(array_map('trim', explode(',', $offre['competences'])), 0, 2);
-                    ?>
-                    <tr>
-                        <td style="font-family:'JetBrains Mono',monospace; color:var(--text-muted); font-size:.78rem;">#<?= $offre['id'] ?></td>
-                        <td>
-                            <div class="td-title"><?= htmlspecialchars($offre['titre']) ?></div>
-                            <div class="td-desc"><?= htmlspecialchars(mb_strimwidth($offre['description'], 0, 60, '…')) ?></div>
-                        </td>
-                        <td>
-                            <?php foreach ($comps as $c): ?>
-                            <span style="display:inline-block; background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.18); color:var(--tech-blue); padding:1px 7px; border-radius:var(--radius-full); font-size:.68rem; margin:1px;">
-                                <?= htmlspecialchars($c) ?>
-                            </span>
-                            <?php endforeach; ?>
-                        </td>
-                        <td style="font-family:'JetBrains Mono',monospace; font-weight:700; color:white;">
-                            <?= number_format($offre['budget'],0,',',' ') ?> <span style="font-size:.7rem; color:var(--text-muted); font-family:inherit;">DT</span>
-                        </td>
-                        <td style="color:var(--text-muted);"><?= htmlspecialchars($offre['delai']) ?></td>
-                        <td>
-                            <span class="statut-badge <?= $badge['class'] ?>">
-                                <i class="fa-solid <?= $badge['icon'] ?>" style="font-size:.6rem;"></i>
-                                <?= $badge['label'] ?>
-                            </span>
-                        </td>
-                        <td style="font-size:.78rem; color:var(--text-muted);"><?= date('d/m/Y', strtotime($offre['date_creation'])) ?></td>
-                        <td>
-                            <div class="action-group">
-                                <!-- Voir détail -->
-                                <a href="detail_job_admin.php?id=<?= $offre['id'] ?>" class="btn btn-outline" title="Voir détail" id="view-admin-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-eye"></i>
-                                </a>
-                                <!-- Modifier -->
-                                <a href="edit_job_admin.php?id=<?= $offre['id'] ?>" class="btn btn-edit" title="Modifier" id="edit-admin-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-pen"></i>
-                                </a>
-                                <?php if ($offre['statut'] === 'pending'): ?>
-                                <!-- Approuver -->
-                                <a href="dashboard.php?action=approve&id=<?= $offre['id'] ?>" class="btn btn-approve" title="Approuver" id="approve-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-check"></i>
-                                </a>
-                                <!-- Rejeter -->
-                                <a href="dashboard.php?action=reject&id=<?= $offre['id'] ?>" class="btn btn-reject" title="Rejeter" id="reject-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-xmark"></i>
-                                </a>
-                                <?php elseif ($offre['statut'] === 'approved'): ?>
-                                <a href="dashboard.php?action=reject&id=<?= $offre['id'] ?>" class="btn btn-reject" title="Désapprouver" id="disapprove-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-ban"></i>
-                                </a>
-                                <?php elseif ($offre['statut'] === 'rejected'): ?>
-                                <a href="dashboard.php?action=approve&id=<?= $offre['id'] ?>" class="btn btn-approve" title="Ré-approuver" id="reapprove-<?= $offre['id'] ?>">
-                                    <i class="fa-solid fa-check"></i>
-                                </a>
+                <!-- QUICK FILTER TABS -->
+                <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+                    <a href="dashboard.php?filtre=all" class="btn <?= $filtre==='all'?'btn-primary':'btn-outline' ?>" style="border-radius: 8px; font-size: 0.8rem;">
+                        Tous
+                    </a>
+                    <a href="dashboard.php?filtre=pending" class="btn <?= $filtre==='pending'?'btn-primary':'btn-outline' ?>" style="border-radius: 8px; font-size: 0.8rem; display: flex; gap: 8px;">
+                        Modération 
+                        <span style="background: rgba(0,0,0,0.2); padding: 1px 6px; border-radius: 4px;"><?= $totalPending ?></span>
+                    </a>
+                    <a href="dashboard.php?filtre=approved" class="btn <?= $filtre==='approved'?'btn-primary':'btn-outline' ?>" style="border-radius: 8px; font-size: 0.8rem;">
+                        Approuvées
+                    </a>
+                    <a href="dashboard.php?filtre=rejected" class="btn <?= $filtre==='rejected'?'btn-primary':'btn-outline' ?>" style="border-radius: 8px; font-size: 0.8rem;">
+                        Rejetées
+                    </a>
+                </div>
+
+                <!-- METRICS -->
+                <div class="admin-grid-4">
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Total Missions</span>
+                            <div class="stat-card-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalAll ?></div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-database"></i> Base de données active
+                        </div>
+                    </div>
+
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>En attente</span>
+                            <div class="stat-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalPending ?></div>
+                        <div class="stat-card-trend trend-down">
+                            Requiert votre attention
+                        </div>
+                    </div>
+
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Approuvées</span>
+                            <div class="stat-card-icon" style="color: var(--tech-green); background: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-check-double"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalApproved ?></div>
+                        <div class="stat-card-trend trend-up">
+                            Visibles par les freelancers
+                        </div>
+                    </div>
+
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Rejetées</span>
+                            <div class="stat-card-icon" style="color: var(--tunisian-red); background: rgba(239, 68, 68, 0.1);"><i class="fa-solid fa-ban"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalRejected ?></div>
+                        <div class="stat-card-trend">
+                            Archive des refus
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABLE CARD -->
+                <div class="glass-card" style="padding: 0; overflow: hidden;">
+                    <div style="padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-size: 1.1rem; color: white; display: flex; align-items: center; gap: 10px;">
+                            <i class="fa-solid fa-list-ul" style="color: var(--tech-blue);"></i>
+                            Registre des Missions
+                        </h3>
+                        <span style="font-size: 0.8rem; color: var(--text-muted);"><?= count($offres) ?> items trouvés</span>
+                    </div>
+
+                    <div style="overflow-x: auto;">
+                        <table class="data-table" id="jobs-table">
+                            <thead>
+                                <tr>
+                                    <th>Mission / Description</th>
+                                    <th>Budget</th>
+                                    <th>Délai</th>
+                                    <th>Statut</th>
+                                    <th>Date</th>
+                                    <th style="text-align: right;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($offres)): ?>
+                                    <tr><td colspan="6" style="text-align: center; color: var(--text-muted); padding: 4rem;">Aucune donnée disponible.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($offres as $o): 
+                                        $badge = statutBadge($o['statut']);
+                                    ?>
+                                    <tr>
+                                        <td style="max-width: 300px;">
+                                            <div style="font-weight: 700; color: white; margin-bottom: 4px;"><?= htmlspecialchars($o['titre']) ?></div>
+                                            <div style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><?= htmlspecialchars($o['description']) ?></div>
+                                        </td>
+                                        <td>
+                                            <div style="font-family: 'JetBrains Mono'; font-weight: 700; color: var(--tech-blue);"><?= number_format($o['budget'], 0, ',', ' ') ?> DT</div>
+                                        </td>
+                                        <td style="font-size: 0.85rem;"><?= htmlspecialchars($o['delai']) ?></td>
+                                        <td>
+                                            <span class="statut-badge <?= $badge['class'] ?>">
+                                                <i class="fa-solid <?= $badge['icon'] ?>"></i> <?= $badge['label'] ?>
+                                            </span>
+                                        </td>
+                                        <td style="font-size: 0.8rem; color: var(--text-muted);"><?= date('d/m/Y', strtotime($o['date_creation'])) ?></td>
+                                        <td style="text-align: right;">
+                                            <div style="display: flex; gap: 0.5rem; justify-content: flex-end;">
+                                                <a href="detail_job_admin.php?id=<?= $o['id'] ?>" class="btn btn-outline" style="padding: 0.4rem 0.6rem;" title="Détails"><i class="fa-solid fa-eye"></i></a>
+                                                
+                                                <?php if ($o['statut'] === 'pending'): ?>
+                                                    <a href="?action=approve&id=<?= $o['id'] ?>" class="btn btn-approve" style="padding: 0.4rem 0.6rem;" title="Approuver"><i class="fa-solid fa-check"></i></a>
+                                                    <a href="?action=reject&id=<?= $o['id'] ?>" class="btn btn-reject" style="padding: 0.4rem 0.6rem;" title="Rejeter"><i class="fa-solid fa-x"></i></a>
+                                                <?php else: ?>
+                                                    <a href="edit_job_admin.php?id=<?= $o['id'] ?>" class="btn btn-edit" style="padding: 0.4rem 0.6rem;" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+                                                    <a href="?action=delete&id=<?= $o['id'] ?>" class="btn btn-danger" style="padding: 0.4rem 0.6rem;" onclick="return confirm('Confirmer la suppression ?')" title="Supprimer"><i class="fa-solid fa-trash"></i></a>
+                                                <?php endif; ?>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    <?php endforeach; ?>
                                 <?php endif; ?>
-                                <!-- Supprimer -->
-                                <a href="dashboard.php?action=delete&id=<?= $offre['id'] ?>"
-                                   class="btn btn-danger js-admin-delete"
-                                   title="Supprimer"
-                                   id="delete-admin-<?= $offre['id'] ?>"
-                                   data-title="<?= htmlspecialchars($offre['titre']) ?>">
-                                    <i class="fa-solid fa-trash"></i>
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php endif; ?>
-                </tbody>
-            </table>
-        </div>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-    </div><!-- fin admin-card -->
+            </div>
+        </main>
+    </div>
 
-</main>
+    <!-- TOASTS -->
+    <?php if ($success): ?>
+    <div class="toast <?= ($success === 'deleted' || $success === 'rejected') ? 'toast-error' : 'toast-success' ?>" id="toast">
+        <i class="fa-solid <?= ($success === 'deleted' || $success === 'rejected') ? 'fa-triangle-exclamation' : 'fa-circle-check' ?>"></i>
+        Action "<?= ucfirst($success) ?>" réussie !
+    </div>
+    <script>setTimeout(()=>{const t=document.getElementById('toast'); if(t) t.style.opacity='0';}, 3500);</script>
+    <?php endif; ?>
 
-<script>
-// Confirmation suppression
-document.querySelectorAll('.js-admin-delete').forEach(btn => {
-    btn.addEventListener('click', e => {
-        const titre = btn.dataset.title || 'cette offre';
-        if (!confirm(`⚠️ Supprimer l'offre "${titre}" ?\n\nCette action est irréversible.`)) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
+    <!-- DATA FOR EXPORT -->
+    <?php $allOffres = $model->getAll(); ?>
+    <script>
+    const allOffresData = <?= json_encode($allOffres) ?>;
+
+    async function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        const headers = [["ID", "Mission", "Budget", "Délai", "Statut", "Création"]];
+        const rows = allOffresData.map(o => [
+            o.id,
+            o.titre,
+            o.budget + " DT",
+            o.delai,
+            o.statut === 'approved' ? 'Approuvée' : (o.statut === 'rejected' ? 'Rejetée' : 'En attente'),
+            o.date_creation
+        ]);
+
+        doc.autoTable({
+            head: headers,
+            body: rows,
+            startY: 10,
+            theme: 'grid',
+            headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
+            styles: { fontSize: 8, cellPadding: 3, textColor: [0, 0, 0] },
+            alternateRowStyles: { fillColor: [245, 245, 245] }
+        });
+
+        // Génération & Téléchargement
+        const pdfBlob = doc.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Rapport_Complet_Offres_FreelaSkill.pdf');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+    </script>
 
 </body>
 </html>

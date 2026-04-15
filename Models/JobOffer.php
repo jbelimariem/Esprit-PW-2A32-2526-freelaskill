@@ -74,6 +74,22 @@ class JobOffer {
     }
 
     // ----------------------------------------------------------------
+    // Recherche unifiée (titre OU date)
+    // ----------------------------------------------------------------
+    public function searchUnified($q) {
+        if (empty($q)) return $this->getAll();
+
+        $sql = "SELECT * FROM job_offer 
+                WHERE (titre LIKE ?) 
+                OR (DATE(date_creation) = ?)
+                ORDER BY date_creation DESC";
+        $stmt = $this->pdo->prepare($sql);
+        // On passe 'q' pour le titre (avec %) et pour la date (direct)
+        $stmt->execute(['%'.$q.'%', $q]);
+        return $stmt->fetchAll();
+    }
+
+    // ----------------------------------------------------------------
     // Créer une offre (statut = pending par défaut)
     // ----------------------------------------------------------------
     public function create($data) {

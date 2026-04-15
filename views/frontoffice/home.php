@@ -7,13 +7,14 @@ require_once __DIR__ . '/../../Models/JobOffer.php';
 define('BASE_URL', '/projet22/');
 
 $model      = new JobOffer();
-$titre      = trim($_GET['titre'] ?? '');
-$date       = trim($_GET['date']  ?? '');
+$q          = trim($_GET['q'] ?? '');
 $success    = $_GET['success']    ?? '';
 
+// ── Export logic moved to client-side (window.print)
+
 // Recherche ou liste complète
-if (!empty($titre) || !empty($date)) {
-    $offres = $model->search($titre, $date);
+if (!empty($q)) {
+    $offres = $model->searchUnified($q);
 } else {
     $offres = $model->getAll();
 }
@@ -45,7 +46,9 @@ function statutBadge($statut) {
     <meta name="description" content="Gérez vos offres d'emploi sur la plateforme FreelaSkill. Publiez, modifiez et suivez vos offres.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=<?= time() ?>">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
         .job-grid {
             display: grid;
@@ -177,105 +180,65 @@ function statutBadge($statut) {
 <!-- NAVBAR -->
 <nav>
     <div class="logo">
-        <i class="fa-solid fa-briefcase"></i>
+        <i class="fa-solid fa-shapes"></i>
         Freela<span>Skill</span>
     </div>
     <ul class="nav-links">
-        <li><a href="#" class="active">Offres Job</a></li>
-        <li><a href="../../views/backoffice/dashboard.php">Admin Panel</a></li>
+        <li><a href="home.php">Accueil</a></li>
+        <li><a href="home.php" class="active">job</a></li>
+        <li><a href="#">Marketplace</a></li>
+        <li><a href="#">Freelancers</a></li>
+        <li><a href="#">Blog</a></li>
     </ul>
     <div class="nav-right">
-        <a href="add_job.php" class="cart-btn" id="btn-publish-nav">
-            <i class="fa-solid fa-plus"></i> Publier une offre
-        </a>
         <div class="nav-avatar">CL</div>
     </div>
 </nav>
 
 <!-- HERO BANNER -->
-<section class="hero-banner">
+<section class="hero-banner" style="padding: 2.5rem 1rem; min-height: auto;">
     <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Espace Client</div>
-        <h1 class="hero-title">Vos offres<br>d'emploi <span>freelance</span></h1>
-        <p class="hero-sub">Publiez, gérez et suivez vos offres de mission. Les freelancers peuvent postuler dès validation.</p>
+    <div class="hero-content" style="max-width: 900px; margin: 0 auto; text-align: center;">
+        
+        <h1 class="hero-title">Trouvez vos prochaines <span>missions</span> en un clic</h1>
+        <p class="hero-sub">Explorez les meilleures offres d'emploi freelance ou publiez vos propres besoins pour attirer des talents qualifiés.</p>
 
         <!-- SEARCH FORM -->
-        <form method="GET" action="home.php" style="display:flex; flex-direction:column; gap:.75rem; max-width:700px;">
-            <div class="search-container" style="flex-direction:column; gap:.75rem;">
-                <div style="display:flex; gap:.75rem; width:100%;">
+        <div style="display:flex; justify-content:center; width:100%; margin-top:2.5rem;">
+            <form method="GET" action="home.php" style="width:100%; max-width:700px;">
+                <div class="search-container" style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: var(--radius-full); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px;">
                     <div class="search-wrap" style="flex:1;">
                         <i class="fa-solid fa-magnifying-glass"></i>
-                        <input type="text" name="titre" id="search-titre" value="<?= htmlspecialchars($titre) ?>" placeholder="Rechercher par titre d'offre…">
-                    </div>
-                    <div class="search-wrap" style="width:200px;">
-                        <i class="fa-solid fa-calendar"></i>
-                        <input type="date" name="date" id="search-date" value="<?= htmlspecialchars($date) ?>" style="color:<?= empty($date) ? '#334155' : 'white' ?>;">
+                        <input type="text" name="q" id="search-q" value="<?= htmlspecialchars($q) ?>" placeholder="Rechercher par titre ou date (AAAA-MM-JJ)..." style="width:100%;">
                     </div>
                     <button type="submit" class="btn-search" id="btn-search">
-                        <i class="fa-solid fa-search"></i> Rechercher
+                        <i class="fa-solid fa-magnifying-glass"></i> Rechercher
                     </button>
-                    <?php if (!empty($titre) || !empty($date)): ?>
-                    <a href="home.php" class="btn-search" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);">
+                    <?php if (!empty($q)): ?>
+                    <a href="home.php" class="btn-search" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width: 50px; padding: 0; justify-content: center;">
                         <i class="fa-solid fa-xmark"></i>
                     </a>
                     <?php endif; ?>
                 </div>
-            </div>
-            <div style="display:flex; align-items:center; gap:.75rem;">
-                <span style="color:#475569; font-size:.82rem;">
-                    Besoin d'un talent ? <strong style="color:#94A3B8; font-weight:500;">Publiez votre offre gratuitement</strong>
-                </span>
-                <a href="add_job.php" id="btn-publish" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap; text-decoration:none;">
-                    + Publier une offre
-                </a>
-            </div>
-        </form>
-    </div>
+            </form>
+        </div>
+    
 </section>
 
 <!-- PAGE BODY -->
-<div class="page-body" style="grid-template-columns: 240px 1fr;">
+<div class="page-body" style="display: block; max-width: 1100px; margin: 0 auto; padding: 2rem 1rem;">
 
-    <!-- SIDEBAR FILTRES -->
-    <aside class="filters">
-        <div class="filter-section">
-            <div class="filter-title">Statut</div>
-            <div class="filter-option <?= (empty($titre) && empty($date)) ? 'active' : '' ?>" onclick="window.location='home.php'">
-                <span>Toutes les offres</span>
-                <span class="filter-count"><?= $model->countAll() ?></span>
-                <span class="filter-dot"></span>
-            </div>
-            <div class="filter-option" onclick="window.location='home.php?statut=pending'">
-                <span>En attente</span>
-                <span class="filter-count"><?= $model->countByStatut('pending') ?></span>
-                <span class="filter-dot"></span>
-            </div>
-            <div class="filter-option" onclick="window.location='home.php?statut=approved'">
-                <span>Approuvées</span>
-                <span class="filter-count"><?= $model->countByStatut('approved') ?></span>
-                <span class="filter-dot"></span>
-            </div>
-            <div class="filter-option" onclick="window.location='home.php?statut=rejected'">
-                <span>Rejetées</span>
-                <span class="filter-count"><?= $model->countByStatut('rejected') ?></span>
-                <span class="filter-dot"></span>
-            </div>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="filter-section">
-            <div class="filter-title">Actions rapides</div>
-            <a href="add_job.php" id="sidebar-add" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .85rem; border-radius:var(--radius-sm); background:rgba(59,130,246,0.1); color:var(--tech-blue); font-size:.88rem; font-weight:600; text-decoration:none; margin-bottom:.5rem; border:1px solid rgba(59,130,246,0.2); transition:var(--transition);">
+    <!-- HORIZONTAL TABS FILTERS -->
+    <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="add_job.php" style="display: flex; align-items: center; gap: 6px; background: var(--tech-blue); color: white; padding: 10px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; text-decoration: none; transition: var(--transition); box-shadow: var(--neon-blue);">
                 <i class="fa-solid fa-plus"></i> Nouvelle offre
             </a>
-            <a href="home.php?export=csv" id="btn-export" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .85rem; border-radius:var(--radius-sm); background:rgba(16,185,129,0.08); color:var(--tech-green); font-size:.88rem; font-weight:600; text-decoration:none; border:1px solid rgba(16,185,129,0.2); transition:var(--transition);">
-                <i class="fa-solid fa-file-csv"></i> Exporter CSV
-            </a>
+            <button id="download-pdf-home" style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; text-decoration: none; cursor:pointer;">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+            </button>
         </div>
-    </aside>
+    </div>
 
     <!-- OFFRES AREA -->
     <div class="products-area">
@@ -284,20 +247,14 @@ function statutBadge($statut) {
         <div class="products-toolbar">
             <p class="result-count">
                 <strong><?= $totalCount ?> offre<?= $totalCount > 1 ? 's' : '' ?></strong>
-                <?= (!empty($titre) || !empty($date)) ? 'trouvée(s)' : 'au total' ?>
+                <?= !empty($q) ? 'trouvée(s)' : 'au total' ?>
             </p>
             <div class="toolbar-right">
-                <?php if (!empty($titre) || !empty($date)): ?>
+                <?php if (!empty($q)): ?>
                 <div class="chip">
-                    <?= htmlspecialchars($titre ?: $date) ?> <button onclick="window.location='home.php'">✕</button>
+                    Résultats pour "<?= htmlspecialchars($q) ?>" <button onclick="window.location='home.php'">✕</button>
                 </div>
                 <?php endif; ?>
-                <a href="add_job.php" id="toolbar-add" class="btn-search" style="font-size:.82rem; padding:.55rem 1.2rem;">
-                    <i class="fa-solid fa-plus"></i> Nouvelle offre
-                </a>
-                <a href="home.php?export=csv" id="toolbar-export" class="btn-search" style="font-size:.82rem; padding:.55rem 1.2rem; background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:var(--tech-green);">
-                    <i class="fa-solid fa-file-csv"></i> Exporter
-                </a>
             </div>
         </div>
 
@@ -307,10 +264,7 @@ function statutBadge($statut) {
             <div class="empty-state">
                 <i class="fa-solid fa-folder-open"></i>
                 <h3 style="color:white; margin-bottom:.5rem;">Aucune offre trouvée</h3>
-                <p style="margin-bottom:1.5rem;">Publiez votre première offre pour attirer les meilleurs freelancers.</p>
-                <a href="add_job.php" class="btn-search">
-                    <i class="fa-solid fa-plus"></i> Publier une offre
-                </a>
+                <p style="margin-bottom:1.5rem;">Publiez votre première offre via le bouton en haut de la page pour attirer les meilleurs freelancers.</p>
             </div>
             <?php else: ?>
             <?php foreach ($offres as $offre): 
@@ -320,10 +274,7 @@ function statutBadge($statut) {
             <div class="job-card">
                 <div class="job-card-header">
                     <div class="job-icon">💼</div>
-                    <span class="job-statut-badge" style="color:<?= $badge['color'] ?>; background:<?= $badge['bg'] ?>; border-color:<?= $badge['border'] ?>;">
-                        <span style="width:6px;height:6px;border-radius:50%;background:<?= $badge['color'] ?>;display:inline-block;"></span>
-                        <?= $badge['label'] ?>
-                    </span>
+                    <div class="job-badge" style="background:rgba(59,130,246,0.1); color:var(--tech-blue); padding:4px 10px; border-radius:var(--radius-full); font-size:0.65rem; font-weight:700; text-transform:uppercase;">Job Offer</div>
                 </div>
                 <div class="job-card-body">
                     <div class="job-titre"><?= htmlspecialchars($offre['titre']) ?></div>
@@ -360,20 +311,98 @@ function statutBadge($statut) {
     </div>
 </div>
 
-<script>
-// Export CSV
-<?php if (isset($_GET['export']) && $_GET['export'] === 'csv'): ?>
-window.location.href = '../../controllers/export_csv.php';
-<?php endif; ?>
+<!-- CUSTOM MODAL -->
+<div class="modal-overlay" id="delete-modal">
+    <div class="modal-card">
+        <div class="modal-title">
+            <i class="fa-solid fa-circle-exclamation" style="color:var(--tunisian-red);"></i>
+            Confirmation
+        </div>
+        <p class="modal-text" id="modal-desc">Voulez-vous vraiment supprimer cette offre ? Cette action est irréversible.</p>
+        <div class="modal-actions">
+            <button class="btn-modal btn-modal-cancel" id="confirm-cancel">Annuler</button>
+            <button class="btn-modal btn-modal-confirm" id="confirm-ok">Supprimer</button>
+        </div>
+    </div>
+</div>
 
-// Confirmation suppression
+<script>
+// Confirmation suppression personnalisée
+const deleteModal = document.getElementById('delete-modal');
+const confirmOk = document.getElementById('confirm-ok');
+const confirmCancel = document.getElementById('confirm-cancel');
+const modalDesc = document.getElementById('modal-desc');
+let deleteUrl = '';
+
 document.querySelectorAll('.js-delete').forEach(btn => {
     btn.addEventListener('click', e => {
+        e.preventDefault();
         const titre = btn.dataset.title || 'cette offre';
-        if (!confirm(`Supprimer l'offre "${titre}" ? Cette action est irréversible.`)) {
-            e.preventDefault();
-        }
+        deleteUrl = btn.href;
+        modalDesc.innerHTML = `Voulez-vous vraiment supprimer l'offre <strong style="color:white;">"${titre}"</strong> ? Cette action est irréversible.`;
+        deleteModal.classList.add('active');
     });
+});
+
+confirmCancel.addEventListener('click', () => {
+    deleteModal.classList.remove('active');
+});
+
+confirmOk.addEventListener('click', () => {
+    if (deleteUrl) window.location.href = deleteUrl;
+});
+
+// DATA FOR FULL EXPORT
+<?php $allOffres = $model->getAll(); ?>
+const allJobsData = <?= json_encode($allOffres) ?>;
+
+// PDF Direct Download (Professional Table Mode)
+document.addEventListener('DOMContentLoaded', function() {
+    const btnPdf = document.getElementById('download-pdf-home');
+    if (btnPdf) {
+        btnPdf.addEventListener('click', async function() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            btnPdf.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Génération...';
+
+            const headers = [["Mission", "Budget", "Délai", "Statut", "Date"]];
+            const rows = allJobsData.map(o => [
+                o.titre,
+                o.budget + " DT",
+                o.delai,
+                o.statut === 'approved' ? 'Approuvée' : (o.statut === 'rejected' ? 'Rejetée' : 'En attente'),
+                o.date_creation
+            ]);
+
+            doc.autoTable({
+                head: headers,
+                body: rows,
+                startY: 10,
+                theme: 'grid',
+                headStyles: { fillColor: [0, 0, 0], textColor: [255, 255, 255] },
+                styles: { fontSize: 8, textColor: [0, 0, 0] },
+                alternateRowStyles: { fillColor: [245, 245, 245] }
+            });
+
+            const pdfBlob = doc.output('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', 'Mes_Offres_FreelaSkill.pdf');
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            
+            btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Export PDF';
+        });
+    }
+});
+
+// Fermer modal en cliquant sur l'overlay
+deleteModal.addEventListener('click', (e) => {
+    if (e.target === deleteModal) deleteModal.classList.remove('active');
 });
 
 // Filter options click
@@ -384,23 +413,6 @@ document.querySelectorAll('.filter-option').forEach(opt => {
     });
 });
 </script>
-
-<?php
-// Export CSV inline
-if (isset($_GET['export']) && $_GET['export'] === 'csv') {
-    $allOffres = $model->getAll();
-    header('Content-Type: text/csv; charset=utf-8');
-    header('Content-Disposition: attachment; filename="mes_offres_' . date('Ymd_His') . '.csv"');
-    $output = fopen('php://output', 'w');
-    fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
-    fputcsv($output, ['ID','Titre','Compétences','Budget (DT)','Délai','Statut','Date de création'], ';');
-    foreach ($allOffres as $o) {
-        fputcsv($output, [$o['id'],$o['titre'],$o['competences'],$o['budget'],$o['delai'],$o['statut'],$o['date_creation']], ';');
-    }
-    fclose($output);
-    exit;
-}
-?>
 
 </body>
 </html>

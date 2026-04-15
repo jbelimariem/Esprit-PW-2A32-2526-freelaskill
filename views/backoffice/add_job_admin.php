@@ -1,6 +1,5 @@
 <?php
 // views/backoffice/add_job_admin.php — Admin: Ajouter une offre
-
 require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../Models/JobOffer.php';
 
@@ -18,7 +17,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'client_id'   => 1
     ];
 
-    // Validation
     if (empty($data['titre']))                    { $errors['titre']       = "Le titre est obligatoire."; }
     elseif (strlen($data['titre']) < 5)           { $errors['titre']       = "Min. 5 caractères."; }
     elseif (strlen($data['titre']) > 255)         { $errors['titre']       = "Max. 255 caractères."; }
@@ -28,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($data['budget']) || !is_numeric($data['budget'])) { $errors['budget'] = "Budget numérique requis."; }
     elseif ((float)$data['budget'] <= 0)          { $errors['budget']      = "Budget > 0 requis."; }
     if (empty($data['delai']))                    { $errors['delai']       = "Champ obligatoire."; }
-    if (!in_array($data['statut'], ['pending','approved','rejected'])) { $data['statut'] = 'pending'; }
 
     if (empty($errors)) {
         $model    = new JobOffer();
@@ -43,160 +40,132 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter une offre — Admin</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="admin.css">
+    <title>Ajouter une mission | Admin</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="admin.css?v=<?= time() ?>">
 </head>
-<body>
+<body class="page-anim">
+    
+    <div class="hero-glow"></div>
+    <div class="hero-glow-2"></div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar">
-    <div class="logo">
-        <i class="fa-solid fa-briefcase"></i>
-        Core<span>Panel</span>
-        <small>Admin Jobs v1.0</small>
-    </div>
-    <div class="nav-section-title">Navigation</div>
-    <a href="dashboard.php" class="nav-item" id="nav-dashboard-back"><i class="fa-solid fa-gauge-high"></i> Tableau de bord</a>
-    <a href="add_job_admin.php" class="nav-item active" id="nav-add-active"><i class="fa-solid fa-plus"></i> Ajouter une offre</a>
-    <div class="sidebar-footer">
-        <a href="../frontoffice/home.php" class="nav-item" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07);">
-            <i class="fa-solid fa-globe"></i> Interface Client
-        </a>
-    </div>
-</aside>
-
-<main class="main-panel">
-
-    <div class="topbar">
-        <div>
-            <h1 class="topbar-title">Ajouter une <span>offre</span></h1>
-            <p style="color:var(--text-muted); font-size:.82rem; margin-top:.2rem;">Créez une nouvelle offre d'emploi freelance</p>
-        </div>
-        <a href="dashboard.php" class="btn btn-outline" id="back-to-dashboard">
-            <i class="fa-solid fa-arrow-left"></i> Retour au dashboard
-        </a>
-    </div>
-
-    <?php if (!empty($errors)): ?>
-    <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; color:var(--tunisian-red); font-size:.88rem;">
-        <i class="fa-solid fa-triangle-exclamation"></i>
-        <strong style="margin-left:.4rem;">Erreurs à corriger :</strong>
-        <ul style="margin-top:.5rem; padding-left:1.5rem;">
-            <?php foreach ($errors as $e): ?><li><?= htmlspecialchars($e) ?></li><?php endforeach; ?>
-        </ul>
-    </div>
-    <?php endif; ?>
-
-    <form id="admin-add-form" action="add_job_admin.php" method="POST" novalidate>
-        <div class="form-section animate-fade-up">
-            <h3 style="color:white; font-size:1rem; margin-bottom:1.25rem; padding-bottom:.75rem; border-bottom:1px solid rgba(255,255,255,0.06);">
-                <i class="fa-solid fa-pen-to-square" style="color:var(--tech-blue);"></i> Informations de l'offre
-            </h3>
-
-            <!-- Titre -->
-            <div class="form-group">
-                <label class="form-label" for="admin-titre">Titre <span>*</span></label>
-                <input id="admin-titre" name="titre" type="text" class="form-input <?= isset($errors['titre'])?'error':'' ?>"
-                       placeholder="Ex. Développeur Full Stack pour app e-commerce"
-                       value="<?= htmlspecialchars($data['titre']) ?>" minlength="5" maxlength="255" required>
-                <?php if (isset($errors['titre'])): ?>
-                <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['titre']) ?></div>
-                <?php endif; ?>
+    <div class="admin-layout">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
             </div>
+            
+            <nav class="admin-nav">
+                <div style="margin: 0.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Menu Principal</div>
+                <a href="dashboard.php" class="admin-nav-item">
+                    <i class="fa-solid fa-briefcase"></i> Gestion des Missions
+                </a>
 
-            <div class="form-grid-2">
-                <!-- Budget -->
-                <div class="form-group">
-                    <label class="form-label" for="admin-budget">Budget (DT) <span>*</span></label>
-                    <input id="admin-budget" name="budget" type="number" min="1" step="0.01"
-                           class="form-input <?= isset($errors['budget'])?'error':'' ?>"
-                           placeholder="Ex. 2500"
-                           value="<?= htmlspecialchars($data['budget']) ?>" required>
-                    <?php if (isset($errors['budget'])): ?>
-                    <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['budget']) ?></div>
-                    <?php endif; ?>
+                <div style="margin: 1.5rem 0 0.5rem 1rem; font-size: 0.7rem; text-transform: uppercase; color: #475569; font-weight: 700; letter-spacing: 1px;">Actions</div>
+                <a href="add_job_admin.php" class="admin-nav-item active">
+                    <i class="fa-solid fa-plus-circle"></i> Ajouter une Offre
+                </a>
+
+            </nav>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <main class="admin-main">
+            <!-- TOPBAR -->
+            <header class="admin-topbar">
+                <div style="color: var(--text-muted); font-size: 0.9rem;">
+                    Back-office / Missions / <span style="color: white;">Ajouter</span>
+                </div>
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn"><i class="fa-regular fa-bell"></i></div>
+                    <div class="nav-avatar">AH</div>
+                </div>
+            </header>
+
+            <!-- CONTENT -->
+            <div class="admin-content" style="max-width: 900px;">
+                <div class="admin-header-row">
+                    <div>
+                        <h1 class="admin-page-title">Créer une <span>Nouvelle Mission</span></h1>
+                        <p style="color: var(--text-muted); margin-top: 0.5rem;">Remplissez les détails ci-dessous pour publier une offre.</p>
+                    </div>
                 </div>
 
-                <!-- Délai -->
-                <div class="form-group">
-                    <label class="form-label" for="admin-delai">Délai <span>*</span></label>
-                    <select id="admin-delai" name="delai" class="form-input <?= isset($errors['delai'])?'error':'' ?>" required>
-                        <option value="">Sélectionnez</option>
-                        <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois","Plus de 6 mois"] as $d): ?>
-                        <option value="<?= $d ?>" <?= $data['delai']===$d?'selected':'' ?>><?= $d ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                    <?php if (isset($errors['delai'])): ?>
-                    <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['delai']) ?></div>
-                    <?php endif; ?>
+                <div class="glass-card">
+                    <form action="add_job_admin.php" method="POST" id="add-form">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                            <!-- Titre -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Titre de la mission</label>
+                                <input type="text" name="titre" value="<?= htmlspecialchars($data['titre']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;" 
+                                       placeholder="Ex: Développeur React Expert">
+                                <?php if(isset($errors['titre'])): ?><small style="color: var(--tunisian-red);"><?= $errors['titre'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Budget -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Budget (DT)</label>
+                                <input type="number" name="budget" value="<?= htmlspecialchars($data['budget']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                <?php if(isset($errors['budget'])): ?><small style="color: var(--tunisian-red);"><?= $errors['budget'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Délai -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Délai estimé</label>
+                                <select name="delai" style="width: 100%; background: rgba(2,6,23,0.9); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                    <option value="">Sélectionnez</option>
+                                    <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois"] as $d): ?>
+                                        <option value="<?= $d ?>" <?= $data['delai']===$d?'selected':'' ?>><?= $d ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if(isset($errors['delai'])): ?><small style="color: var(--tunisian-red);"><?= $errors['delai'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Compétences -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Compétences (virgules)</label>
+                                <input type="text" name="competences" value="<?= htmlspecialchars($data['competences']) ?>" 
+                                       style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;" 
+                                       placeholder="PHP, MySQL, Design...">
+                                <?php if(isset($errors['competences'])): ?><small style="color: var(--tunisian-red);"><?= $errors['competences'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Description -->
+                            <div style="grid-column: span 2;">
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Description</label>
+                                <textarea name="description" rows="5" 
+                                          style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;"><?= htmlspecialchars($data['description']) ?></textarea>
+                                <?php if(isset($errors['description'])): ?><small style="color: var(--tunisian-red);"><?= $errors['description'] ?></small><?php endif; ?>
+                            </div>
+
+                            <!-- Statut -->
+                            <div>
+                                <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Statut initial</label>
+                                <select name="statut" style="width: 100%; background: rgba(2,6,23,0.9); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
+                                    <option value="pending" <?= $data['statut']==='pending'?'selected':'' ?>>En attente</option>
+                                    <option value="approved" <?= $data['statut']==='approved'?'selected':'' ?>>Approuvée</option>
+                                    <option value="rejected" <?= $data['statut']==='rejected'?'selected':'' ?>>Rejetée</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                            <button type="submit" class="btn btn-primary">Publier l'offre</button>
+                            <a href="dashboard.php" class="btn btn-outline">Annuler</a>
+                        </div>
+                    </form>
                 </div>
             </div>
-
-            <!-- Compétences -->
-            <div class="form-group">
-                <label class="form-label" for="admin-competences">Compétences requises <span>*</span></label>
-                <input id="admin-competences" name="competences" type="text"
-                       class="form-input <?= isset($errors['competences'])?'error':'' ?>"
-                       placeholder="Ex. PHP, MySQL, React.js (séparées par virgules)"
-                       value="<?= htmlspecialchars($data['competences']) ?>" required>
-                <?php if (isset($errors['competences'])): ?>
-                <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['competences']) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Description -->
-            <div class="form-group">
-                <label class="form-label" for="admin-description">Description <span>*</span></label>
-                <textarea id="admin-description" name="description" rows="6"
-                          class="form-input <?= isset($errors['description'])?'error':'' ?>"
-                          placeholder="Description complète de la mission..."
-                          minlength="20" maxlength="2000" required><?= htmlspecialchars($data['description']) ?></textarea>
-                <?php if (isset($errors['description'])): ?>
-                <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['description']) ?></div>
-                <?php endif; ?>
-            </div>
-
-            <!-- Statut -->
-            <div class="form-group">
-                <label class="form-label" for="admin-statut">Statut de publication</label>
-                <select id="admin-statut" name="statut" class="form-input">
-                    <option value="pending"  <?= $data['statut']==='pending' ?'selected':'' ?>>⏳ En attente</option>
-                    <option value="approved" <?= $data['statut']==='approved'?'selected':'' ?>>✅ Approuvée</option>
-                    <option value="rejected" <?= $data['statut']==='rejected'?'selected':'' ?>>❌ Rejetée</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="display:flex; gap:1rem; align-items:center;">
-            <button type="submit" class="btn btn-primary" id="admin-add-submit" style="padding:.85rem 2.5rem;">
-                <i class="fa-solid fa-plus"></i> Créer l'offre
-            </button>
-            <a href="dashboard.php" class="btn btn-outline">
-                <i class="fa-solid fa-xmark"></i> Annuler
-            </a>
-        </div>
-    </form>
-
-</main>
-
-<script>
-document.getElementById('admin-add-form').addEventListener('submit', function(e) {
-    const titre = document.getElementById('admin-titre').value.trim();
-    const desc  = document.getElementById('admin-description').value.trim();
-    const comp  = document.getElementById('admin-competences').value.trim();
-    const bud   = parseFloat(document.getElementById('admin-budget').value);
-    const del   = document.getElementById('admin-delai').value;
-    let valid = true;
-    if (titre.length < 5)    { alert('Titre : min. 5 caractères.'); valid = false; }
-    if (desc.length < 20)    { alert('Description : min. 20 caractères.'); valid = false; }
-    if (!comp)               { alert('Compétences obligatoires.'); valid = false; }
-    if (isNaN(bud)||bud<=0) { alert('Budget positif requis.'); valid = false; }
-    if (!del)                { alert('Veuillez sélectionner un délai.'); valid = false; }
-    if (!valid) e.preventDefault();
-});
-</script>
+        </main>
+    </div>
 </body>
 </html>
