@@ -188,7 +188,8 @@ function statutBadge($statut) {
         <li><a href="home.php" class="active">job</a></li>
         <li><a href="#">Marketplace</a></li>
         <li><a href="#">Freelancers</a></li>
-        <li><a href="#">Blog</a></li>
+        <li><a href="#">Contrat</a></li>
+        <li><a href="#">Messagerie</a></li>
     </ul>
     <div class="nav-right">
         <div class="nav-avatar">CL</div>
@@ -200,7 +201,7 @@ function statutBadge($statut) {
     <div class="hero-glow"></div>
     <div class="hero-content" style="max-width: 900px; margin: 0 auto; text-align: center;">
         
-        <h1 class="hero-title">Trouvez vos prochaines <span>missions</span> en un clic</h1>
+        <h1 class="hero-title">Trouvez vos <span>missions</span> en un clic</h1>
         <p class="hero-sub">Explorez les meilleures offres d'emploi freelance ou publiez vos propres besoins pour attirer des talents qualifiés.</p>
 
         <!-- SEARCH FORM -->

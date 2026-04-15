@@ -121,7 +121,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <!-- Budget -->
                             <div>
                                 <label style="display: block; margin-bottom: 0.5rem; color: var(--text-light); font-size: 0.85rem;">Budget (DT)</label>
-                                <input type="number" name="budget" value="<?= htmlspecialchars($data['budget']) ?>" 
+                                <input type="text" name="budget" value="<?= htmlspecialchars($data['budget']) ?>" 
                                        style="width: 100%; background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem; color: white;">
                                 <?php if(isset($errors['budget'])): ?><small style="color: var(--tunisian-red);"><?= $errors['budget'] ?></small><?php endif; ?>
                             </div>

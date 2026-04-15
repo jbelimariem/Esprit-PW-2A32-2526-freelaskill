@@ -136,15 +136,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <div class="product-card" style="opacity:1; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
             <div class="card-body" style="padding:2.5rem;">
-                <form id="add-form" action="add_job.php" method="POST" novalidate>
+                <form id="add-form" action="add_job.php" method="POST">
 
                     <!-- Titre -->
                     <div class="form-group" style="grid-column:1/-1;">
                         <label class="form-label" for="titre">Titre de l'offre <span>*</span></label>
                         <input id="titre" name="titre" type="text" class="form-input <?= isset($errors['titre']) ? 'error' : '' ?>"
                                placeholder="Ex. Développeur React.js pour application mobile (3 mois)"
-                               value="<?= htmlspecialchars($data['titre']) ?>"
-                               minlength="5" maxlength="255" required>
+                               value="<?= htmlspecialchars($data['titre']) ?>">
                         <div class="char-count"><span id="titre-count"><?= strlen($data['titre']) ?></span>/255</div>
                         <?php if (isset($errors['titre'])): ?>
                         <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['titre']) ?></div>
@@ -155,10 +154,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Budget -->
                         <div class="form-group">
                             <label class="form-label" for="budget">Budget (DT) <span>*</span></label>
-                            <input id="budget" name="budget" type="number" min="1" step="0.01"
+                            <input id="budget" name="budget" type="text"
                                    class="form-input <?= isset($errors['budget']) ? 'error' : '' ?>"
                                    placeholder="Ex. 1500"
-                                   value="<?= htmlspecialchars($data['budget']) ?>" required>
+                                   value="<?= htmlspecialchars($data['budget']) ?>">
                             <?php if (isset($errors['budget'])): ?>
                             <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['budget']) ?></div>
                             <?php endif; ?>
@@ -167,7 +166,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <!-- Délai -->
                         <div class="form-group">
                             <label class="form-label" for="delai">Délai de livraison <span>*</span></label>
-                            <select id="delai" name="delai" class="form-input <?= isset($errors['delai']) ? 'error' : '' ?>" required>
+                            <select id="delai" name="delai" class="form-input <?= isset($errors['delai']) ? 'error' : '' ?>">
                                 <option value="">Sélectionnez un délai</option>
                                 <?php
                                 $delais = ["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois","Plus de 6 mois"];
@@ -187,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <input id="competences" name="competences" type="text"
                                class="form-input <?= isset($errors['competences']) ? 'error' : '' ?>"
                                placeholder="Ex. React.js, Node.js, MongoDB (séparées par des virgules)"
-                               value="<?= htmlspecialchars($data['competences']) ?>" required>
+                               value="<?= htmlspecialchars($data['competences']) ?>">
                         <div style="font-size:.75rem; color:#475569; margin-top:.3rem;"><i class="fa-solid fa-circle-info"></i> Séparez les compétences par des virgules</div>
                         <?php if (isset($errors['competences'])): ?>
                         <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['competences']) ?></div>
@@ -199,8 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label class="form-label" for="description">Description de la mission <span>*</span></label>
                         <textarea id="description" name="description" rows="6"
                                   class="form-input <?= isset($errors['description']) ? 'error' : '' ?>"
-                                  placeholder="Décrivez en détail votre mission : contexte, objectifs, livrables attendus, conditions de travail..."
-                                  minlength="20" maxlength="2000" required><?= htmlspecialchars($data['description']) ?></textarea>
+                                  placeholder="Décrivez en détail votre mission : contexte, objectifs, livrables attendus, conditions de travail..."><?= htmlspecialchars($data['description']) ?></textarea>
                         <div class="char-count"><span id="desc-count"><?= strlen($data['description']) ?></span>/2000</div>
                         <?php if (isset($errors['description'])): ?>
                         <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= htmlspecialchars($errors['description']) ?></div>
@@ -241,50 +239,8 @@ if (descInput) descInput.addEventListener('input', () => {
     document.getElementById('desc-count').textContent = descInput.value.length;
 });
 
-// Validation client-side
-document.getElementById('add-form').addEventListener('submit', function(e) {
-    const titre = document.getElementById('titre').value.trim();
-    const desc  = document.getElementById('description').value.trim();
-    const comp  = document.getElementById('competences').value.trim();
-    const bud   = parseFloat(document.getElementById('budget').value);
-    const del   = document.getElementById('delai').value;
-    let valid   = true;
-
-    if (titre.length < 5) {
-        showError('titre', 'Le titre doit contenir au moins 5 caractères.');
-        valid = false;
-    }
-    if (desc.length < 20) {
-        showError('description', 'La description doit contenir au moins 20 caractères.');
-        valid = false;
-    }
-    if (!comp) {
-        showError('competences', 'Les compétences sont obligatoires.');
-        valid = false;
-    }
-    if (isNaN(bud) || bud <= 0) {
-        showError('budget', 'Le budget doit être un nombre positif.');
-        valid = false;
-    }
-    if (!del) {
-        showError('delai', 'Veuillez sélectionner un délai.');
-        valid = false;
-    }
-    if (!valid) e.preventDefault();
-});
-
-function showError(fieldId, msg) {
-    const field = document.getElementById(fieldId);
-    if (!field) return;
-    field.classList.add('error');
-    let existing = field.parentElement.querySelector('.error-msg');
-    if (!existing) {
-        const div = document.createElement('div');
-        div.className = 'error-msg';
-        div.innerHTML = `<i class="fa-solid fa-circle-exclamation"></i> ${msg}`;
-        field.parentElement.appendChild(div);
-    }
-}
+// Compteurs de caractères uniquement (pas de validation côté client)
+// La validation est effectuée côté serveur (PHP)
 </script>
 
 </body>

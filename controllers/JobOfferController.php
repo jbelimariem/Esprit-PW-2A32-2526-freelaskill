@@ -128,7 +128,7 @@ class JobOfferController {
                 'competences' => trim($_POST['competences'] ?? ''),
                 'budget'      => $_POST['budget']           ?? '',
                 'delai'       => trim($_POST['delai']       ?? ''),
-                'statut'      => $offre['statut']  // conserve le statut actuel
+                'statut'      => 'pending'  // remet en attente après modification
             ];
             $errors = $this->validate($data);
             if (empty($errors)) {
