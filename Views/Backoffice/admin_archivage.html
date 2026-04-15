@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Archivage</title>
+    <link rel="stylesheet" href="../Frontoffice/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
+        .sidebar {
+            width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; position: relative; }
+        .nav-item {
+            padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem;
+            cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+        .table-container {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg); margin-bottom: 3rem; overflow: hidden;
+        }
+        .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;}
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 1.25rem 2rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .data-table th { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .data-table td { font-size: 0.95rem; color: white; }
+        .btn-admin {
+            padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+            border: 1px solid transparent; letter-spacing: 0.5px; outline: none; background: transparent;
+        }
+        .btn-admin-info { background: rgba(37,99,235,0.1); color: var(--tech-blue); border-color: rgba(37,99,235,0.3); }
+        .btn-admin-info:hover { background: rgba(37,99,235,0.2); box-shadow: 0 0 15px rgba(37,99,235,0.4); transform: translateY(-2px); }
+        .btn-admin-muted { background: rgba(255,255,255,0.05); color: var(--text-muted); border-color: rgba(255,255,255,0.1); }
+        .btn-admin-muted:hover { background: rgba(255,255,255,0.1); box-shadow: 0 0 15px rgba(255,255,255,0.2); transform: translateY(-2px); color: white; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar animate-fade-up">
+        <div style="padding: 0 2rem; margin-bottom: 3rem;">
+            <div class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v3.0</p>
+        </div>
+        
+        <a href="admin_dashboard.html" class="nav-item"><i class="fa-solid fa-cube w-5"></i> Dashboard Central</a>
+        <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations (Jobs & Profils)</a>
+        <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges (Médiation)</a>
+        <a href="admin_archivage.html" class="nav-item active"><i class="fa-solid fa-box-archive w-5"></i> Archive & Utilisateurs</a>
+        <a href="admin_rules.php" class="nav-item"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+    </aside>
+
+    <main class="main-panel">
+        <div>
+             <h2 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-box-archive" style="color: var(--tech-blue);"></i> Base d'Archive & Utilisateurs</h2>
+             <p style="color: var(--text-muted); margin-bottom: 3rem;">Registre des anciens projets et gestion des comptes utilisateurs (bannis/suspendus).</p>
+        </div>
+
+        <div class="table-container animate-fade-up delay-1">
+            <div class="table-header">
+                <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.2rem;"><i class="fa-solid fa-briefcase" style="color: var(--tech-blue);"></i> Historique des Projets</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Identifiant Projet</th>
+                        <th>Client / Freelancer</th>
+                        <th>Statut Final</th>
+                        <th>Date de Clôture</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="color: white; font-family: monospace;">#JOB-00102<br><span style="font-size: 0.8rem; color: var(--text-muted);">Application React Native</span></td>
+                        <td>Client: <strong>Startup TechX</strong><br>Freelance: <strong>Sonia Design</strong></td>
+                        <td><span style="color: var(--tech-green); background: rgba(34,197,94,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">Terminée</span></td>
+                        <td style="color: var(--text-muted);">01/10/2026</td>
+                        <td><button class="btn-admin btn-admin-info"><i class="fa-solid fa-file-invoice"></i> Certificat</button></td>
+                    </tr>
+                    <tr>
+                        <td style="color: white; font-family: monospace;">#JOB-00101<br><span style="font-size: 0.8rem; color: var(--text-muted);">Logo 3D</span></td>
+                        <td>Client: <strong>Agence Digital M</strong><br>Freelance: <strong>Non assigné</strong></td>
+                        <td><span style="color: var(--tunisian-red); background: rgba(239,68,68,0.1); padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.8rem;">Annulée</span></td>
+                        <td style="color: var(--text-muted);">15/09/2026</td>
+                        <td><button class="btn-admin btn-admin-muted"><i class="fa-solid fa-circle-info"></i> Raison</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="table-container animate-fade-up delay-2">
+            <div class="table-header">
+                <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.2rem;"><i class="fa-solid fa-user-slash" style="color: var(--tunisian-red);"></i> Utilisateurs Suspendus</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Utilisateur</th>
+                        <th>Type de Profil</th>
+                        <th>Motif de la Suspension</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Hacker123</strong><br><span style="font-size: 0.85rem; color: var(--text-muted);">bad.user@mail.com</span></td>
+                        <td><span style="color: var(--tech-blue); font-size: 0.85rem;">Freelancer</span></td>
+                        <td>Tentative de contournement du paiement Escrow</td>
+                        <td style="color: var(--text-muted);">08/10/2026</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

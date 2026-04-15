@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Centre des Litiges</title>
+    <link rel="stylesheet" href="../Frontoffice/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
+        .sidebar {
+            width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; position: relative; }
+        .nav-item {
+            padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem;
+            cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+        .table-container {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg); margin-bottom: 3rem; overflow: hidden;
+        }
+        .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;}
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 1.25rem 2rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .data-table th { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
+        .data-table td { font-size: 0.95rem; color: white; }
+        .btn-admin {
+            padding: 0.6rem 1.2rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500;
+            cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem;
+            border: 1px solid transparent; letter-spacing: 0.5px; outline: none; background: transparent;
+        }
+        .btn-admin-warning { background: rgba(251,191,36,0.1); color: #FBBF24; border-color: rgba(251,191,36,0.3); }
+        .btn-admin-warning:hover { background: rgba(251,191,36,0.2); box-shadow: 0 0 15px rgba(251,191,36,0.4); transform: translateY(-2px); }
+        .btn-admin-info { background: rgba(37,99,235,0.1); color: var(--tech-blue); border-color: rgba(37,99,235,0.3); }
+        .btn-admin-info:hover { background: rgba(37,99,235,0.2); box-shadow: 0 0 15px rgba(37,99,235,0.4); transform: translateY(-2px); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar animate-fade-up">
+        <div style="padding: 0 2rem; margin-bottom: 3rem;">
+            <div class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v3.0</p>
+        </div>
+        
+        <a href="admin_dashboard.html" class="nav-item"><i class="fa-solid fa-cube w-5"></i> Dashboard Central</a>
+        <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations (Jobs & Profils)</a>
+        <a href="admin_litiges.html" class="nav-item active"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges (Médiation)</a>
+        <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archive & Utilisateurs</a>
+        <a href="admin_rules.php" class="nav-item"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+    </aside>
+
+    <main class="main-panel">
+        <div>
+            <h2 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem;"><i class="fa-solid fa-scale-balanced" style="color: var(--tech-blue);"></i> Investigations et Litiges (Médiation)</h2>
+            <p style="color: var(--text-muted); margin-bottom: 3rem;">Gestion des conflits entre vos Clients et vos Freelancers.</p>
+        </div>
+
+        <div class="table-container animate-fade-up delay-1">
+            <div class="table-header">
+                <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.2rem;">Réclamations en cours</h3>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Client Plaignant</th>
+                        <th>Freelancer Impliqué</th>
+                        <th>Nature du Litige</th>
+                        <th>Actions (Escrow)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Agence Digital M</strong><br><span style="font-size: 0.85rem; color: var(--text-muted);">Projet: Création Logo 3D</span></td>
+                        <td><strong>Mohamed Ali</strong><br><span style="font-size: 0.85rem; color: var(--text-muted);">Plagiat reporté</span></td>
+                        <td><span style="color: #F87171;"><i class="fa-solid fa-flag"></i> Livraison non conforme</span></td>
+                        <td>
+                            <button class="btn-admin btn-admin-warning"><i class="fa-solid fa-arrow-rotate-left"></i> Rembourser Client</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Boutique Tunis</strong><br><span style="font-size: 0.85rem; color: var(--text-muted);">Projet: API de Paiement</span></td>
+                        <td><strong>Zied_Dev</strong><br><span style="font-size: 0.85rem; color: var(--text-muted);">Réclame son paiement</span></td>
+                        <td><span style="color: #FBBF24;"><i class="fa-solid fa-money-bill-wave"></i> Client refuse de valider</span></td>
+                        <td>
+                            <button class="btn-admin btn-admin-info"><i class="fa-solid fa-money-check-dollar"></i> Forcer Paiement</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+</body>
+</html>

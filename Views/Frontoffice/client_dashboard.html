@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Client - Suivi des Missions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+        }
+        .status-ouverte { background: rgba(37, 99, 235, 0.1); color: #60A5FA; border: 1px solid rgba(37, 99, 235, 0.3); }
+        .status-attribuee { background: rgba(168, 85, 247, 0.1); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .status-en-cours { background: rgba(245, 158, 11, 0.1); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-terminee { background: rgba(34, 197, 94, 0.1); color: #4ADE80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        .status-annulee { background: rgba(239, 68, 68, 0.1); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        
+        .client-card {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg); padding: 1.5rem; transition: var(--transition);
+        }
+        .client-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-3px); }
+    </style>
+</head>
+<body style="background: #050812;">
+
+    <!-- NAVBAR CLIENT -->
+    <nav class="navbar animate-fade-up">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="client_dashboard.html" class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="client_dashboard.html" class="active text-tech-blue" style="color: var(--tech-blue); text-shadow: var(--glow-blue);">Mes Projets</a></li>
+                <li><a href="publish_job.html">Lancer un Projet</a></li>
+            </ul>
+            <div class="user-profile" style="display:flex; align-items:center; gap: 10px; color: var(--text-muted);">
+                <i class="fa-solid fa-user-tie"></i> <span>Espace Client</span>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="hero-glow-bg-2" style="top: 10%; right: 0;"></div>
+
+    <main class="container" style="padding: 5rem 1.5rem; max-width: 1000px; position: relative; z-index: 10;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;" class="animate-fade-up delay-1">
+            <div>
+                <h1 style="font-size: 2.5rem; color: white; margin-bottom: 0.5rem;">Tableau de bord <span style="color: var(--tech-blue)">Client</span></h1>
+                <p style="color: var(--text-muted);">Suivez l'avancement de vos missions et le travail de vos talents.</p>
+            </div>
+            <a href="publish_job.html" class="btn btn-primary" style="padding: 0.8rem 1.5rem;"><i class="fa-solid fa-plus"></i> Nouvelle Mission</a>
+        </div>
+
+        <div style="display: grid; gap: 1.5rem;" class="animate-fade-up delay-2">
+            
+            <!-- Projet Ouvert -->
+            <div class="client-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <h3 style="color: white; font-size: 1.25rem;">Développement d'Application Mobile React Native</h3>
+                        <span class="status-badge status-ouverte"><i class="fa-solid fa-door-open"></i> Ouverte</span>
+                    </div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">Il y a 2 jours</span>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Recherche active de candidats. 12 experts ont déjà vu cette annonce.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <span style="color: white;"><i class="fa-solid fa-users" style="color: var(--tech-blue);"></i> 5 Candidatures reçues</span>
+                    <button class="btn btn-outline" style="padding: 0.5rem 1rem;">Voir les profils</button>
+                </div>
+            </div>
+
+            <!-- Projet Attribué -->
+            <div class="client-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <h3 style="color: white; font-size: 1.25rem;">Design 3D pour Campagne Marketing</h3>
+                        <span class="status-badge status-attribuee"><i class="fa-solid fa-handshake"></i> Attribuée</span>
+                    </div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">Il y a 5 jours</span>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Le projet a été attribué à "Studio Alpha". En attente de démarrage officiel.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <span style="color: white;"><img src="https://ui-avatars.com/api/?name=Studio+Alpha&background=random" style="width: 25px; border-radius: 50%; vertical-align: middle; margin-right: 5px;"> Freelancer : Studio Alpha</span>
+                    <button class="btn" style="background: rgba(255,255,255,0.1); color: white; padding: 0.5rem 1rem;">Discuter</button>
+                </div>
+            </div>
+
+            <!-- Projet En Cours -->
+            <div class="client-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <h3 style="color: white; font-size: 1.25rem;">Audit Cybersécurité Infrastructure</h3>
+                        <span class="status-badge status-en-cours"><i class="fa-solid fa-laptop-code"></i> En Cours</span>
+                    </div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">Livraison : 15 Nov</span>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Le freelancer analyse actuellement vos serveurs Cloud. Validation mi-parcours imminente.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <div style="width: 50%; background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div style="width: 60%; background: #FBBF24; height: 100%;"></div>
+                    </div>
+                    <span style="color: #FBBF24; font-size: 0.9rem;">60% complété</span>
+                </div>
+            </div>
+
+            <!-- Projet Terminé -->
+            <div class="client-card" style="opacity: 0.7;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <h3 style="color: white; font-size: 1.25rem;">Correction de Bugs sur site eCommerce</h3>
+                        <span class="status-badge status-terminee"><i class="fa-solid fa-check"></i> Terminée</span>
+                    </div>
+                    <span style="color: var(--text-muted); font-size: 0.9rem;">Clôturé le 01 Oct</span>
+                </div>
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Mission réalisée avec succès. Paiement validé.</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
+                    <span style="color: #4ADE80;"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i> (5.0)</span>
+                    <button class="btn" style="background: rgba(255,255,255,0.05); color: white; padding: 0.5rem 1rem;">Facture</button>
+                </div>
+            </div>
+
+            <!-- Projet Annulé -->
+            <div class="client-card" style="border-color: rgba(239, 68, 68, 0.2);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <h3 style="color: var(--text-muted); font-size: 1.25rem; text-decoration: line-through;">Design Logo Startup</h3>
+                        <span class="status-badge status-annulee"><i class="fa-solid fa-xmark"></i> Annulée</span>
+                    </div>
+                </div>
+                <p style="color: var(--text-muted);">Projet annulé par vos soins car les besoins ont changé.</p>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

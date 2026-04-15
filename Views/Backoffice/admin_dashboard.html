@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Statistiques & Suivi</title>
+    <link rel="stylesheet" href="../Frontoffice/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
+        .sidebar {
+            width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column;
+            position: fixed; height: 100vh;
+        }
+        .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; position: relative; }
+        .nav-item {
+            padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem;
+            cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+        .metric-card {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            padding: 2rem; border-radius: var(--radius-lg); position: relative; overflow: hidden;
+        }
+        .metric-card::after {
+            content:''; position: absolute; top:0; right:0; width: 100px; height: 100px;
+            background: radial-gradient(circle, var(--tech-blue), transparent 60%); opacity: 0.1; filter: blur(20px);
+        }
+        .table-container {
+            background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05);
+            border-radius: var(--radius-lg); margin-bottom: 3rem; overflow: hidden;
+        }
+        .table-header { padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;}
+        .data-table { width: 100%; border-collapse: collapse; }
+        .data-table th, .data-table td { padding: 1rem 2rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .data-table td { font-size: 0.95rem; color: white; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar animate-fade-up">
+        <div style="padding: 0 2rem; margin-bottom: 3rem;">
+            <div class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v3.0</p>
+        </div>
+        
+        <a href="admin_dashboard.html" class="nav-item active"><i class="fa-solid fa-cube w-5"></i> Dashboard Central</a>
+        <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations (Jobs & Profils)</a>
+        <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges (Médiation)</a>
+        <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archive & Utilisateurs</a>
+        <a href="admin_rules.php" class="nav-item"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+    </aside>
+
+    <main class="main-panel">
+        <div class="hero-glow-bg-2" style="top: 0; right: 0; opacity: 0.5;"></div>
+
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;" class="animate-fade-up delay-1">
+            <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: white;">Monitorage <span style="color: var(--tech-blue)">Système</span></h1>
+            <div style="display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.05);">
+                <i class="fa-solid fa-user-shield" style="color: var(--tech-blue);"></i> <span style="font-size: 0.85rem; color: var(--text-muted);">SuperAdmin Connecté</span>
+            </div>
+        </header>
+
+        <div>
+            <h2 style="color: white; font-size: 1.5rem; margin-bottom: 1.5rem;"><i class="fa-solid fa-users" style="color: var(--tech-blue);"></i> Vue d'ensemble Utilisateurs & Projets</h2>
+            <p style="color: var(--text-muted); margin-bottom: 3rem;">Indicateurs clés axés sur vos clients et freelancers.</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 3rem;" class="animate-fade-up delay-2">
+            <div class="metric-card">
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Total Clients Actifs</p>
+                <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: white; margin: 0.5rem 0;">120</h2>
+                <p style="color: var(--tech-green); font-size: 0.85rem;"><i class="fa-solid fa-arrow-trend-up"></i> +5 cette semaine</p>
+            </div>
+            <div class="metric-card">
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Total Freelancers</p>
+                <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: white; margin: 0.5rem 0;">340</h2>
+                <p style="color: var(--tech-blue); font-size: 0.85rem;"><i class="fa-solid fa-user-check"></i> 310 Profils validés</p>
+            </div>
+            <div class="metric-card" style="border-color: rgba(37,99,235,0.2);">
+                <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Projets (Jobs) en Cours</p>
+                <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: var(--tech-blue); margin: 0.5rem 0;">85</h2>
+                <p style="color: var(--tech-blue); font-size: 0.85rem;"><i class="fa-solid fa-briefcase"></i> Valeur : ~24K TND</p>
+            </div>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;" class="animate-fade-up delay-3">
+            <div class="table-container" style="margin-bottom: 0;">
+                <div class="table-header">
+                    <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.1rem;"><i class="fa-solid fa-user-tie" style="color: var(--tech-blue);"></i> Derniers Clients Inscrits</h3>
+                </div>
+                <table class="data-table">
+                    <tbody>
+                        <tr><td><strong>Startup TechX</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">inscrit hier</span></td></tr>
+                        <tr><td><strong>Agence Digital M</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">il y a 2 jours</span></td></tr>
+                        <tr><td><strong>Boutique Tunis</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">il y a 3 jours</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="table-container" style="margin-bottom: 0;">
+                <div class="table-header">
+                    <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.1rem;"><i class="fa-solid fa-user-astronaut" style="color: var(--tech-green);"></i> Derniers Freelancers Inscrits</h3>
+                </div>
+                <table class="data-table">
+                    <tbody>
+                        <tr><td><strong>Mohamed Dev (React)</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">inscrit ce matin</span></td></tr>
+                        <tr><td><strong>Sonia Design (3D)</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">inscrit hier</span></td></tr>
+                        <tr><td><strong>Karim SEO Expert</strong><br><span style="font-size: 0.8rem; color: var(--text-muted);">il y a 2 jours</span></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

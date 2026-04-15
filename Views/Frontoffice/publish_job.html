@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lancer un Projet - FreelaSkill</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body style="background: #050812;">
+
+    <!-- NAVBAR CLIENT -->
+    <nav class="navbar animate-fade-up">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="client_dashboard.html" class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="client_dashboard.html">Mes Projets</a></li>
+                <li><a href="publish_job.html" class="active text-tunisian-red" style="color: var(--tunisian-red); text-shadow: var(--neon-red);">Lancer un Projet</a></li>
+            </ul>
+            <div class="user-profile" style="display:flex; align-items:center; gap: 10px; color: var(--text-muted);">
+                <i class="fa-solid fa-user-tie"></i> <span>Espace Client</span>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="hero-glow-bg-2" style="top: 10%; right: 0;"></div>
+
+    <main class="container" style="padding: 5rem 1.5rem; max-width: 800px; position: relative; z-index: 10;">
+        
+        <div class="animate-fade-up delay-1" style="text-align: center; margin-bottom: 4rem;">
+            <h1 style="font-size: 3.5rem; background: linear-gradient(90deg, #FFFFFF, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem;">Initialiser une requête.</h1>
+            <p style="font-size: 1.25rem; color: var(--text-muted);">L'algorithme trouvera le meilleur créateur numérique tunisien pour vous.</p>
+        </div>
+
+        <form class="card-futuristic animate-fade-up delay-2" style="padding: 4rem 3rem; border-radius: 2rem;">
+            
+            <div class="form-group">
+                <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Désignation <span style="color: var(--tunisian-red);">*</span></label>
+                <input type="text" class="form-control" placeholder="Mission : Développement d'Infrastructures React" style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1);" required>
+            </div>
+
+            <div class="form-group" style="margin-top: 2rem;">
+                <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Paramètre Global <span style="color: var(--tunisian-red);">*</span></label>
+                <select class="form-control" style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1);" required>
+                    <option>Dev Spatial & Logiciel (Web/App)</option>
+                    <option>Génération d'Art Numérique (Design)</option>
+                    <option>Data & Cybersécurité</option>
+                </select>
+            </div>
+
+            <div class="form-group" style="margin-top: 2rem;">
+                <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Cahier des charges (Input) <span style="color: var(--tunisian-red);">*</span></label>
+                <textarea class="form-control" rows="6" placeholder="Spécifications techniques de votre projet..." style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1); resize: vertical;"></textarea>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 2rem;">
+                <div class="form-group">
+                    <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Fonds alloués <span style="color: var(--tunisian-red);">*</span></label>
+                    <div style="position: relative;">
+                        <input type="number" class="form-control" placeholder="00.00" style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.2rem; font-family: 'Space Grotesk'; font-weight: bold; border: 1px solid rgba(255,255,255,0.1);" required>
+                        <span style="position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); color: var(--tech-blue); font-weight: bold;">TND</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Timeframe <span style="color: var(--tunisian-red);">*</span></label>
+                    <select class="form-control" style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1);" required>
+                        <option>Exécution Immédiate (Urgent)</option>
+                        <option>Cycle Standard (1-2 Semaines)</option>
+                        <option>A long terme</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top: 2rem; margin-bottom: 4rem;">
+                <label class="form-label" style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Mots-clés (Stack)</label>
+                <input type="text" class="form-control" placeholder="Ajoutez un tag et pressez Entrée" style="background: rgba(0,0,0,0.4); padding: 1.25rem; font-size: 1.1rem; border: 1px solid rgba(255,255,255,0.1);">
+                <div class="skills" style="margin-top: 1rem;">
+                    <span class="skill-tag" style="background: rgba(37, 99, 235, 0.2); border-color: rgba(37, 99, 235, 0.5); color: var(--tech-blue);">TypeScript <i class="fa-solid fa-xmark" style="margin-left: 0.5rem; cursor: pointer;"></i></span>
+                </div>
+            </div>
+
+            <button type="button" class="btn btn-primary" style="width: 100%; padding: 1.25rem; font-size: 1.15rem;">
+                Transmettre au Réseau Neural <i class="fa-solid fa-satellite-dish"></i>
+            </button>
+        </form>
+    </main>
+</body>
+</html>
