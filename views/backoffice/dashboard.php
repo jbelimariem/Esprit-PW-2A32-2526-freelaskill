@@ -66,6 +66,7 @@ function statutBadge($s) {
     <!-- PDF Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body class="page-anim">
     
@@ -116,7 +117,7 @@ function statutBadge($s) {
                     <input type="hidden" name="filtre" value="<?= htmlspecialchars($filtre) ?>">
                     <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
                     <input type="text" name="titre" placeholder="Rechercher par titre..." value="<?= htmlspecialchars($searchTitre) ?>">
-                    <input type="date" name="date" value="<?= htmlspecialchars($searchDate) ?>" style="width: 140px; color: var(--text-muted); cursor: pointer;">
+                    <input type="text" name="date" placeholder="Date (AAAA-MM-JJ)" value="<?= htmlspecialchars($searchDate) ?>" style="width: 160px; color: var(--text-muted); cursor: pointer;">
                     <button type="submit" style="display:none;"></button>
                 </form>
                 
@@ -316,16 +317,9 @@ function statutBadge($s) {
             alternateRowStyles: { fillColor: [245, 245, 245] }
         });
 
-        // Génération & Téléchargement
-        const pdfBlob = doc.output('blob');
-        const url = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', 'Rapport_Complet_Offres_FreelaSkill.pdf');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
+        // Download Robuste avec FileSaver.js
+        const blob = doc.output('blob');
+        saveAs(blob, 'admin_export_missions.pdf');
     }
     </script>
 

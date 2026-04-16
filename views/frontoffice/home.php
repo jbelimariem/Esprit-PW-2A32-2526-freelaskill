@@ -47,8 +47,10 @@ function statutBadge($statut) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=<?= time() ?>">
+    <!-- Librairies PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         .job-grid {
             display: grid;
@@ -386,15 +388,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 alternateRowStyles: { fillColor: [245, 245, 245] }
             });
 
-            const pdfBlob = doc.output('blob');
-            const url = URL.createObjectURL(pdfBlob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', 'Mes_Offres_FreelaSkill.pdf');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            URL.revokeObjectURL(url);
+            // Download Robuste avec FileSaver.js
+            const blob = doc.output('blob');
+            saveAs(blob, 'liste_missions.pdf');
             
             btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Export PDF';
         });

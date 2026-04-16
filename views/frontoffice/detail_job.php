@@ -16,6 +16,9 @@ if (!$offre) {
     exit;
 }
 
+// Nettoyage du titre pour le nom de fichier PDF
+$safeTitre = preg_replace('/[^A-Za-z0-9]/', '_', $offre['titre']);
+
 // ── Actions Client sur les Candidatures ──
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_app'])) {
     $appId  = (int)$_POST['app_id'];
@@ -51,8 +54,10 @@ $appStatutConfig = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=<?= time() ?>">
-    <!-- Librairie PDF Direct -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- Librairies PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         .detail-layout {
             display: grid;
@@ -253,9 +258,7 @@ $appStatutConfig = [
 
 </div>
 
-    <!-- PDF Logic -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -311,32 +314,23 @@ $appStatutConfig = [
                     });
                 }
 
-                // Download
-                const pdfBlob = doc.output('blob');
-                const url = URL.createObjectURL(pdfBlob);
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', 'Offre_<?= $id ?>.pdf');
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                URL.revokeObjectURL(url);
+                // Download Robuste avec FileSaver.js
+                const blob = doc.output('blob');
+                saveAs(blob, 'mission_<?= $safeTitre ?>.pdf');
                 
                 btnPdf.innerHTML = '<i class="fa-solid fa-file-pdf"></i> Télécharger PDF (.pdf)';
             });
         }
+        document.querySelectorAll('.js-delete').forEach(btn => {
+            btn.addEventListener('click', e => {
+                const titre = btn.dataset.title || 'cette offre';
+                if (!confirm(`Supprimer l'offre "${titre}" ? Cette action est irréversible.`)) {
+                    e.preventDefault();
+                }
+            });
+        });
     });
     </script>
-
-document.querySelectorAll('.js-delete').forEach(btn => {
-    btn.addEventListener('click', e => {
-        const titre = btn.dataset.title || 'cette offre';
-        if (!confirm(`Supprimer l'offre "${titre}" ? Cette action est irréversible.`)) {
-            e.preventDefault();
-        }
-    });
-});
-</script>
 
 </body>
 </html>
