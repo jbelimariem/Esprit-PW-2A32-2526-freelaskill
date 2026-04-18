@@ -1,66 +1,37 @@
 <?php
 // models/Commande.php
 
-require_once __DIR__ . '/../config.php';
-
 class Commande {
+    private $idCommande;
+    private $user_id;
+    private $date_commande;
+    private $statut;
+    private $adresse_livraison;
+    private $montant_total;
 
-    private $pdo;
-
-    public function __construct() {
-        $this->pdo = config::getConnexion();
+    public function __construct($user_id = null, $date_commande = '', $statut = '', $adresse_livraison = '', $montant_total = 0) {
+        $this->user_id = $user_id;
+        $this->date_commande = $date_commande;
+        $this->statut = $statut;
+        $this->adresse_livraison = $adresse_livraison;
+        $this->montant_total = $montant_total;
     }
 
-    // Récupérer toutes les commandes
-    public function getAll() {
-        $sql = "SELECT * FROM commande";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
-    }
+    public function getIdCommande() { return $this->idCommande; }
+    public function setIdCommande($id) { $this->idCommande = $id; }
 
-    // Récupérer une commande par id
-    public function getById($id) {
-        $sql = "SELECT * FROM commande WHERE idCommande = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
+    public function getUserId() { return $this->user_id; }
+    public function setUserId($user_id) { $this->user_id = $user_id; }
 
-    // Récupérer les commandes d'un user
-    public function getByUser($user_id) {
-        $sql = "SELECT * FROM commande WHERE user_id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$user_id]);
-        return $stmt->fetchAll();
-    }
+    public function getDateCommande() { return $this->date_commande; }
+    public function setDateCommande($date) { $this->date_commande = $date; }
 
-    // Créer une commande
-    public function create($data) {
-        $sql = "INSERT INTO commande 
-                (user_id, date_commande, statut, adresse_livraison, montant_total) 
-                VALUES (?, CURDATE(), ?, ?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $data['user_id'],
-            'en_attente',
-            $data['adresse_livraison'],
-            $data['montant_total']
-        ]);
-        return $this->pdo->lastInsertId();
-    }
+    public function getStatut() { return $this->statut; }
+    public function setStatut($statut) { $this->statut = $statut; }
 
-    // Modifier le statut d'une commande
-    public function updateStatut($id, $statut) {
-        $sql = "UPDATE commande SET statut=? WHERE idCommande=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$statut, $id]);
-    }
+    public function getAdresseLivraison() { return $this->adresse_livraison; }
+    public function setAdresseLivraison($adresse) { $this->adresse_livraison = $adresse; }
 
-    // Supprimer une commande
-    public function delete($id) {
-        $sql = "DELETE FROM commande WHERE idCommande = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-    }
-
+    public function getMontantTotal() { return $this->montant_total; }
+    public function setMontantTotal($montant) { $this->montant_total = $montant; }
 }

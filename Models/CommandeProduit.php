@@ -1,63 +1,28 @@
 <?php
 // models/CommandeProduit.php
 
-require_once __DIR__ . '/../config.php';
-
 class CommandeProduit {
+    private $idCommande;
+    private $idProduit;
+    private $quantite;
+    private $prix_unitaire;
 
-    private $pdo;
-
-    public function __construct() {
-        $this->pdo = config::getConnexion();
+    public function __construct($idCommande = null, $idProduit = null, $quantite = 0, $prix_unitaire = 0) {
+        $this->idCommande = $idCommande;
+        $this->idProduit = $idProduit;
+        $this->quantite = $quantite;
+        $this->prix_unitaire = $prix_unitaire;
     }
 
-    // Récupérer les produits d'une commande
-    public function getByCommande($idCommande) {
-        $sql = "SELECT cp.*, p.nom, p.image, p.prix 
-                FROM commande_produit cp
-                JOIN produit p ON cp.idProduit = p.idProduit
-                WHERE cp.idCommande = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idCommande]);
-        return $stmt->fetchAll();
-    }
+    public function getIdCommande() { return $this->idCommande; }
+    public function setIdCommande($id) { $this->idCommande = $id; }
 
-    // Ajouter un produit à une commande
-    public function create($data) {
-        $sql = "INSERT INTO commande_produit 
-                (idCommande, idProduit, quantite, prix_unitaire) 
-                VALUES (?, ?, ?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $data['idCommande'],
-            $data['idProduit'],
-            $data['quantite'],
-            $data['prix_unitaire']
-        ]);
-    }
+    public function getIdProduit() { return $this->idProduit; }
+    public function setIdProduit($id) { $this->idProduit = $id; }
 
-    // Modifier la quantité
-    public function updateQuantite($idCommande, $idProduit, $quantite) {
-        $sql = "UPDATE commande_produit 
-                SET quantite=? 
-                WHERE idCommande=? AND idProduit=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$quantite, $idCommande, $idProduit]);
-    }
+    public function getQuantite() { return $this->quantite; }
+    public function setQuantite($q) { $this->quantite = $q; }
 
-    // Supprimer un produit d'une commande
-    public function delete($idCommande, $idProduit) {
-        $sql = "DELETE FROM commande_produit 
-                WHERE idCommande=? AND idProduit=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idCommande, $idProduit]);
-    }
-
-    // Supprimer tous les produits d'une commande
-    public function deleteByCommande($idCommande) {
-        $sql = "DELETE FROM commande_produit WHERE idCommande=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idCommande]);
-    }
-
+    public function getPrixUnitaire() { return $this->prix_unitaire; }
+    public function setPrixUnitaire($prix) { $this->prix_unitaire = $prix; }
 }

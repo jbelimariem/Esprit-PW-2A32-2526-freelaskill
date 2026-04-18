@@ -721,9 +721,11 @@
             cursor: pointer;
             transition: var(--transition);
             font-family: 'Space Grotesk', sans-serif;
+            text-decoration: none;
         }
-        .pag-btn:hover { color: white; border-color: rgba(255,255,255,0.12); }
+        .pag-btn:hover:not(.disabled) { color: white; border-color: rgba(255,255,255,0.12); }
         .pag-btn.active { background: var(--tech-blue); border-color: var(--tech-blue); color: white; box-shadow: var(--neon-blue); }
+        .pag-btn.disabled { opacity: 0.3; cursor: not-allowed; pointer-events: none; }
         .pag-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
         /* Animations */
@@ -797,6 +799,101 @@
             font-size: 0.9rem;
             transition: var(--transition);
         }
+
+        /* ── UPGRADED MINIMALIST SIDEBAR NAV ── */
+        .marketplace-sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            border-bottom: 1px dashed rgba(255,255,255,0.1);
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding: 0 0.75rem;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .sidebar-settings {
+            width: 28px; height: 28px;
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .sidebar-settings:hover { color: white; transform: rotate(90deg); }
+
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            position: relative;
+            overflow: hidden;
+            border-left: 2px solid transparent;
+        }
+
+        .sidebar-nav-item:hover { 
+            background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent); 
+            border-left: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .sidebar-nav-item:active { transform: scale(0.99); }
+
+        .sidebar-nav-item.active {
+            background: linear-gradient(90deg, rgba(59,130,246,0.08), transparent);
+            border-left: 2px solid var(--tech-blue);
+        }
+
+        .sidebar-nav-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0; width: 12px;
+            background: var(--tech-blue);
+            filter: blur(10px);
+            opacity: 0.6;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .icon-box {
+            color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem;
+            transition: var(--transition);
+        }
+
+        .sidebar-nav-item.active .icon-box { color: var(--tech-blue); filter: drop-shadow(0 0 8px rgba(59,130,246,0.5)); }
+        .sidebar-nav-item:hover .icon-box { color: white; transform: scale(1.1); }
+
+        .nav-label { font-size: 0.92rem; color: var(--text-light); font-weight: 400; letter-spacing: 0.3px; transition: var(--transition); }
+        .sidebar-nav-item:hover .nav-label { color: white; }
+        .sidebar-nav-item.active .nav-label { font-weight: 600; color: white; }
+
+        .chevron-icon { display: none; }
+        
+        
 
         .admin-nav-item:hover {
             background: rgba(255, 255, 255, 0.03);
@@ -1133,4 +1230,4 @@
         .activity-item:last-child::after { display: none; }
         .activity-item:last-child { padding-bottom: 0; }
         .activity-text { font-size: 0.9rem; line-height: 1.4; margin-bottom: 0.3rem; }
-        .activity-time { font-size: 0.75rem; color: var(--text-muted); }
+        .activity-time { font-size: 0.75rem; color: var(--text-muted); }

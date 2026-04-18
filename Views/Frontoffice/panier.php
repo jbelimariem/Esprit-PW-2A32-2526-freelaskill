@@ -6,7 +6,7 @@
     <title>Panier — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=2">
 </head>
 <body class="page-anim cart-page">
 
@@ -81,6 +81,6 @@
     </div>
 </div>
 
-<script src="../assets/js.js"></script>
+<script src="../assets/js.js?v=2"></script>
 </body>
 </html>

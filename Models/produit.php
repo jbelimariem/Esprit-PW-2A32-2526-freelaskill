@@ -1,114 +1,112 @@
 <?php
-// models/Produit.php
+// models/produit.php
 
 require_once __DIR__ . '/../config.php';
 
 class Produit {
-
+    private $idProduit;
+    private $category_id;
+    private $user_id;
+    private $nom;
+    private $description;
+    private $prix;
+    private $stock;
+    private $image;
+    private $statut;
     private $pdo;
 
-    public function __construct() {
+    public function __construct($category_id = null, $nom = '', $description = '', $prix = 0, $stock = 0, $image = '', $statut = '', $user_id = null) {
         $this->pdo = config::getConnexion();
+        $this->category_id = $category_id;
+        $this->nom = $nom;
+        $this->description = $description;
+        $this->prix = $prix;
+        $this->stock = $stock;
+        $this->image = $image;
+        $this->statut = $statut;
+        $this->user_id = $user_id;
     }
 
-    // Récupérer tous les produits
+    public function getIdProduit() { return $this->idProduit; }
+    public function setIdProduit($id) { $this->idProduit = $id; }
+    
+    public function getCategoryId() { return $this->category_id; }
+    public function setCategoryId($id) { $this->category_id = $id; }
+
+    public function getUserId() { return $this->user_id; }
+    public function setUserId($user_id) { $this->user_id = $user_id; }
+    
+    public function getNom() { return $this->nom; }
+    public function setNom($nom) { $this->nom = $nom; }
+    
+    public function getDescription() { return $this->description; }
+    public function setDescription($desc) { $this->description = $desc; }
+    
+    public function getPrix() { return $this->prix; }
+    public function setPrix($prix) { $this->prix = $prix; }
+    
+    public function getStock() { return $this->stock; }
+    public function setStock($stock) { $this->stock = $stock; }
+    
+    public function getImage() { return $this->image; }
+    public function setImage($image) { $this->image = $image; }
+    
+    public function getStatut() { return $this->statut; }
+    public function setStatut($statut) { $this->statut = $statut; }
+
     public function getAll() {
-        $sql = "SELECT * FROM produit";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->query("SELECT * FROM produit");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupérer un produit par id
     public function getById($id) {
-        $sql = "SELECT * FROM produit WHERE idProduit = ?";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE idProduit = ?");
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    // Récupérer les produits par catégorie
     public function getByCategory($category_id) {
-        $sql = "SELECT * FROM produit WHERE category_id = ?";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE category_id = ?");
         $stmt->execute([$category_id]);
-        return $stmt->fetchAll();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Récupérer les produits par prix
-    public function getByPrice($min, $max) {
-        $sql = "SELECT * FROM produit WHERE prix BETWEEN ? AND ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$min, $max]);
-        return $stmt->fetchAll();
-    }
-
-    // Récupérer les produits par statut (ex: pending, disponible)
     public function getByStatut($statut) {
-        $sql = "SELECT * FROM produit WHERE statut = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$statut]);
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->prepare("SELECT * FROM produit WHERE LOWER(TRIM(statut)) = LOWER(TRIM(?))");
+        $stmt->execute([trim($statut)]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Alias anglais pour compatibilité
     public function getByStatus($status) {
         return $this->getByStatut($status);
     }
 
-    // Créer un produit
-    public function create($data) {
-        $sql = "INSERT INTO produit 
-                (category_id, nom, description, prix, stock, image, statut) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $data['category_id'],
-            $data['nom'],
-            $data['description'],
-            $data['prix'],
-            $data['stock'],
-            $data['image'],
-            'pending'
-        ]);
-    }
-
-    // Modifier un produit
     public function update($id, $data) {
-        $sql = "UPDATE produit 
-                SET nom=?, description=?, prix=?, stock=?, image=?, category_id=?, statut=? 
-                WHERE idProduit=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
+        $stmt = $this->pdo->prepare(
+            "UPDATE produit
+             SET nom = ?, description = ?, prix = ?, stock = ?, image = ?, category_id = ?, statut = ?
+             WHERE idProduit = ?"
+        );
+
+        return $stmt->execute([
             $data['nom'],
             $data['description'],
             $data['prix'],
             $data['stock'],
             $data['image'],
             $data['category_id'],
-            $data['statut'],
+            isset($data['statut']) ? trim($data['statut']) : null,
             $id
         ]);
     }
 
-    // Modifier le statut d'un produit (admin: pending → disponible)
     public function updateStatut($id, $statut) {
-        $sql = "UPDATE produit SET statut = ? WHERE idProduit = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$statut, $id]);
+        $stmt = $this->pdo->prepare("UPDATE produit SET statut = ? WHERE idProduit = ?");
+        return $stmt->execute([trim($statut), $id]);
     }
 
-    // Supprimer un produit
     public function delete($id) {
-        $sql = "DELETE FROM produit WHERE idProduit = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("DELETE FROM produit WHERE idProduit = ?");
+        return $stmt->execute([$id]);
     }
-
-    // Modifier le stock après commande
-    public function updateStock($id, $quantite) {
-        $sql = "UPDATE produit SET stock = stock - ? WHERE idProduit = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$quantite, $id]);
-    }
-
 }

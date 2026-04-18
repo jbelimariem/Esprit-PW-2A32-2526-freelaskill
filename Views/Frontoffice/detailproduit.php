@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../../Models/Produit.php';
-require_once __DIR__ . '/../../Models/Category_prod.php';
+require_once __DIR__ . '/../../controllers/produitController.php';
+require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
-$produitModel = new Produit();
-$categoryModel = new Category_prod();
+$produitController = new ProduitController();
+$categoryController = new Category_prodController();
 $produit = null;
 $categoryName = 'Autre';
 $stockClass = 'out-stock';
@@ -11,9 +11,9 @@ $stockText = 'Indisponible';
 $priceFormatted = '0';
 
 if (!empty($_GET['id'])) {
-    $produit = $produitModel->getById((int) $_GET['id']);
+    $produit = $produitController->getByIdData((int) $_GET['id']);
     if ($produit) {
-        $category = $categoryModel->getById($produit['category_id']);
+        $category = $categoryController->getByIdData($produit['category_id']);
         $categoryName = $category['nom'] ?? 'Autre';
         $priceFormatted = number_format((float) $produit['prix'], 0, ',', ' ');
         if ($produit['stock'] <= 0) {
@@ -109,8 +109,12 @@ if (!empty($_GET['id'])) {
         <?php if ($produit): ?>
             <div class="products-grid" style="grid-template-columns: 1fr;">
                 <div class="product-card" style="animation-delay: 0.05s; opacity: 1;">
-                    <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1e3a5f); font-size: 5rem;">
-                        <span style="display:inline-block; font-size: 2.5rem;">🛍️</span>
+                    <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1e3a5f); position: relative; overflow: hidden;">
+                        <?php if (!empty($produit['image'])): ?>
+                            <img src="<?= htmlspecialchars($produit['image']) ?>" alt="<?= htmlspecialchars($produit['nom']) ?>" style="width:100%; height:100%; object-fit: cover; display:block;" />
+                        <?php else: ?>
+                            <span style="display:inline-block; font-size: 2.5rem;">🛍️</span>
+                        <?php endif; ?>
                         <span class="card-badge <?= $stockClass === 'in-stock' ? 'badge-new' : ($stockClass === 'low-stock' ? 'badge-popular' : 'badge-out') ?>">
                             <?= htmlspecialchars($stockText) ?>
                         </span>

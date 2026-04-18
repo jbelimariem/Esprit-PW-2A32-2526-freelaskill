@@ -1,52 +1,61 @@
 <?php
 // controllers/CommandeProduitController.php
 
-require_once 'models/CommandeProduit.php';
+require_once __DIR__ . '/../Models/CommandeProduit.php';
+require_once __DIR__ . '/../config.php';
 
 class CommandeProduitController {
 
-    private $commandeProduitModel;
+    private $pdo;
 
     public function __construct() {
-        $this->commandeProduitModel = new CommandeProduit();
+        $this->pdo = config::getConnexion();
     }
 
     // -------------------------------------------------------
-    // Afficher les produits d'une commande
+    // Base de données : CRUD
     // -------------------------------------------------------
-    public function show($idCommande) {
-        $produits = $this->commandeProduitModel->getByCommande($idCommande);
-        include 'views/commandes.php';
+    public function getByCommandeData($idCommande) {
+        $sql = "SELECT cp.*, p.nom, p.image, p.prix, p.statut 
+                FROM commande_produit cp
+                JOIN produit p ON cp.idProduit = p.idProduit
+                WHERE cp.idCommande = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idCommande]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // -------------------------------------------------------
-    // Ajouter un produit à une commande
-    // -------------------------------------------------------
-    public function create($data) {
-        $this->commandeProduitModel->create([
-            'idCommande'    => $data['idCommande'],
-            'idProduit'     => $data['idProduit'],
-            'quantite'      => $data['quantite'],
-            'prix_unitaire' => $data['prix_unitaire']
+    public function createData($data) {
+        $sql = "INSERT INTO commande_produit 
+                (idCommande, idProduit, quantite, prix_unitaire) 
+                VALUES (?, ?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $data['idCommande'],
+            $data['idProduit'],
+            $data['quantite'],
+            $data['prix_unitaire']
         ]);
     }
 
-    // -------------------------------------------------------
-    // Modifier la quantité d'un produit dans une commande
-    // -------------------------------------------------------
-    public function updateQuantite($idCommande, $idProduit, $quantite) {
-        $this->commandeProduitModel->updateQuantite($idCommande, $idProduit, $quantite);
-        header('Location: views/commandes.php');
-        exit;
+    public function updateQuantiteData($idCommande, $idProduit, $quantite) {
+        $sql = "UPDATE commande_produit 
+                SET quantite=? 
+                WHERE idCommande=? AND idProduit=?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$quantite, $idCommande, $idProduit]);
     }
 
-    // -------------------------------------------------------
-    // Supprimer un produit d'une commande
-    // -------------------------------------------------------
-    public function delete($idCommande, $idProduit) {
-        $this->commandeProduitModel->delete($idCommande, $idProduit);
-        header('Location: views/commandes.php');
-        exit;
+    public function deleteData($idCommande, $idProduit) {
+        $sql = "DELETE FROM commande_produit 
+                WHERE idCommande=? AND idProduit=?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idCommande, $idProduit]);
     }
 
+    public function deleteByCommandeData($idCommande) {
+        $sql = "DELETE FROM commande_produit WHERE idCommande=?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idCommande]);
+    }
 }

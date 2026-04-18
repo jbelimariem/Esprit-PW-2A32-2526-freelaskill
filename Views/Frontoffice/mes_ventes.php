@@ -14,6 +14,12 @@ $categoryNames = [];
 foreach ($categories as $category) {
     $categoryNames[$category['idCategory']] = $category['nom'];
 }
+
+if (isset($_GET['delete_id'])) {
+    $produitController->deleteData($_GET['delete_id']);
+    header('Location: mes_ventes.php');
+    exit();
+}
 $totalProduitCount = count($produits);
 
 // Pagination
@@ -63,15 +69,15 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <div class="hero-glow"></div>
     <div class="hero-glow-2"></div>
     <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Marketplace Tunisia</div>
-        <h1 class="hero-title">Trouvez les outils<br>qu'il vous <span>faut</span></h1>
-        <p class="hero-sub">Équipements tech, licences logiciels, accessoires créatifs — livrés partout en Tunisie.</p>
-        <div class="search-container">
-            <div class="search-wrap">
+        <div class="hero-tag"><i class="fa-solid fa-tags"></i> Mes ventes</div>
+        <h1 class="hero-title">Gérez vos <span>annonces</span></h1>
+        <p class="hero-sub">Retrouvez toutes vos offres publiées. Vous pouvez les modifier ou les retirer à tout moment.</p>
+        <div class="search-container" style="display:flex; align-items:center; gap:0.5rem;">
+            <div class="search-wrap" style="flex:1;">
                 <i class="fa-solid fa-magnifying-glass"></i>
                 <input type="text" id="main-search-input" placeholder="Rechercher un produit, une marque…">
             </div>
-            <button class="btn-search" id="main-search-btn"><i class="fa-solid fa-search"></i> Rechercher</button>
+            <button class="btn-search" id="main-search-btn" style="white-space:nowrap;"><i class="fa-solid fa-search"></i> Rechercher</button>
         </div>
         <div class="action-row" style="display:flex; align-items:center; gap:.75rem; margin-top:1.25rem; max-width:700px;">
             <span style="color:#475569; font-size:.82rem;">
@@ -97,14 +103,18 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <div class="sidebar-settings" title="Paramètres"><i class="fa-solid fa-gear"></i></div>
             </div>
             
-            <a href="home.php" class="sidebar-nav-item active">
-                <div class="icon-box icon-blue"><i class="fa-solid fa-shop"></i></div>
-                <span class="nav-label">Tout parcourir</span>
+            <a href="home.php" class="sidebar-nav-item">
+                <div class="item-left">
+                    <div class="icon-box"><i class="fa-solid fa-shop"></i></div>
+                    <span class="nav-label">Tout parcourir</span>
+                </div>
             </a>
             
             <a href="#" class="sidebar-nav-item">
-                <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
-                <span class="nav-label">Notifications</span>
+                <div class="item-left">
+                    <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
+                    <span class="nav-label">Notifications</span>
+                </div>
             </a>
             
             <a href="panier.php" class="sidebar-nav-item">
@@ -115,9 +125,9 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <i class="fa-solid fa-chevron-right chevron-icon"></i>
             </a>
             
-            <a href="mes_ventes.php" class="sidebar-nav-item">
+            <a href="mes_ventes.php" class="sidebar-nav-item active">
                 <div class="item-left">
-                    <div class="icon-box"><i class="fa-solid fa-tag"></i></div>
+                    <div class="icon-box icon-blue"><i class="fa-solid fa-tag"></i></div>
                     <span class="nav-label">Mes ventes</span>
                 </div>
                 <i class="fa-solid fa-chevron-right chevron-icon"></i>
@@ -247,7 +257,10 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                                 </div>
                                 <div class="stock-info <?= $stockClass ?>"><span class="stock-dot"></span> <?= htmlspecialchars($stockText) ?></div>
                             </div>
-                            <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
+                            <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+                                <a href="modifier_produit.php?id=<?= $produit['idProduit'] ?>" class="btn-action" style="flex: 1; display:flex; align-items: center; justify-content: center; gap:0.5rem; background: rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius:0.5rem; font-weight:600; text-decoration:none;"><i class="fa-solid fa-pen"></i> Modifier</a>
+                                <button type="button" class="btn-action" style="flex: 1; display:flex; align-items: center; justify-content: center; gap:0.5rem; background: rgba(239,68,68,0.15); color: #ef4444; border:none; border-radius:0.5rem; font-weight:600; cursor:pointer;" onclick="openDeleteModal(<?= $produit['idProduit'] ?>)"><i class="fa-solid fa-trash"></i> Supprimer</button>
+                            </div>
                         </div>
                     </div>
                 <?php endforeach; ?>
@@ -304,6 +317,31 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 
     </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+   <div style="background:var(--bg-dark); padding:2rem; border-radius:1.5rem; border:1px solid var(--border); box-shadow:0 10px 40px rgba(0,0,0,0.5); width:90%; max-width:380px; text-align:center; animation: fadeUp 0.3s ease forwards;">
+       <div style="width:64px; height:64px; border-radius:50%; background:rgba(239,68,68,0.1); color:#ef4444; font-size:1.8rem; display:flex; align-items:center; justify-content:center; margin:0 auto 1.5rem;">
+           <i class="fa-solid fa-triangle-exclamation"></i>
+       </div>
+       <h3 style="font-size:1.3rem; font-weight:700; margin-bottom:0.75rem; color:white;">Supprimer l'annonce ?</h3>
+       <p style="color:var(--text-muted); font-size:0.95rem; margin-bottom:2rem; line-height:1.5;">Êtes-vous sûr de vouloir supprimer définitivement cette annonce ? Cette action est irréversible.</p>
+       <div style="display:flex; gap:1rem;">
+           <button type="button" onclick="closeDeleteModal()" style="flex:1; padding:0.8rem; background:rgba(255,255,255,0.05); color:white; border:none; border-radius:0.5rem; cursor:pointer; font-weight:600; font-family:'Space Grotesk', sans-serif; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Annuler</button>
+           <a id="confirmDeleteBtn" href="#" style="flex:1; display:flex; align-items:center; justify-content:center; padding:0.8rem; background:#ef4444; color:white; border:none; border-radius:0.5rem; text-decoration:none; font-weight:600; box-shadow:0 0 20px rgba(239,68,68,0.3); transition:0.2s;" onmouseover="this.style.background='#dc2626'" onmouseout="this.style.background='#ef4444'">Oui, supprimer</a>
+       </div>
+   </div>
+</div>
+
+<script>
+function openDeleteModal(id) {
+    document.getElementById('deleteModal').style.display = 'flex';
+    document.getElementById('confirmDeleteBtn').href = '?delete_id=' + id;
+}
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+</script>
 
 <script src="../assets/js.js?v=2"></script>
 

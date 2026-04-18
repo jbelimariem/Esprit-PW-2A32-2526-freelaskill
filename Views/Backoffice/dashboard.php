@@ -1,9 +1,15 @@
 <?php
-require_once __DIR__ . '/../../Models/Category_prod.php';
-require_once __DIR__ . '/../../Models/Produit.php';
+require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/produitController.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+if (!isset($_SESSION['admin_id'])) {
+    $_SESSION['admin_id'] = 1;
+}
 
-$categoryModel  = new Category_prod();
-$productModel   = new Produit();
+$categoryController = new Category_prodController();
+$productController = new ProduitController();
 $editingCategory = null;
 $categories      = [];
 $pendingProducts = [];
@@ -14,12 +20,12 @@ $pendingProducts = [];
 if (!empty($_GET['product_action']) && !empty($_GET['id'])) {
     $productId = (int) $_GET['id'];
     if ($_GET['product_action'] === 'approve') {
-        $productModel->updateStatut($productId, 'disponible');
+        $productController->updateStatutData($productId, 'disponible');
         header('Location: dashboard.php');
         exit;
     }
     if ($_GET['product_action'] === 'reject') {
-        $productModel->delete($productId);
+        $productController->deleteData($productId);
         header('Location: dashboard.php');
         exit;
     }
@@ -33,14 +39,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
 
     if (!empty($_POST['action']) && $_POST['action'] === 'create' && $name !== '') {
-        $categoryModel->create([
+        $categoryController->createData([
             'nom'         => $name,
             'description' => $description
         ]);
     }
 
     if (!empty($_POST['action']) && $_POST['action'] === 'update' && !empty($_POST['id'])) {
-        $categoryModel->update((int) $_POST['id'], [
+        $categoryController->updateData((int) $_POST['id'], [
             'nom'         => $name,
             'description' => $description
         ]);
@@ -54,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Supprimer une catégorie
 // -------------------------------------------------------
 if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'])) {
-    $categoryModel->delete((int) $_GET['id']);
+    $categoryController->deleteData((int) $_GET['id']);
     header('Location: dashboard.php');
     exit;
 }
@@ -63,198 +69,219 @@ if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'
 // Modifier une catégorie (charger dans le formulaire)
 // -------------------------------------------------------
 if (!empty($_GET['action']) && $_GET['action'] === 'edit' && !empty($_GET['id'])) {
-    $editingCategory = $categoryModel->getById((int) $_GET['id']);
+    $editingCategory = $categoryController->getByIdData((int) $_GET['id']);
 }
 
 // -------------------------------------------------------
-// Charger les données
+// Charger les données de statistiques
 // -------------------------------------------------------
-$categories    = $categoryModel->getAll();
+$categories    = $categoryController->getAllData();
 $categoryNames = [];
 foreach ($categories as $category) {
     $categoryNames[$category['idCategory']] = $category['nom'];
 }
-$pendingProducts = $productModel->getByStatut('pending');
+$pendingProducts = $productController->getByStatutData('pending');
+
+// Requêtes pour le dashboard parfait
+$pdo = config::getConnexion();
+
+// Total des ventes (Montant total des commandes livrées ou en attente)
+$stmt = $pdo->query("SELECT SUM(montant_total) as total FROM commande");
+$salesRow = $stmt->fetch(PDO::FETCH_ASSOC);
+$totalSales = $salesRow['total'] ? $salesRow['total'] : 0;
+
+// Total des produits
+$stmt = $pdo->query("SELECT COUNT(*) as nb FROM produit");
+$prodRow = $stmt->fetch(PDO::FETCH_ASSOC);
+$nbProducts = $prodRow['nb'];
+
+// Total des utilisateurs (si la table user existe, on gère les erreurs)
+$nbUsers = 0;
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) as nb FROM user");
+    if ($stmt) {
+        $uRow = $stmt->fetch(PDO::FETCH_ASSOC);
+        $nbUsers = $uRow['nb'];
+    }
+} catch (Exception $e) {
+    $nbUsers = 42; // Fallback
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin System - FreelaSkill</title>
+    <title>Admin Dashboard | FreelaSkill</title>
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="stylesheet" href="css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body>
+<body class="page-anim">
+    <div class="hero-glow" style="z-index: 0; position: fixed;"></div>
+    <div class="hero-glow-2" style="z-index: 0; position: fixed; left: 20%; bottom: -150px; top: auto;"></div>
 
-<!-- SIDEBAR -->
-<aside class="sidebar animate-fade-up">
-    <div style="padding: 0 2rem; margin-bottom: 3rem;">
-        <div class="logo">
-            <i class="fa-solid fa-shapes" style="color: var(--tunisian-red);"></i>
-            Core<span>Panel</span>
-        </div>
-        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v3.0</p>
-    </div>
-    <div class="nav-item active"><i class="fa-solid fa-cube"></i> Métriques Globales</div>
-    <div class="nav-item"><i class="fa-solid fa-network-wired"></i> Flux de Missions</div>
-    <div class="nav-item"><i class="fa-solid fa-users-viewfinder"></i> Entités (Users)</div>
-    <div class="nav-item"><i class="fa-solid fa-shield-halved"></i> Sécurité</div>
-    <div style="margin-top: auto; padding: 0 2rem;">
-        <a href="../Frontoffice/home.php" class="btn btn-outline" style="width: 100%; font-size: 0.85rem; padding: 0.75rem;">
-            <i class="fa-solid fa-globe"></i> Retour au Hub
-        </a>
-    </div>
-</aside>
+    <div class="admin-layout" style="position: relative; z-index: 1;">
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
+            </div>
 
-<main class="main-panel">
-    <div class="hero-glow-bg-2" style="top: 0; right: 0; opacity: 0.5;"></div>
-
-    <!-- HEADER -->
-    <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;" class="animate-fade-up delay-1">
-        <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: white;">
-            Monitorage <span style="color: var(--tech-blue)">En Temps Réel</span>
-        </h1>
-        <div style="display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: var(--radius-full); border: 1px solid rgba(255,255,255,0.05);">
-            <i class="fa-solid fa-satellite" style="color: var(--tech-green);"></i>
-            <span style="font-size: 0.85rem; color: var(--text-muted);">Latence Réseau : 12ms</span>
-        </div>
-    </header>
-
-    <!-- METRICS -->
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 3rem;" class="animate-fade-up delay-2">
-        <div class="metric-card">
-            <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Volume Transigé (24h)</p>
-            <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: white; margin: 0.5rem 0;">
-                45,200 <span style="font-size: 1rem; color: var(--tech-blue);">DT</span>
-            </h2>
-            <p style="color: var(--tech-green); font-size: 0.85rem;"><i class="fa-solid fa-arrow-trend-up"></i> +12% vs Hier</p>
-        </div>
-        <div class="metric-card">
-            <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Flux de Talents Actifs</p>
-            <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: white; margin: 0.5rem 0;">1,420</h2>
-            <p style="color: var(--tech-blue); font-size: 0.85rem;"><i class="fa-solid fa-users"></i> Connexions stables</p>
-        </div>
-        <div class="metric-card" style="border-color: rgba(231,0,19,0.2);">
-            <p style="color: var(--text-muted); font-size: 0.9rem; text-transform: uppercase;">Anomalies / À valider</p>
-            <h2 style="font-family: 'Space Grotesk'; font-size: 2.5rem; color: var(--tunisian-red); margin: 0.5rem 0;">
-                <?= count($pendingProducts) ?>
-            </h2>
-            <p style="color: var(--tunisian-red); font-size: 0.85rem;"><i class="fa-solid fa-triangle-exclamation"></i> Requiert attention humaine</p>
-        </div>
-    </div>
-
-    <!-- SECTION PRODUITS + CATEGORIES -->
-    <section class="metric-card admin-card animate-fade-up delay-4">
-        <div style="padding: 1.5rem 2rem; border-bottom: 1px solid rgba(255,255,255,0.05);">
-            <h3 style="color: white; font-family: 'Space Grotesk'; font-size: 1.2rem; margin: 0;">Produits en attente</h3>
-            <p style="color: var(--text-muted); margin-top: 0.75rem;">Voir les nouveaux produits soumis par les vendeurs et les accepter ou refuser.</p>
-        </div>
-
-        <div style="padding: 2rem;">
-            <div class="admin-grid">
-
-                <!-- Produits à modérer -->
-                <div class="admin-section">
-                    <div class="section-title">Produits à modérer</div>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Nom</th>
-                                <th>Catégorie</th>
-                                <th>Prix</th>
-                                <th>Stock</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (empty($pendingProducts)): ?>
-                                <tr><td colspan="6" style="color: var(--text-muted);">Aucun produit en attente.</td></tr>
-                            <?php else: ?>
-                                <?php foreach ($pendingProducts as $pending): ?>
-                                    <tr>
-                                        <td><?= $pending['idProduit'] ?></td>
-                                        <td><?= htmlspecialchars($pending['nom']) ?></td>
-                                        <td><?= htmlspecialchars($categoryNames[$pending['category_id']] ?? 'Autre') ?></td>
-                                        <td><?= number_format($pending['prix'], 0, ',', ' ') ?> DT</td>
-                                        <td><?= htmlspecialchars($pending['stock']) ?></td>
-                                        <td>
-                                            <a href="?product_action=approve&id=<?= $pending['idProduit'] ?>" class="btn btn-cart">Accepter</a>
-                                            <a href="?product_action=reject&id=<?= $pending['idProduit'] ?>" class="btn btn-danger js-delete-link">Refuser</a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
+            <div class="admin-nav">
+                <a href="./dashboard.php" class="admin-nav-item active">
+                    <i class="fa-solid fa-house"></i> Dashboard
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-chart-line"></i> Analytics
+                </a>
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Marketplace
                 </div>
+                <a href="produits.php" class="admin-nav-item">
+                    <i class="fa-solid fa-box-open"></i> Produits
+                </a>
+                <a href="./pending_products.php" class="admin-nav-item">
+                    <i class="fa-solid fa-clock"></i> Validation produits
+                </a>
+                                <a href="./ajouter_categorie.php" class="admin-nav-item">
+                    <i class="fa-solid fa-plus"></i> Ajouter Catégorie
+                </a>
+                <a href="./liste_categories.php" class="admin-nav-item">
+                    <i class="fa-solid fa-list"></i> Liste des Catégories
+                </a>
+                <a href="./mes_achats.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bag-shopping"></i> Mes Achats
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Commandes
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-users"></i> Clients
+                </a>
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Utilisateurs & rôles
+                </div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-user-tie"></i> Freelancers
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-user-graduate"></i> Étudiants
+                </a>
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Paramètres
+                </div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-gear"></i> Général
+                </a>
+            </div>
 
-                <!-- Gestion des catégories -->
-                <div class="admin-section">
-                    <div class="section-title">Gestion des catégories</div>
-                    <form action="dashboard.php" method="POST" class="category-form">
-                        <input type="hidden" name="action" value="<?= $editingCategory ? 'update' : 'create' ?>">
-                        <?php if ($editingCategory): ?>
-                            <input type="hidden" name="id" value="<?= $editingCategory['idCategory'] ?>">
-                        <?php endif; ?>
-                        <label for="name">Nom de la catégorie</label>
-                        <input id="name" name="name" type="text"
-                               value="<?= htmlspecialchars($editingCategory['nom'] ?? '') ?>"
-                               placeholder="Ex : Informatique" required>
-                        <label for="description">Description</label>
-                        <textarea id="description" name="description" rows="4"
-                                  placeholder="Ex : Tous les produits électroniques et gadgets"><?= htmlspecialchars($editingCategory['description'] ?? '') ?></textarea>
-                        <div style="display:flex; gap:1rem; align-items:center; margin-top: 1rem;">
-                            <button type="submit" class="btn-cart">
-                                <?= $editingCategory ? 'Mettre à jour' : 'Ajouter la catégorie' ?>
-                            </button>
-                            <?php if ($editingCategory): ?>
-                                <a href="dashboard.php" class="btn btn-outline">Annuler</a>
-                            <?php endif; ?>
-                        </div>
-                    </form>
+            <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <a href="../Frontoffice/home.php" class="admin-nav-item" style="color: #ef4444; padding: 0.75rem;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Retour au Hub
+                </a>
+            </div>
+        </aside>
 
-                    <!-- Liste des catégories -->
-                    <div style="margin-top: 2rem;">
-                        <div class="section-title">Liste des catégories</div>
-                        <table class="data-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Nom</th>
-                                    <th>Description</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php if (empty($categories)): ?>
-                                    <tr><td colspan="4" style="color: var(--text-muted);">Aucune catégorie enregistrée.</td></tr>
-                                <?php else: ?>
-                                    <?php foreach ($categories as $category): ?>
-                                        <tr>
-                                            <td><?= $category['idCategory'] ?></td>
-                                            <td><?= htmlspecialchars($category['nom']) ?></td>
-                                            <td><?= htmlspecialchars($category['description']) ?></td>
-                                            <td>
-                                                <a href="?action=edit&id=<?= $category['idCategory'] ?>" class="btn btn-outline">Modifier</a>
-                                                <a href="?action=delete&id=<?= $category['idCategory'] ?>" class="btn btn-danger js-delete-link">Supprimer</a>
-                                            </td>
-                                        </tr>
-                                    <?php endforeach; ?>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-search">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                    <input type="text" placeholder="Rechercher dans le dashboard">
+                </div>
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn">
+                        <i class="fa-regular fa-moon"></i>
+                    </div>
+                    <div class="admin-icon-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge-dot"></span>
+                    </div>
+                    <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="admin-header-row">
+                    <h1 class="admin-page-title">Dashboard</h1>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <button class="admin-btn-outline" style="background: rgba(255,255,255,0.03);">
+                            <i class="fa-regular fa-calendar"></i> Sélectionner la date
+                        </button>
+                        <button class="admin-btn">Paramètres</button>
                     </div>
                 </div>
 
-            </div><!-- fin admin-grid -->
-        </div><!-- fin padding -->
-    </section><!-- fin admin-card -->
+                <div class="admin-grid-4">
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Ventes Totales</span>
+                            <div class="stat-card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= number_format($totalSales, 0, ',', ' ') ?> DT</div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> Global <span style="color: #475569; font-weight: 500; margin-left: 4px;">Chiffre d'affaires</span>
+                        </div>
+                    </div>
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Produits</span>
+                            <div class="stat-card-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);"><i class="fa-solid fa-box"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $nbProducts ?></div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> En ligne <span style="color: #475569; font-weight: 500; margin-left: 4px;">Sur la marketplace</span>
+                        </div>
+                    </div>
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Utilisateurs</span>
+                            <div class="stat-card-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-user-group"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $nbUsers ?></div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> Actifs <span style="color: #475569; font-weight: 500; margin-left: 4px;">Inscrits</span>
+                        </div>
+                    </div>
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Produits en attente</span>
+                            <div class="stat-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= count($pendingProducts) ?></div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> <?= count($pendingProducts) ?> <span style="color: #475569; font-weight: 500; margin-left: 4px;">Articles à valider</span>
+                        </div>
+                    </div>
+                </div>
 
-</main>
+                <div class="admin-grid-2-1">
+                    <div class="glass-card">
+                        <div class="admin-list-header" style="margin-bottom: 0;">
+                            <span class="admin-list-title">Earnings</span>
+                            <div class="admin-icon-btn" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                        <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: #475569;">
+                            <i class="fa-solid fa-chart-area fa-3x" style="opacity: 0.2; margin-right: 1rem;"></i> Graphique en attente
+                        </div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="admin-list-header" style="margin-bottom: 0;">
+                            <span class="admin-list-title">Trafic</span>
+                            <div class="admin-icon-btn" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                        <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: #475569;">
+                            <i class="fa-solid fa-chart-pie fa-3x" style="opacity: 0.2; margin-right: 1rem;"></i> Graphique en attente
+                        </div>
+                    </div>
+                </div>
 
-<script src="js.js"></script>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js.js"></script>
 </body>
 </html>

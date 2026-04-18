@@ -1,4 +1,8 @@
 <?php
+if (!defined('CLOUDINARY_URL')) {
+    define('CLOUDINARY_URL', 'cloudinary://962455564499621:6KCUgBqDWEQCJtuolijK69-jlck@dsimea1nb');
+}
+
 class config
 {   private static $pdo = null;
     public static function getConnexion()
