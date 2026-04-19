@@ -43,13 +43,14 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations</a>
         <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges</a>
         <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archivage</a>
-        <a href="admin_rules.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+        <a href="admin_rules_list.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+        <a href="admin_contrat.php" class="nav-item"><i class="fa-solid fa-file-contract w-5"></i> Gestion des contrats</a>
     </aside>
 
     <main class="main-panel">
         <div class="hero-glow-bg-2" style="top: 0; right: 0; opacity: 0.5;"></div>
 
-        <a href="admin_rules.php" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); color: white; border-radius: 999px; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);" class="animate-fade-up"><i class="fa-solid fa-arrow-left"></i> Retour au menu</a>
+        <a href="admin_rules_list.php" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); color: white; border-radius: 999px; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);" class="animate-fade-up"><i class="fa-solid fa-arrow-left"></i> Retour au menu</a>
 
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;" class="animate-fade-up delay-1">
             <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: white;">Liste des <span style="color: var(--tech-blue)">règles</span></h1>

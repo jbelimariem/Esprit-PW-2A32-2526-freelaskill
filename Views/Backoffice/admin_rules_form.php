@@ -82,7 +82,8 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations</a>
         <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges</a>
         <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archivage</a>
-        <a href="admin_rules.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+        <a href="admin_rules_list.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
+        <a href="admin_contrat.php" class="nav-item"><i class="fa-solid fa-file-contract w-5"></i> Gestion des contrats</a>
     </aside>
 
     <main class="main-panel">

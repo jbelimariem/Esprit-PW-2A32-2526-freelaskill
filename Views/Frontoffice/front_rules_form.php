@@ -104,6 +104,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <?php endif; ?>
         
         <a href="front_rules_index.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Mes Règles</a>
+        <a href="front_contrat_index.php" class="nav-item"><i class="fa-solid fa-file-contract w-5"></i> Mes Contrats</a>
 
         <div style="margin-top: auto; padding: 2rem;">
             <a href="front_rules_role.php" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #F87171; text-decoration: none; font-size: 0.85rem; padding: 0.8rem; border: 1px solid rgba(248,113,113,0.3); border-radius: 999px; transition: 0.3s;">

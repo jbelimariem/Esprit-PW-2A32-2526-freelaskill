@@ -1,7 +1,57 @@
 <?php
+require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Rule.php';
 
-$ruleModel = new Rule();
+// --- Fonctions de base de données ---
+
+function getAllRules() {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->query('SELECT * FROM rules ORDER BY date_creation DESC');
+    return $stmt->fetchAll();
+}
+
+function getRuleById(int $id) {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->prepare('SELECT * FROM rules WHERE id_rule = :id');
+    $stmt->execute(['id' => $id]);
+    $rule = $stmt->fetch();
+    return $rule === false ? null : $rule;
+}
+
+function createRule(array $data) {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->prepare(
+        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, id_contrat) VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :id_contrat)'
+    );
+    return $stmt->execute([
+        'titre' => $data['titre'],
+        'description' => $data['description'],
+        'type' => $data['type'],
+        'valeur' => $data['valeur'],
+        'statut' => $data['statut'],
+        'id_contrat' => $data['id_contrat']
+    ]);
+}
+
+function updateRule(int $id, array $data) {
+    $pdo = config::getConnexion();
+    // On met à jour seulement les champs fournis dans $data
+    $fields = [];
+    foreach ($data as $key => $value) {
+        $fields[] = "$key = :$key";
+    }
+    $data['id'] = $id;
+    $stmt = $pdo->prepare('UPDATE rules SET ' . implode(', ', $fields) . ' WHERE id_rule = :id');
+    return $stmt->execute($data);
+}
+
+function deleteRule(int $id) {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->prepare('DELETE FROM rules WHERE id_rule = :id');
+    return $stmt->execute(['id' => $id]);
+}
+
+// --- Logique de Contrôleur ---
 $errors = [];
 $successMessage = null;
 $action = $_REQUEST['action'] ?? 'list';
@@ -53,7 +103,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Vérification des doublons pour le titre (si création)
     if (empty($_POST['id_rule']) && !empty($titre)) {
-        $existingRules = $ruleModel->all();
+        $existingRules = getAllRules();
         foreach ($existingRules as $rule) {
             if (strtolower($rule['titre']) === strtolower($titre)) {
                 $errors[] = 'Une règle avec ce titre existe déjà.';
@@ -74,13 +124,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($_POST['id_rule'])) {
             $editedId = intval($_POST['id_rule']);
-            if ($ruleModel->update($editedId, $data)) {
+            if (updateRule($editedId, $data)) {
                 $successMessage = 'Règle mise à jour avec succès.';
             } else {
                 $errors[] = 'Impossible de mettre à jour la règle.';
             }
         } else {
-            if ($ruleModel->create($data)) {
+            if (createRule($data)) {
                 $successMessage = 'Règle ajoutée avec succès.';
             } else {
                 $errors[] = 'Impossible d’ajouter la règle.';
@@ -90,11 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 if ($action === 'toggle' && $id !== null) {
-    $rule = $ruleModel->get($id);
+    $rule = getRuleById($id);
     if ($rule) {
         $newStatus = $rule['statut'] === 'actif' ? 'inactif' : 'actif';
-        if ($ruleModel->update($id, ['statut' => $newStatus])) {
-            header('Location: ' . $_SERVER['PHP_SELF'] . '?success=toggle');
+        if (updateRule($id, ['statut' => $newStatus])) {
+            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=toggle');
             exit;
         } else {
             $errors[] = 'Impossible de changer le statut de la règle.';
@@ -104,12 +154,21 @@ if ($action === 'toggle' && $id !== null) {
     }
 }
 
+if ($action === 'delete' && $id !== null) {
+    if (deleteRule($id)) {
+        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete');
+        exit;
+    } else {
+        $errors[] = 'Impossible de supprimer cette règle.';
+    }
+}
+
 if ($action === 'edit' && $id !== null) {
-    $currentRule = $ruleModel->get($id);
+    $currentRule = getRuleById($id);
     if (!$currentRule) {
         $errors[] = 'Règle introuvable.';
         $action = 'list'; // Revenir à la liste si la règle n'existe pas
     }
 }
 
-$rules = $ruleModel->all();
+$rules = getAllRules();
