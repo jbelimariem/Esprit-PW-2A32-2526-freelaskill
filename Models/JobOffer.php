@@ -1,169 +1,157 @@
 <?php
-// Models/JobOffer.php
+// Models/JobOffer.php — Modèle Entité avec Getters/Setters et Logique PDO
 
 require_once __DIR__ . '/../config.php';
 
 class JobOffer {
+    private $id;
+    private $titre;
+    private $description;
+    private $competences;
+    private $budget;
+    private $delai;
+    private $statut; // pending, approved, rejected
+    private $date_creation;
+    private $client_id;
 
     private $pdo;
 
-    public function __construct() {
+    public function __construct($data = []) {
         $this->pdo = config::getConnexion();
+        if (!empty($data)) {
+            $this->id            = $data['id']            ?? null;
+            $this->titre         = $data['titre']         ?? '';
+            $this->description   = $data['description']   ?? '';
+            $this->competences   = $data['competences']   ?? '';
+            $this->budget        = $data['budget']        ?? 0;
+            $this->delai         = $data['delai']         ?? '';
+            $this->statut        = $data['statut']        ?? 'pending';
+            $this->date_creation = $data['date_creation'] ?? null;
+            $this->client_id     = $data['client_id']     ?? 1;
+        }
     }
 
-    // ----------------------------------------------------------------
-    // Récupérer toutes les offres
-    // ----------------------------------------------------------------
+    // --- GETTERS ---
+    public function getId()            { return $this->id; }
+    public function getTitre()         { return $this->titre; }
+    public function getDescription()   { return $this->description; }
+    public function getCompetences()   { return $this->competences; }
+    public function getBudget()        { return $this->budget; }
+    public function getDelai()         { return $this->delai; }
+    public function getStatut()        { return $this->statut; }
+    public function getDateCreation()  { return $this->date_creation; }
+    public function getClientId()      { return $this->client_id; }
+
+    // --- SETTERS ---
+    public function setTitre($t)       { $this->titre = $t; }
+    public function setDescription($d) { $this->description = $d; }
+    public function setCompetences($c) { $this->competences = $c; }
+    public function setBudget($b)      { $this->budget = $b; }
+    public function setDelai($dl)      { $this->delai = $dl; }
+    public function setStatut($s)      { $this->statut = $s; }
+
+    // --- DATABASE METHODS ---
+
     public function getAll() {
-        $sql  = "SELECT * FROM job_offer ORDER BY date_creation DESC";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->query("SELECT * FROM offres_emploi ORDER BY date_creation DESC");
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $offres = [];
+        foreach ($results as $row) {
+            $offres[] = new JobOffer($row);
+        }
+        return $offres;
     }
 
-    // ----------------------------------------------------------------
-    // Récupérer une offre par ID
-    // ----------------------------------------------------------------
     public function getById($id) {
-        $sql  = "SELECT * FROM job_offer WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
+        $stmt = $this->pdo->prepare("SELECT * FROM offres_emploi WHERE id = ?");
         $stmt->execute([$id]);
-        return $stmt->fetch();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row ? new JobOffer($row) : null;
     }
 
-    // ----------------------------------------------------------------
-    // Filtrer par statut (pending / approved / rejected)
-    // ----------------------------------------------------------------
-    public function getByStatut($statut) {
-        $sql  = "SELECT * FROM job_offer WHERE statut = ? ORDER BY date_creation DESC";
+    public function save() {
+        $sql = "INSERT INTO offres_emploi (titre, description, competences, budget, delai, statut, client_id) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$statut]);
-        return $stmt->fetchAll();
-    }
-
-    // ----------------------------------------------------------------
-    // Récupérer les offres d'un client
-    // ----------------------------------------------------------------
-    public function getByClientId($clientId) {
-        $sql  = "SELECT * FROM job_offer WHERE client_id = ? ORDER BY date_creation DESC";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$clientId]);
-        return $stmt->fetchAll();
-    }
-
-    // ----------------------------------------------------------------
-    // Recherche par titre et/ou date
-    // ----------------------------------------------------------------
-    public function search($titre = '', $date = '') {
-        $conditions = [];
-        $params     = [];
-
-        if (!empty($titre)) {
-            $conditions[] = "titre LIKE ?";
-            $params[]     = '%' . $titre . '%';
-        }
-        if (!empty($date)) {
-            $conditions[] = "DATE(date_creation) = ?";
-            $params[]     = $date;
-        }
-
-        $where = empty($conditions) ? '' : 'WHERE ' . implode(' AND ', $conditions);
-        $sql   = "SELECT * FROM job_offer $where ORDER BY date_creation DESC";
-        $stmt  = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll();
-    }
-
-    // ----------------------------------------------------------------
-    // Recherche unifiée (titre OU date)
-    // ----------------------------------------------------------------
-    public function searchUnified($q) {
-        if (empty($q)) return $this->getAll();
-
-        $sql = "SELECT * FROM job_offer 
-                WHERE (titre LIKE ?) 
-                OR (DATE(date_creation) = ?)
-                ORDER BY date_creation DESC";
-        $stmt = $this->pdo->prepare($sql);
-        // On passe 'q' pour le titre (avec %) et pour la date (direct)
-        $stmt->execute(['%'.$q.'%', $q]);
-        return $stmt->fetchAll();
-    }
-
-    // ----------------------------------------------------------------
-    // Créer une offre (statut = pending par défaut)
-    // ----------------------------------------------------------------
-    public function create($data) {
-        $sql = "INSERT INTO job_offer 
-                (titre, description, competences, budget, delai, statut, client_id)
-                VALUES (?, ?, ?, ?, ?, 'pending', ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $data['titre'],
-            $data['description'],
-            $data['competences'],
-            $data['budget'],
-            $data['delai'],
-            $data['client_id'] ?? 1
-        ]);
-        return $this->pdo->lastInsertId();
-    }
-
-    // ----------------------------------------------------------------
-    // Modifier une offre
-    // ----------------------------------------------------------------
-    public function update($id, $data) {
-        $sql = "UPDATE job_offer 
-                SET titre=?, description=?, competences=?, budget=?, delai=?, statut=?
-                WHERE id=?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([
-            $data['titre'],
-            $data['description'],
-            $data['competences'],
-            $data['budget'],
-            $data['delai'],
-            $data['statut'],
-            $id
+        return $stmt->execute([
+            $this->titre, 
+            $this->description, 
+            $this->competences, 
+            $this->budget, 
+            $this->delai, 
+            $this->statut,
+            $this->client_id
         ]);
     }
 
-    // ----------------------------------------------------------------
-    // Modifier uniquement le statut (admin: approve / reject)
-    // ----------------------------------------------------------------
-    public function updateStatut($id, $statut) {
-        $sql  = "UPDATE job_offer SET statut = ? WHERE id = ?";
+    public function update() {
+        $sql = "UPDATE offres_emploi SET titre=?, description=?, competences=?, budget=?, delai=?, statut=? WHERE id=?";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$statut, $id]);
+        return $stmt->execute([
+            $this->titre, 
+            $this->description, 
+            $this->competences, 
+            $this->budget, 
+            $this->delai, 
+            $this->statut, 
+            $this->id
+        ]);
     }
 
-    // ----------------------------------------------------------------
-    // Supprimer une offre
-    // ----------------------------------------------------------------
     public function delete($id) {
-        $sql  = "DELETE FROM job_offer WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("DELETE FROM offres_emploi WHERE id = ?");
+        return $stmt->execute([$id]);
     }
 
-    // ----------------------------------------------------------------
-    // Compter par statut (pour stats admin)
-    // ----------------------------------------------------------------
-    public function countByStatut($statut) {
-        $sql  = "SELECT COUNT(*) as total FROM job_offer WHERE statut = ?";
+    public function search($q, $d, $maxBudget = null) {
+        $sql = "SELECT * FROM offres_emploi WHERE 1=1";
+        $params = [];
+        if (!empty($q)) {
+            $sql .= " AND (titre LIKE ? OR description LIKE ?)";
+            $params[] = "%$q%"; $params[] = "%$q%";
+        }
+        if (!empty($d)) {
+            $sql .= " AND DATE(date_creation) = ?";
+            $params[] = $d;
+        }
+        if (!empty($maxBudget)) {
+            $sql .= " AND budget <= ?";
+            $params[] = $maxBudget;
+        }
+        $sql .= " ORDER BY date_creation DESC";
         $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $offres = [];
+        foreach ($results as $row) {
+            $offres[] = new JobOffer($row);
+        }
+        return $offres;
+    }
+
+    public function getByStatut($statut) {
+        $stmt = $this->pdo->prepare("SELECT * FROM offres_emploi WHERE statut = ? ORDER BY date_creation DESC");
         $stmt->execute([$statut]);
-        $row  = $stmt->fetch();
-        return (int) $row['total'];
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $offres = [];
+        foreach ($results as $row) {
+            $offres[] = new JobOffer($row);
+        }
+        return $offres;
     }
 
-    // ----------------------------------------------------------------
-    // Compter total
-    // ----------------------------------------------------------------
+    public function updateStatut($id, $statut) {
+        $stmt = $this->pdo->prepare("UPDATE offres_emploi SET statut = ? WHERE id = ?");
+        return $stmt->execute([$statut, $id]);
+    }
+
     public function countAll() {
-        $sql  = "SELECT COUNT(*) as total FROM job_offer";
-        $stmt = $this->pdo->query($sql);
-        $row  = $stmt->fetch();
-        return (int) $row['total'];
+        return $this->pdo->query("SELECT COUNT(*) FROM offres_emploi")->fetchColumn();
+    }
+
+    public function countByStatut($s) {
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM offres_emploi WHERE statut = ?");
+        $stmt->execute([$s]);
+        return $stmt->fetchColumn();
     }
 }
-?>

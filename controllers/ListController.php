@@ -1,0 +1,22 @@
+<?php
+// controllers/ListController.php — Action: Liste et Recherche Front
+require_once __DIR__ . '/../Models/JobOffer.php';
+
+class ListController {
+    private $model;
+    public function __construct() { $this->model = new JobOffer(); }
+
+    public function execute() {
+        $q = $_GET['q'] ?? '';
+        $d = $_GET['date'] ?? '';
+        $budget = $_GET['budget'] ?? '';
+
+        if (!empty($q) || !empty($d) || !empty($budget)) {
+            $offres = $this->model->search($q, $d, $budget);
+        } else {
+            $offres = $this->model->getAll();
+        }
+
+        include __DIR__ . '/../views/frontoffice/home.view.php';
+    }
+}
