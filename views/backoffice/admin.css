@@ -1,0 +1,64 @@
+/* admin.css — User Module Backoffice */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-dark); color: white; display: flex; }
+.admin-layout { display: flex; min-height: 100vh; width: 100%; }
+
+/* SIDEBAR */
+.sidebar { width: 280px; min-height: 100vh; background: rgba(2,6,23,0.92); border-right: 1px solid rgba(255,255,255,0.08); padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 1rem; position: sticky; top: 0; }
+.sidebar .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.4rem; font-weight: 700; }
+.sidebar .logo span { color: var(--tech-blue); }
+
+/* MAIN */
+.main-panel { flex: 1; padding: 2.5rem 3rem; min-height: 100vh; position: relative; overflow: hidden; }
+
+/* METRIC CARDS */
+.metric-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-lg); padding: 1.75rem; position: relative; overflow: hidden; }
+.metric-card::after { content: ''; position: absolute; top: 0; right: 0; width: 130px; height: 130px; background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 60%); opacity: 0.1; filter: blur(24px); pointer-events: none; }
+
+/* ADMIN TABLE SECTION */
+.admin-section { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-lg); padding: 2rem; }
+.section-title { font-size: 1.05rem; color: white; margin-bottom: 1rem; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.6rem; }
+
+/* TABLE */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 1rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.data-table thead th { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--text-muted); white-space: nowrap; }
+.data-table tbody tr { transition: background 0.2s; }
+.data-table tbody tr:hover { background: rgba(59,130,246,0.07); }
+.data-table td { color: white; vertical-align: middle; }
+
+/* BUTTONS */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.65rem 1.1rem; border-radius: var(--radius-full); font-weight: 600; text-decoration: none; transition: var(--transition); border: 1px solid transparent; font-family: 'Space Grotesk', sans-serif; font-size: 0.88rem; cursor: pointer; }
+.btn:hover { transform: translateY(-1px); }
+.btn-primary { background: linear-gradient(135deg, var(--tech-blue), #2563eb); color: white; border: none; }
+.btn-primary:hover { box-shadow: var(--neon-blue); filter: brightness(1.1); }
+.btn-outline { background: transparent; color: var(--text-light); border-color: rgba(255,255,255,0.12); }
+.btn-outline:hover { background: rgba(255,255,255,0.06); }
+.btn-danger { background: rgba(239,68,68,0.16); color: var(--tunisian-red); border-color: rgba(239,68,68,0.25); }
+.btn-danger:hover { background: rgba(239,68,68,0.25); }
+.btn-success { background: rgba(16,185,129,0.15); color: var(--tech-green); border-color: rgba(16,185,129,0.3); }
+.btn-success:hover { background: rgba(16,185,129,0.25); }
+
+/* BADGES */
+.badge { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.2rem 0.65rem; border-radius: var(--radius-full); font-size: 0.72rem; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+.badge-active     { background: rgba(16,185,129,0.15); color: var(--tech-green); }
+.badge-banned     { background: rgba(239,68,68,0.15);  color: var(--tunisian-red); }
+.badge-pending    { background: rgba(245,158,11,0.15); color: #F59E0B; }
+.badge-freelancer { background: rgba(59,130,246,0.15); color: var(--tech-blue); }
+.badge-client     { background: rgba(139,92,246,0.15); color: #8b5cf6; }
+
+/* NAV ITEM */
+.nav-item { color: var(--text-muted); display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); border: 1px solid transparent; font-size: 0.9rem; }
+.nav-item:hover, .nav-item.active { background: rgba(59,130,246,0.14); color: white; border-color: rgba(59,130,246,0.35); }
+
+/* ANIMATIONS */
+.animate-up { animation: fadeUp 0.5s ease forwards; }
+
+@media (max-width: 980px) {
+    .main-panel { padding: 1.5rem; }
+    .sidebar { position: relative; width: 100%; min-height: auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.08); flex-direction: row; flex-wrap: wrap; padding: 1rem; }
+    .admin-layout { flex-direction: column; }
+}
+@media (max-width: 640px) {
+    .main-panel { padding: 1rem; }
+}
