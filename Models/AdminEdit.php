@@ -1,10 +1,4 @@
 <?php
-<<<<<<< HEAD
-require_once __DIR__ . '/../Models/Edit.php';
-
-class AdminEdit extends Edit {
-    // Uses the same logic as Edit for now
-=======
 // Models/AdminEdit.php — Modèle spécifique pour l'édition admin
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/JobOffer.php';
@@ -35,5 +29,4 @@ class AdminEdit {
             $offre->getId()
         ]);
     }
->>>>>>> faca6fd (sss)
 }

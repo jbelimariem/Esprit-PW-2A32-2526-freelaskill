@@ -46,6 +46,11 @@ $appStatutConfig = [
 
 <nav>
     <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+    <ul class="nav-links">
+        <li><a href="home.php">Accueil</a></li>
+        <li><a href="home.php" class="active">Client</a></li>
+        <li><a href="freelancer_home.php">Freelancers</a></li>
+    </ul>
     <div class="nav-right">
         <a href="home.php" class="cart-btn" style="background:rgba(255,255,255,0.06); color:white;"><i class="fa-solid fa-arrow-left"></i> Retour</a>
     </div>

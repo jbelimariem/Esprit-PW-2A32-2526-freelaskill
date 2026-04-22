@@ -1,15 +1,9 @@
 <?php
-<<<<<<< HEAD
-require_once __DIR__ . '/../config.php';
-
-class ListModel { // Renamed to ListModel because 'List' is a reserved keyword in PHP
-=======
 // Models/List.php — Modèle spécifique pour le listage
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/JobOffer.php';
 
 class ListModel {
->>>>>>> faca6fd (sss)
     private $pdo;
 
     public function __construct() {
@@ -18,16 +12,12 @@ class ListModel {
 
     public function getAll() {
         $stmt = $this->pdo->query("SELECT * FROM offres_emploi ORDER BY date_creation DESC");
-<<<<<<< HEAD
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-=======
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $offres = [];
         foreach ($results as $row) {
             $offres[] = new JobOffer($row);
         }
         return $offres;
->>>>>>> faca6fd (sss)
     }
 
     public function search($q, $d, $maxBudget = null) {
@@ -48,15 +38,11 @@ class ListModel {
         $sql .= " ORDER BY date_creation DESC";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
-<<<<<<< HEAD
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-=======
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $offres = [];
         foreach ($results as $row) {
             $offres[] = new JobOffer($row);
         }
         return $offres;
->>>>>>> faca6fd (sss)
     }
 }

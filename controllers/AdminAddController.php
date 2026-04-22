@@ -15,12 +15,8 @@ class AdminAddController {
                 'statut' => $_POST['statut'] ?? 'approved',
                 'client_id' => 1
             ];
-<<<<<<< HEAD
-            (new AdminAdd())->save($data);
-=======
             $offre = new JobOffer($data);
             (new AdminAdd())->save($offre);
->>>>>>> faca6fd (sss)
             header('Location: dashboard.php?success=added'); exit;
         }
         include __DIR__ . '/../views/backoffice/add_job_admin.view.php';

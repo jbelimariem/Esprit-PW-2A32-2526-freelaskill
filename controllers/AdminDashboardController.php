@@ -14,7 +14,7 @@ class AdminDashboardController {
         } elseif ($filtre !== 'all') { 
             $offres = $model->getByStatut($filtre); 
         } else { 
-            $offres = $model->getAllJobs(); 
+            $offres = $model->getAll(); 
         }
 
         $totalAll = $model->countAll();

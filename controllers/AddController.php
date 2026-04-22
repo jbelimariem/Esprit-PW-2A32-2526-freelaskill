@@ -1,9 +1,6 @@
 <?php
 // controllers/AddController.php
-<<<<<<< HEAD
-=======
 require_once __DIR__ . '/../Models/JobOffer.php';
->>>>>>> faca6fd (sss)
 require_once __DIR__ . '/../Models/Add.php';
 
 class AddController {
@@ -35,12 +32,8 @@ class AddController {
             ];
             $errors = $this->validate($data);
             if (empty($errors)) {
-<<<<<<< HEAD
-                $this->model->save($data);
-=======
                 $offre = new JobOffer($data);
                 $this->model->save($offre);
->>>>>>> faca6fd (sss)
                 header('Location: home.php?success=added'); exit;
             }
         }

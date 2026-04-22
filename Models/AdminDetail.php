@@ -1,10 +1,4 @@
 <?php
-<<<<<<< HEAD
-require_once __DIR__ . '/../Models/Detail.php';
-
-class AdminDetail extends Detail {
-    // Uses the same logic as Detail for now
-=======
 // Models/AdminDetail.php — Modèle spécifique pour le détail admin
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/JobOffer.php';
@@ -37,5 +31,4 @@ class AdminDetail {
         $stmt = $this->pdo->prepare("UPDATE applications SET status = ? WHERE id = ?");
         return $stmt->execute([$status, $id]);
     }
->>>>>>> faca6fd (sss)
 }
