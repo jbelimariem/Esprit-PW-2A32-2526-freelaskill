@@ -50,10 +50,38 @@ function statutBadge($s) {
                 <h1 class="admin-page-title">Gestion des <span>Missions</span></h1>
 
                 <div class="admin-grid-4">
-                    <div class="glass-card"><div>Total</div><div class="stat-card-value"><?= $totalAll ?></div></div>
-                    <div class="glass-card"><div>En attente</div><div class="stat-card-value"><?= $totalPending ?></div></div>
-                    <div class="glass-card"><div>Approuvées</div><div class="stat-card-value"><?= $totalApproved ?></div></div>
-                    <div class="glass-card"><div>Rejetées</div><div class="stat-card-value"><?= $totalRejected ?></div></div>
+                    <div class="glass-card">
+                        <div class="stat-card-header">
+                            <span>Total Missions</span>
+                            <div class="stat-card-icon"><i class="fa-solid fa-briefcase"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalAll ?></div>
+                        <div class="stat-card-trend"><span class="trend-up"><i class="fa-solid fa-arrow-up"></i> 12%</span> vs mois dernier</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-card-header">
+                            <span>En attente</span>
+                            <div class="stat-card-icon" style="background:rgba(245,158,11,0.1); color:#f59e0b;"><i class="fa-solid fa-clock"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalPending ?></div>
+                        <div class="stat-card-trend">Missions à réviser</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-card-header">
+                            <span>Approuvées</span>
+                            <div class="stat-card-icon" style="background:rgba(16,185,129,0.1); color:var(--tech-green);"><i class="fa-solid fa-check-circle"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalApproved ?></div>
+                        <div class="stat-card-trend"><span class="trend-up"><i class="fa-solid fa-arrow-up"></i> 5%</span> actives</div>
+                    </div>
+                    <div class="glass-card">
+                        <div class="stat-card-header">
+                            <span>Rejetées</span>
+                            <div class="stat-card-icon" style="background:rgba(239,68,68,0.1); color:var(--tunisian-red);"><i class="fa-solid fa-ban"></i></div>
+                        </div>
+                        <div class="stat-card-value"><?= $totalRejected ?></div>
+                        <div class="stat-card-trend">Non conformes</div>
+                    </div>
                 </div>
 
                 <div class="glass-card" style="padding:0;">
@@ -68,12 +96,20 @@ function statutBadge($s) {
                                 <td><?= number_format($o['budget'], 0, ',', ' ') ?> DT</td>
                                 <td><span class="statut-badge <?= $badge['class'] ?>"><?= $badge['label'] ?></span></td>
                                 <td>
+<<<<<<< HEAD
                                     <a href="detail_job_admin.php?id=<?= $o['id'] ?>" class="btn">Voir</a>
                                     <?php if ($o['statut'] === 'pending'): ?>
                                         <a href="?action=approve&id=<?= $o['id'] ?>" class="btn">Approuver</a>
                                     <?php else: ?>
                                         <a href="edit_job_admin.php?id=<?= $o['id'] ?>" class="btn">Edit</a>
                                     <?php endif; ?>
+=======
+                                    <div style="display:flex; gap:0.5rem;">
+                                        <a href="?action=approve&id=<?= $o->getId() ?>" class="btn" style="background:#10b981; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:0.75rem;"><i class="fa-solid fa-check"></i></a>
+                                        <a href="?action=reject&id=<?= $o->getId() ?>" class="btn" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:4px; font-size:0.75rem;"><i class="fa-solid fa-xmark"></i></a>
+                                        <a href="edit_job_admin.php?id=<?= $o->getId() ?>" class="btn" style="background:rgba(59,130,246,0.1); color:var(--tech-blue); border:1px solid rgba(59,130,246,0.2); padding:5px 10px; border-radius:4px; font-size:0.75rem;"><i class="fa-solid fa-pen"></i></a>
+                                    </div>
+>>>>>>> faca6fd (sss)
                                 </td>
                             </tr>
                             <?php endforeach; ?>

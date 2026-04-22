@@ -22,35 +22,71 @@
         </aside>
 
         <main class="admin-main">
-            <div class="admin-content" style="max-width: 900px;">
-                <h1 class="admin-page-title">Créer une <span>Nouvelle Mission</span></h1>
-                <div class="glass-card">
+            <div class="admin-content" style="max-width: 1200px;">
+                <h1 class="admin-page-title">Publier une <span>Nouvelle Mission</span></h1>
+                
+                <style>
+                    .form-group { margin-bottom: 1.5rem; }
+                    .form-label { display: block; margin-bottom: .5rem; color: #94A3B8; font-size: .9rem; font-weight: 500; }
+                    .form-label span { color: var(--tunisian-red); margin-left: 2px; }
+                    .form-input {
+                        width: 100%;
+                        background: rgba(255,255,255,0.03);
+                        border: 1px solid var(--border);
+                        border-radius: var(--radius-md);
+                        padding: 0.85rem 1.1rem;
+                        color: white;
+                        font-family: 'Space Grotesk', sans-serif;
+                        font-size: 0.95rem;
+                        outline: none;
+                        transition: var(--transition);
+                    }
+                    .form-input:focus { background: rgba(59,130,246,0.05); border-color: var(--tech-blue); box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+                    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+                    textarea.form-input { resize: vertical; min-height: 140px; }
+                </style>
+
+                <div class="glass-card" style="padding:3rem; border-radius:18px;">
                     <form action="add_job_admin.php" method="POST" novalidate>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
-                            <div style="grid-column: span 2;">
-                                <label>Titre</label>
-                                <input type="text" name="titre" value="<?= htmlspecialchars($data['titre'] ?? '') ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
+                        <div class="form-group">
+                            <label class="form-label">Titre de l'offre <span>*</span></label>
+                            <input name="titre" type="text" class="form-input" placeholder="Ex. Développeur React.js" value="<?= htmlspecialchars($data['titre'] ?? '') ?>">
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Budget (DT) <span>*</span></label>
+                                <input name="budget" type="text" class="form-input" placeholder="Ex. 1500" value="<?= htmlspecialchars($data['budget'] ?? '') ?>">
                             </div>
-                            <div>
-                                <label>Budget (DT)</label>
-                                <input type="text" name="budget" value="<?= htmlspecialchars($data['budget'] ?? '') ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
-                            </div>
-                            <div>
-                                <label>Délai</label>
-                                <select name="delai" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(2,6,23,0.9); color:white;">
-                                    <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois"] as $d): ?>
-                                    <option value="<?= $d ?>" <?= ($data['delai'] ?? '') === $d ? 'selected' : '' ?>><?= $d ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div style="grid-column: span 2;">
-                                <label>Description</label>
-                                <textarea name="description" rows="5" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;"><?= htmlspecialchars($data['description'] ?? '') ?></textarea>
+                            <div class="form-group">
+                                <label class="form-label">Délai <span>*</span></label>
+                                <input name="delai" type="text" class="form-input" placeholder="Ex. 15 jours" value="<?= htmlspecialchars($data['delai'] ?? '') ?>">
                             </div>
                         </div>
-                        <div style="margin-top: 2rem; display: flex; gap: 1rem;">
-                            <button type="submit" class="btn btn-primary">Publier</button>
-                            <a href="dashboard.php" class="btn btn-outline">Annuler</a>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label">Statut de la mission <span>*</span></label>
+                                <select name="statut" class="form-input" style="background: #0f172a;">
+                                    <option value="pending" <?= ($data['statut'] ?? '') === 'pending' ? 'selected' : '' ?>>En attente</option>
+                                    <option value="approved" <?= ($data['statut'] ?? '') === 'approved' ? 'selected' : '' ?>>Approuvée</option>
+                                    <option value="rejected" <?= ($data['statut'] ?? '') === 'rejected' ? 'selected' : '' ?>>Rejetée</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Compétences <span>*</span></label>
+                                <input name="competences" type="text" class="form-input" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($data['competences'] ?? '') ?>">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Description <span>*</span></label>
+                            <textarea name="description" rows="6" class="form-input"><?= htmlspecialchars($data['description'] ?? '') ?></textarea>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: flex; gap: 1rem; border-top: 1px solid var(--border); padding-top: 2rem;">
+                            <button type="submit" class="btn btn-primary" style="padding: 1rem 3rem;">Publier la Mission</button>
+                            <a href="dashboard.php" class="btn btn-outline" style="padding: 1rem 2rem;">Annuler</a>
                         </div>
                     </form>
                 </div>

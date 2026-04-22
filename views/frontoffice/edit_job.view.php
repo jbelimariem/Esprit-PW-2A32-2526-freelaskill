@@ -52,8 +52,8 @@
     </div>
 </section>
 
-<div class="page-body" style="padding: 2rem 1rem;">
-    <div style="max-width:860px; margin:0 auto; width:100%;">
+<div class="page-body" style="padding: 2rem 1rem; display: block;">
+    <div style="max-width:1200px; margin:0 auto; width:100%;">
 
         <?php if (!empty($errors)): ?>
         <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; color:var(--tunisian-red);">
@@ -66,36 +66,31 @@
 
         <div class="product-card" style="opacity:1; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
             <div class="card-body" style="padding:2.5rem;">
-                <form id="edit-form" action="edit_job.php?id=<?= $offre['id'] ?>" method="POST" novalidate>
+                <form id="edit-form" action="edit_job.php?id=<?= $offre->getId() ?>" method="POST" novalidate>
                     <div class="form-group">
                         <label class="form-label" for="titre">Titre de l'offre <span>*</span></label>
-                        <input id="titre" name="titre" type="text" class="form-input" placeholder="Titre de l'offre" value="<?= htmlspecialchars($offre['titre']) ?>">
+                        <input id="titre" name="titre" type="text" class="form-input" placeholder="Titre de l'offre" value="<?= htmlspecialchars($offre->getTitre()) ?>">
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label" for="budget">Budget (DT) <span>*</span></label>
-                            <input id="budget" name="budget" type="text" class="form-input" placeholder="Ex. 1500" value="<?= htmlspecialchars($offre['budget']) ?>">
+                            <input id="budget" name="budget" type="text" class="form-input" placeholder="Ex. 1500" value="<?= htmlspecialchars($offre->getBudget()) ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="delai">Délai <span>*</span></label>
-                            <select id="delai" name="delai" class="form-input">
-                                <option value="">Sélectionnez</option>
-                                <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois"] as $d): ?>
-                                <option value="<?= $d ?>" <?= $offre['delai'] === $d ? 'selected' : '' ?>><?= $d ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <input id="delai" name="delai" type="text" class="form-input" placeholder="Ex. 15 jours" value="<?= htmlspecialchars($offre->getDelai()) ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="competences">Compétences <span>*</span></label>
-                        <input id="competences" name="competences" type="text" class="form-input" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($offre['competences']) ?>">
+                        <input id="competences" name="competences" type="text" class="form-input" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($offre->getCompetences()) ?>">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="description">Description <span>*</span></label>
-                        <textarea id="description" name="description" rows="6" class="form-input"><?= htmlspecialchars($offre['description']) ?></textarea>
+                        <textarea id="description" name="description" rows="6" class="form-input"><?= htmlspecialchars($offre->getDescription()) ?></textarea>
                     </div>
 
                     <div style="display:flex; gap:1rem; border-top:1px solid var(--border); padding-top:1.5rem;">

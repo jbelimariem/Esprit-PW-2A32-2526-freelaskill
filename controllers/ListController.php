@@ -1,5 +1,9 @@
 <?php
 // controllers/ListController.php — Action: Liste et Recherche Front
+<<<<<<< HEAD
+=======
+require_once __DIR__ . '/../Models/JobOffer.php';
+>>>>>>> faca6fd (sss)
 require_once __DIR__ . '/../Models/List.php';
 
 class ListController {

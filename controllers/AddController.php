@@ -1,5 +1,9 @@
 <?php
 // controllers/AddController.php
+<<<<<<< HEAD
+=======
+require_once __DIR__ . '/../Models/JobOffer.php';
+>>>>>>> faca6fd (sss)
 require_once __DIR__ . '/../Models/Add.php';
 
 class AddController {
@@ -8,8 +12,12 @@ class AddController {
 
     private function validate($data) {
         $errors = [];
-        if (empty($data['titre'])) $errors[] = "Le titre est requis.";
-        if (empty($data['budget']) || !is_numeric($data['budget'])) $errors[] = "Le budget doit être un nombre.";
+        if (empty($data['titre'])) $errors['titre'] = "Le titre est requis.";
+        if (empty($data['budget'])) $errors['budget'] = "Le budget est requis.";
+        elseif (!is_numeric($data['budget'])) $errors['budget'] = "Le budget doit être un nombre.";
+        if (empty($data['description'])) $errors['description'] = "La description est requise.";
+        if (empty($data['competences'])) $errors['competences'] = "Les compétences sont requises.";
+        if (empty($data['delai'])) $errors['delai'] = "Le délai est requis.";
         return $errors;
     }
 
@@ -27,7 +35,12 @@ class AddController {
             ];
             $errors = $this->validate($data);
             if (empty($errors)) {
+<<<<<<< HEAD
                 $this->model->save($data);
+=======
+                $offre = new JobOffer($data);
+                $this->model->save($offre);
+>>>>>>> faca6fd (sss)
                 header('Location: home.php?success=added'); exit;
             }
         }

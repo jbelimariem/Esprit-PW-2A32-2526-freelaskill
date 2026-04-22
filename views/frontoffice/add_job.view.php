@@ -52,55 +52,46 @@
     </div>
 </section>
 
-<div class="page-body" style="padding: 2rem 1rem;">
-    <div style="max-width:860px; margin:0 auto; width:100%;">
-
-        <?php if (!empty($errors)): ?>
-        <div style="background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.25); border-radius:var(--radius-md); padding:1rem 1.25rem; margin-bottom:1.5rem; color:var(--tunisian-red);">
-            <strong>Veuillez corriger les erreurs :</strong>
-            <ul style="margin-top:.5rem;">
-                <?php foreach ($errors as $err): ?><li><?= htmlspecialchars($err) ?></li><?php endforeach; ?>
-            </ul>
-        </div>
-        <?php endif; ?>
+<div class="page-body" style="padding: 2rem 1rem; display: block;">
+    <div style="max-width:1200px; margin:0 auto; width:100%;">
 
         <div class="product-card" style="opacity:1; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
-            <div class="card-body" style="padding:2.5rem;">
+            <div class="card-body" style="padding:3rem;">
                 <form id="add-form" action="add_job.php" method="POST" novalidate>
                     <div class="form-group">
                         <label class="form-label" for="titre">Titre de l'offre <span>*</span></label>
-                        <input id="titre" name="titre" type="text" class="form-input" placeholder="Ex. Développeur React.js" value="<?= htmlspecialchars($data['titre'] ?? '') ?>">
+                        <?php if (isset($errors['titre'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['titre'] ?></div><?php endif; ?>
+                        <input id="titre" name="titre" type="text" class="form-input <?= isset($errors['titre']) ? 'error' : '' ?>" placeholder="Ex. Développeur React.js" value="<?= htmlspecialchars($data['titre'] ?? '') ?>">
                     </div>
 
                     <div class="form-grid">
                         <div class="form-group">
                             <label class="form-label" for="budget">Budget (DT) <span>*</span></label>
-                            <input id="budget" name="budget" type="text" class="form-input" placeholder="Ex. 1500" value="<?= htmlspecialchars($data['budget'] ?? '') ?>">
+                            <?php if (isset($errors['budget'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['budget'] ?></div><?php endif; ?>
+                            <input id="budget" name="budget" type="text" class="form-input <?= isset($errors['budget']) ? 'error' : '' ?>" placeholder="Ex. 1500" value="<?= htmlspecialchars($data['budget'] ?? '') ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label" for="delai">Délai <span>*</span></label>
-                            <select id="delai" name="delai" class="form-input">
-                                <option value="">Sélectionnez</option>
-                                <?php foreach (["1 semaine","2 semaines","1 mois","2 mois","3 mois","6 mois"] as $d): ?>
-                                <option value="<?= $d ?>" <?= ($data['delai'] ?? '') === $d ? 'selected' : '' ?>><?= $d ?></option>
-                                <?php endforeach; ?>
-                            </select>
+                            <?php if (isset($errors['delai'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['delai'] ?></div><?php endif; ?>
+                            <input id="delai" name="delai" type="text" class="form-input <?= isset($errors['delai']) ? 'error' : '' ?>" placeholder="Ex. 15 jours" value="<?= htmlspecialchars($data['delai'] ?? '') ?>">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="competences">Compétences <span>*</span></label>
-                        <input id="competences" name="competences" type="text" class="form-input" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($data['competences'] ?? '') ?>">
+                        <?php if (isset($errors['competences'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['competences'] ?></div><?php endif; ?>
+                        <input id="competences" name="competences" type="text" class="form-input <?= isset($errors['competences']) ? 'error' : '' ?>" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($data['competences'] ?? '') ?>">
                     </div>
 
                     <div class="form-group">
                         <label class="form-label" for="description">Description <span>*</span></label>
-                        <textarea id="description" name="description" rows="6" class="form-input"><?= htmlspecialchars($data['description'] ?? '') ?></textarea>
+                        <?php if (isset($errors['description'])): ?><div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['description'] ?></div><?php endif; ?>
+                        <textarea id="description" name="description" rows="8" class="form-input <?= isset($errors['description']) ? 'error' : '' ?>"><?= htmlspecialchars($data['description'] ?? '') ?></textarea>
                     </div>
 
-                    <div style="display:flex; gap:1rem; border-top:1px solid var(--border); padding-top:1.5rem;">
-                        <button type="submit" class="btn-cart" style="width:auto; padding:.9rem 2.5rem;">Publier</button>
-                        <a href="home.php" style="color:var(--text-muted); text-decoration:none;">Annuler</a>
+                    <div style="display:flex; gap:1rem; border-top:1px solid var(--border); padding-top:2rem; margin-top:1rem;">
+                        <button type="submit" class="btn-cart" style="width:auto; padding:1rem 3rem;">Publier l'offre</button>
+                        <a href="home.php" class="btn-cart" style="width:auto; padding:1rem 2rem; background:rgba(255,255,255,0.05); color:white; text-decoration:none; display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">Annuler</a>
                     </div>
                 </form>
             </div>

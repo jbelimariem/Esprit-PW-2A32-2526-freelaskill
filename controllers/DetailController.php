@@ -1,5 +1,10 @@
 <?php
 // controllers/DetailController.php
+<<<<<<< HEAD
+=======
+require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/JobApplication.php';
+>>>>>>> faca6fd (sss)
 require_once __DIR__ . '/../Models/Detail.php';
 
 class DetailController {

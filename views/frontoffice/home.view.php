@@ -160,6 +160,21 @@ function statutBadge($statut) {
     </div>
 </nav>
 
+<!-- SUB NAVBAR -->
+<div class="sub-navbar">
+    <div class="sub-nav-container">
+        <ul class="sub-nav-links">
+            <li><a href="home.php" class="active"><i class="fa-solid fa-list-ul"></i> Mes Offres</a></li>
+            <li><a href="add_job.php"><i class="fa-solid fa-plus-circle"></i> Nouveaux Offre</a></li>
+        </ul>
+        <div class="sub-nav-actions">
+            <button id="download-pdf-home" class="btn-sub btn-sub-outline">
+                <i class="fa-solid fa-file-pdf"></i> Export PDF
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- HERO BANNER -->
 <section class="hero-banner" style="padding: 2.5rem 1rem; min-height: auto;">
     <div class="hero-glow"></div>
@@ -198,17 +213,6 @@ function statutBadge($statut) {
 <div class="page-body" style="display: block; max-width: 1100px; margin: 0 auto; padding: 2rem 1rem;">
 
     <!-- HORIZONTAL TABS FILTERS -->
-    <div style="display: flex; align-items: center; justify-content: flex-end; margin-bottom: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem;">
-        <div style="display: flex; gap: 0.75rem;">
-            <a href="add_job.php" style="display: flex; align-items: center; gap: 6px; background: var(--tech-blue); color: white; padding: 10px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; text-decoration: none; transition: var(--transition); box-shadow: var(--neon-blue);">
-                <i class="fa-solid fa-plus"></i> Nouvelle offre
-            </a>
-            <button id="download-pdf-home" style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); color: white; padding: 10px 20px; border-radius: 12px; font-size: 0.9rem; font-weight: 600; text-decoration: none; cursor:pointer;">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </button>
-        </div>
-    </div>
-
     <!-- OFFRES AREA -->
     <div class="products-area">
         <div class="products-toolbar">
@@ -228,7 +232,7 @@ function statutBadge($statut) {
             </div>
             <?php else: ?>
             <?php foreach ($offres as $offre): 
-                $competencesList = array_slice(explode(',', $offre['competences']), 0, 3);
+                $competencesList = array_slice(explode(',', $offre->getCompetences()), 0, 3);
             ?>
             <div class="job-card">
                 <div class="job-card-header">
@@ -236,21 +240,21 @@ function statutBadge($statut) {
                     <div class="job-badge" style="background:rgba(59,130,246,0.1); color:var(--tech-blue); padding:4px 10px; border-radius:var(--radius-full); font-size:0.65rem; font-weight:700; text-transform:uppercase;">Job Offer</div>
                 </div>
                 <div class="job-card-body">
-                    <div class="job-titre"><?= htmlspecialchars($offre['titre']) ?></div>
+                    <div class="job-titre"><?= htmlspecialchars($offre->getTitre()) ?></div>
                     <div class="job-competences">
                         <?php foreach ($competencesList as $comp): ?>
                         <span style="display:inline-block; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); color:var(--tech-blue); padding:2px 8px; border-radius:var(--radius-full); font-size:.7rem; margin-right:4px;"><?= htmlspecialchars(trim($comp)) ?></span>
                         <?php endforeach; ?>
                     </div>
                     <div class="job-meta">
-                        <span><i class="fa-solid fa-coins"></i> <span class="job-budget"><?= number_format($offre['budget'], 0, ',', ' ') ?></span> <small>DT</small></span>
-                        <span><i class="fa-solid fa-clock"></i> <?= htmlspecialchars($offre['delai']) ?></span>
+                        <span><i class="fa-solid fa-coins"></i> <span class="job-budget"><?= number_format($offre->getBudget(), 0, ',', ' ') ?></span> <small>DT</small></span>
+                        <span><i class="fa-solid fa-calendar-days"></i> <?= date('d/m/Y', strtotime($offre->getDateCreation())) ?></span>
                     </div>
                 </div>
                 <div class="job-actions">
-                    <a href="detail_job.php?id=<?= $offre['id'] ?>" class="btn-action btn-view"><i class="fa-solid fa-eye"></i> Voir</a>
-                    <a href="edit_job.php?id=<?= $offre['id'] ?>" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i> Modifier</a>
-                    <a href="home.php?action=delete&id=<?= $offre['id'] ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre['titre']) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                    <a href="detail_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-view"><i class="fa-solid fa-eye"></i> Voir</a>
+                    <a href="edit_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i> Modifier</a>
+                    <a href="home.php?action=delete&id=<?= $offre->getId() ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre->getTitre()) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -292,7 +296,7 @@ confirmOk.addEventListener('click', () => { if (deleteUrl) window.location.href 
 document.getElementById('download-pdf-home')?.addEventListener('click', async function() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const rows = <?= json_encode(array_map(fn($o) => [$o['titre'], $o['budget'] . " DT", $o['delai'], $o['statut'], $o['date_creation']], $offres)) ?>;
+    const rows = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getStatut(), $o->getDateCreation()], $offres)) ?>;
     doc.autoTable({ head: [["Mission", "Budget", "Délai", "Statut", "Date"]], body: rows });
     saveAs(doc.output('blob'), 'liste_missions.pdf');
 });
