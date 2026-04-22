@@ -75,7 +75,7 @@ $appStatutConfig = [
 
         <div class="detail-section-title" style="color:white; font-size:1.1rem; margin-top:2rem;">Participants (<?= count($candidats) ?>)</div>
         <?php foreach ($candidats as $can): 
-            $appBadge = $appStatutConfig[$can->getStatus() ?? 'pending'] ?? $appStatutConfig['pending'];
+            $appBadge = $appStatutConfig[$can['status'] ?? 'pending'] ?? $appStatutConfig['pending'];
         ?>
         <div class="candidate-item">
             <div class="candidate-avatar"><?= strtoupper(substr($can['name'], 0, 1)) ?></div>
