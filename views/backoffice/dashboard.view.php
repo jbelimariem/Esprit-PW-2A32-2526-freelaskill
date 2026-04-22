@@ -62,17 +62,17 @@ function statutBadge($s) {
                             <tr><th>Mission</th><th>Budget</th><th>Statut</th><th>Actions</th></tr>
                         </thead>
                         <tbody>
-                            <?php foreach ($offres as $o): $badge = statutBadge($o->getStatut()); ?>
+                             <?php foreach ($offres as $o): $badge = statutBadge($o['statut']); ?>
                             <tr>
-                                <td><?= htmlspecialchars($o->getTitre()) ?></td>
-                                <td><?= number_format($o->getBudget(), 0, ',', ' ') ?> DT</td>
+                                <td><?= htmlspecialchars($o['titre']) ?></td>
+                                <td><?= number_format($o['budget'], 0, ',', ' ') ?> DT</td>
                                 <td><span class="statut-badge <?= $badge['class'] ?>"><?= $badge['label'] ?></span></td>
                                 <td>
-                                    <a href="detail_job_admin.php?id=<?= $o->getId() ?>" class="btn">Voir</a>
-                                    <?php if ($o->getStatut() === 'pending'): ?>
-                                        <a href="?action=approve&id=<?= $o->getId() ?>" class="btn">Approuver</a>
+                                    <a href="detail_job_admin.php?id=<?= $o['id'] ?>" class="btn">Voir</a>
+                                    <?php if ($o['statut'] === 'pending'): ?>
+                                        <a href="?action=approve&id=<?= $o['id'] ?>" class="btn">Approuver</a>
                                     <?php else: ?>
-                                        <a href="edit_job_admin.php?id=<?= $o->getId() ?>" class="btn">Edit</a>
+                                        <a href="edit_job_admin.php?id=<?= $o['id'] ?>" class="btn">Edit</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>
@@ -88,7 +88,7 @@ function statutBadge($s) {
     function exportToPDF() {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF();
-        const rows = <?= json_encode(array_map(fn($o) => [$o->getId(), $o->getTitre(), $o->getBudget() . " DT", $o->getStatut()], $offres)) ?>;
+        const rows = <?= json_encode(array_map(fn($o) => [$o['id'], $o['titre'], $o['budget'] . " DT", $o['statut']], $offres)) ?>;
         doc.autoTable({ head: [["ID", "Mission", "Budget", "Statut"]], body: rows });
         saveAs(doc.output('blob'), 'admin_export_missions.pdf');
     }

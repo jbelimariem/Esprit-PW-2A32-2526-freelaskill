@@ -1,10 +1,10 @@
 <?php
 // controllers/AddController.php
-require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/Add.php';
 
 class AddController {
     private $model;
-    public function __construct() { $this->model = new JobOffer(); }
+    public function __construct() { $this->model = new Add(); }
 
     private function validate($data) {
         $errors = [];
@@ -27,7 +27,7 @@ class AddController {
             ];
             $errors = $this->validate($data);
             if (empty($errors)) {
-                (new JobOffer($data))->save();
+                $this->model->save($data);
                 header('Location: home.php?success=added'); exit;
             }
         }

@@ -1,15 +1,15 @@
 <?php
 // views/frontoffice/detail_job.view.php — Template: Détail d'une offre & Candidatures
 
-$competences = array_map('trim', explode(',', $offre->getCompetences()));
-$safeTitre = preg_replace('/[^A-Za-z0-9]/', '_', $offre->getTitre());
+$competences = array_map('trim', explode(',', $offre['competences']));
+$safeTitre = preg_replace('/[^A-Za-z0-9]/', '_', $offre['titre']);
 
 $statutConfig = [
     'pending'  => ['label' => 'En attente',  'color' => '#F59E0B', 'bg' => 'rgba(245,158,11,0.12)',  'border' => 'rgba(245,158,11,0.3)',  'icon' => 'fa-clock'],
     'approved' => ['label' => 'Approuvée',   'color' => '#10b981', 'bg' => 'rgba(16,185,129,0.12)',  'border' => 'rgba(16,185,129,0.3)',  'icon' => 'fa-circle-check'],
     'rejected' => ['label' => 'Rejetée',     'color' => '#ef4444', 'bg' => 'rgba(239,68,68,0.12)',   'border' => 'rgba(239,68,68,0.3)',   'icon' => 'fa-circle-xmark'],
 ];
-$badge = $statutConfig[$offre->getStatut()] ?? $statutConfig['pending'];
+$badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
 
 $appStatutConfig = [
     'pending'   => ['label' => 'En attente',  'color' => 'var(--text-muted)', 'bg' => 'rgba(255,255,255,0.05)'],
@@ -53,8 +53,8 @@ $appStatutConfig = [
 
 <section class="hero-banner" style="padding:3rem 1rem;">
     <div class="hero-content" style="max-width:1100px; margin:0 auto;">
-        <div class="hero-tag">Mission #<?= $offre->getId() ?></div>
-        <h1 class="hero-title"><?= htmlspecialchars($offre->getTitre()) ?></h1>
+        <div class="hero-tag">Mission #<?= $offre['id'] ?></div>
+        <h1 class="hero-title"><?= htmlspecialchars($offre['titre']) ?></h1>
     </div>
 </section>
 
@@ -63,7 +63,7 @@ $appStatutConfig = [
         <div class="detail-card">
             <div class="detail-body">
                 <div class="detail-section-title">Description</div>
-                <p style="white-space: pre-wrap; line-height: 1.6;"><?= nl2br(htmlspecialchars($offre->getDescription())) ?></p>
+                <p style="white-space: pre-wrap; line-height: 1.6;"><?= nl2br(htmlspecialchars($offre['description'])) ?></p>
             </div>
         </div>
         <div class="detail-card">
@@ -78,13 +78,13 @@ $appStatutConfig = [
             $appBadge = $appStatutConfig[$can->getStatus() ?? 'pending'] ?? $appStatutConfig['pending'];
         ?>
         <div class="candidate-item">
-            <div class="candidate-avatar"><?= strtoupper(substr($can->getName(), 0, 1)) ?></div>
+            <div class="candidate-avatar"><?= strtoupper(substr($can['name'], 0, 1)) ?></div>
             <div style="flex:1;">
-                <div style="font-weight:700;"><?= htmlspecialchars($can->getName()) ?> <span style="font-size:0.7rem; color:<?= $appBadge['color'] ?>; margin-left:10px;"><?= $appBadge['label'] ?></span></div>
-                <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can->getJobTitle()) ?></div>
+                <div style="font-weight:700;"><?= htmlspecialchars($can['name']) ?> <span style="font-size:0.7rem; color:<?= $appBadge['color'] ?>; margin-left:10px;"><?= $appBadge['label'] ?></span></div>
+                <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can['job_title']) ?></div>
             </div>
             <form method="POST" novalidate>
-                <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
+                <input type="hidden" name="app_id" value="<?= $can['id'] ?>">
                 <input type="hidden" name="action_app" value="contacted">
                 <button type="submit" class="btn-action" style="background:rgba(16,185,129,0.1); color:#10b981; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Contacter</button>
             </form>
@@ -95,15 +95,15 @@ $appStatutConfig = [
     <aside>
         <div class="sidebar-card">
             <div class="sidebar-section">
-                <div class="meta-row"><span>Budget</span><strong><?= number_format($offre->getBudget(), 0, ',', ' ') ?> DT</strong></div>
-                <div class="meta-row"><span>Délai</span><strong><?= htmlspecialchars($offre->getDelai()) ?></strong></div>
-                <div class="meta-row"><span>Publiée</span><strong><?= date('d/m/Y', strtotime($offre->getDateCreation())) ?></strong></div>
+                <div class="meta-row"><span>Budget</span><strong><?= number_format($offre['budget'], 0, ',', ' ') ?> DT</strong></div>
+                <div class="meta-row"><span>Délai</span><strong><?= htmlspecialchars($offre['delai']) ?></strong></div>
+                <div class="meta-row"><span>Publiée</span><strong><?= date('d/m/Y', strtotime($offre['date_creation'])) ?></strong></div>
             </div>
             <div class="sidebar-section">
                 <div style="text-align:center; color:<?= $badge['color'] ?>; padding:10px; border-radius:5px; background:<?= $badge['bg'] ?>; font-weight:700;">Statut : <?= $badge['label'] ?></div>
             </div>
             <div class="sidebar-section">
-                <a href="?id=<?= $offre->getId() ?>&action=postulate" class="btn-search" style="width:100%; justify-content:center; background:var(--tech-blue); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:700; text-decoration:none; display:flex; margin-bottom:10px;">Postuler à cette offre</a>
+                <a href="?id=<?= $offre['id'] ?>&action=postulate" class="btn-search" style="width:100%; justify-content:center; background:var(--tech-blue); color:white; padding:12px; border:none; border-radius:8px; cursor:pointer; font-weight:700; text-decoration:none; display:flex; margin-bottom:10px;">Postuler à cette offre</a>
                 <button id="download-pdf" class="btn-search" style="width:100%; justify-content:center; background:rgba(255,255,255,0.05); color:white; padding:12px; border:1px solid var(--border); border-radius:8px; cursor:pointer; font-weight:700;">Télécharger PDF</button>
             </div>
         </div>
@@ -119,9 +119,9 @@ document.getElementById('download-pdf')?.addEventListener('click', function() {
         startY: 20,
         head: [["Caractéristique", "Détail"]],
         body: [
-            ["Titre", "<?= addslashes($offre->getTitre()) ?>"],
-            ["Budget", "<?= number_format($offre->getBudget(), 0, ',', ' ') ?> DT"],
-            ["Délai", "<?= addslashes($offre->getDelai()) ?>"],
+            ["Titre", "<?= addslashes($offre['titre']) ?>"],
+            ["Budget", "<?= number_format($offre['budget'], 0, ',', ' ') ?> DT"],
+            ["Délai", "<?= addslashes($offre['delai']) ?>"],
             ["Statut", "<?= $badge['label'] ?>"]
         ]
     });

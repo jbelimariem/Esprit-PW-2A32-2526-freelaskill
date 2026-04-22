@@ -1,10 +1,10 @@
 <?php
 // controllers/ListController.php — Action: Liste et Recherche Front
-require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/List.php';
 
 class ListController {
     private $model;
-    public function __construct() { $this->model = new JobOffer(); }
+    public function __construct() { $this->model = new ListModel(); }
 
     public function execute() {
         $q = $_GET['q'] ?? '';

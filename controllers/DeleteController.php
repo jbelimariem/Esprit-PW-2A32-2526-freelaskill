@@ -1,10 +1,11 @@
 <?php
 // controllers/DeleteController.php
-require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/Delete.php';
 
 class DeleteController {
     public function execute($id) {
-        (new JobOffer())->delete($id);
+        $model = new Delete();
+        $model->deleteJob($id);
         header('Location: home.php?success=deleted'); exit;
     }
 }

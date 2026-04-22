@@ -22,29 +22,29 @@
 
         <main class="admin-main">
             <div class="admin-content" style="max-width: 900px;">
-                <h1 class="admin-page-title">Modifier la <span>Mission #<?= $offre->getId() ?></span></h1>
+                <h1 class="admin-page-title">Modifier la <span>Mission #<?= $offre['id'] ?></span></h1>
                 <div class="glass-card">
-                    <form action="edit_job_admin.php?id=<?= $offre->getId() ?>" method="POST" novalidate>
+                    <form action="edit_job_admin.php?id=<?= $offre['id'] ?>" method="POST" novalidate>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
                             <div style="grid-column: span 2;">
                                 <label>Titre</label>
-                                <input type="text" name="titre" value="<?= htmlspecialchars($offre->getTitre()) ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
+                                <input type="text" name="titre" value="<?= htmlspecialchars($offre['titre']) ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
                             </div>
                             <div>
                                 <label>Budget (DT)</label>
-                                <input type="text" name="budget" value="<?= htmlspecialchars($offre->getBudget()) ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
+                                <input type="text" name="budget" value="<?= htmlspecialchars($offre['budget']) ?>" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;">
                             </div>
                             <div>
                                 <label>Statut</label>
                                 <select name="statut" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(2,6,23,0.9); color:white;">
-                                    <option value="pending" <?= $offre->getStatut()==='pending'?'selected':'' ?>>En attente</option>
-                                    <option value="approved" <?= $offre->getStatut()==='approved'?'selected':'' ?>>Approuvée</option>
-                                    <option value="rejected" <?= $offre->getStatut()==='rejected'?'selected':'' ?>>Rejetée</option>
+                                    <option value="pending" <?= $offre['statut']==='pending'?'selected':'' ?>>En attente</option>
+                                    <option value="approved" <?= $offre['statut']==='approved'?'selected':'' ?>>Approuvée</option>
+                                    <option value="rejected" <?= $offre['statut']==='rejected'?'selected':'' ?>>Rejetée</option>
                                 </select>
                             </div>
                             <div style="grid-column: span 2;">
                                 <label>Description</label>
-                                <textarea name="description" rows="5" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;"><?= htmlspecialchars($offre->getDescription()) ?></textarea>
+                                <textarea name="description" rows="5" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border); background:rgba(255,255,255,0.03); color:white;"><?= htmlspecialchars($offre['description']) ?></textarea>
                             </div>
                         </div>
                         <div style="margin-top: 2rem; display: flex; gap: 1rem;">

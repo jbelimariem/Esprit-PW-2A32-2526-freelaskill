@@ -1,6 +1,6 @@
 <?php
 // controllers/AdminAddController.php
-require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/AdminAdd.php';
 
 class AdminAddController {
     public function execute() {
@@ -15,7 +15,7 @@ class AdminAddController {
                 'statut' => 'approved', // Admin ajoute directement en approuvé
                 'client_id' => 1
             ];
-            (new JobOffer($data))->save();
+            (new AdminAdd())->save($data);
             header('Location: dashboard.php?success=added'); exit;
         }
         include __DIR__ . '/../views/backoffice/add_job_admin.view.php';

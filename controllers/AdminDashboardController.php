@@ -1,16 +1,21 @@
 <?php
 // controllers/AdminDashboardController.php
-require_once __DIR__ . '/../Models/JobOffer.php';
+require_once __DIR__ . '/../Models/AdminDashboard.php';
 
 class AdminDashboardController {
     public function execute() {
-        $model = new JobOffer();
+        $model = new AdminDashboard();
         $filtre = $_GET['filtre'] ?? 'all';
         $q = $_GET['titre'] ?? '';
         $d = $_GET['date'] ?? '';
-        if (!empty($q) || !empty($d)) { $offres = $model->search($q, $d); }
-        elseif ($filtre !== 'all') { $offres = $model->getByStatut($filtre); }
-        else { $offres = $model->getAll(); }
+        
+        if (!empty($q) || !empty($d)) { 
+            $offres = $model->search($q, $d); 
+        } elseif ($filtre !== 'all') { 
+            $offres = $model->getByStatut($filtre); 
+        } else { 
+            $offres = $model->getAllJobs(); 
+        }
 
         $totalAll = $model->countAll();
         $totalPending = $model->countByStatut('pending');

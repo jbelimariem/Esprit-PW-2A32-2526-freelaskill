@@ -228,7 +228,7 @@ function statutBadge($statut) {
             </div>
             <?php else: ?>
             <?php foreach ($offres as $offre): 
-                $competencesList = array_slice(explode(',', $offre->getCompetences()), 0, 3);
+                $competencesList = array_slice(explode(',', $offre['competences']), 0, 3);
             ?>
             <div class="job-card">
                 <div class="job-card-header">
@@ -236,21 +236,21 @@ function statutBadge($statut) {
                     <div class="job-badge" style="background:rgba(59,130,246,0.1); color:var(--tech-blue); padding:4px 10px; border-radius:var(--radius-full); font-size:0.65rem; font-weight:700; text-transform:uppercase;">Job Offer</div>
                 </div>
                 <div class="job-card-body">
-                    <div class="job-titre"><?= htmlspecialchars($offre->getTitre()) ?></div>
+                    <div class="job-titre"><?= htmlspecialchars($offre['titre']) ?></div>
                     <div class="job-competences">
                         <?php foreach ($competencesList as $comp): ?>
                         <span style="display:inline-block; background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.2); color:var(--tech-blue); padding:2px 8px; border-radius:var(--radius-full); font-size:.7rem; margin-right:4px;"><?= htmlspecialchars(trim($comp)) ?></span>
                         <?php endforeach; ?>
                     </div>
                     <div class="job-meta">
-                        <span><i class="fa-solid fa-coins"></i> <span class="job-budget"><?= number_format($offre->getBudget(), 0, ',', ' ') ?></span> <small>DT</small></span>
-                        <span><i class="fa-solid fa-clock"></i> <?= htmlspecialchars($offre->getDelai()) ?></span>
+                        <span><i class="fa-solid fa-coins"></i> <span class="job-budget"><?= number_format($offre['budget'], 0, ',', ' ') ?></span> <small>DT</small></span>
+                        <span><i class="fa-solid fa-clock"></i> <?= htmlspecialchars($offre['delai']) ?></span>
                     </div>
                 </div>
                 <div class="job-actions">
-                    <a href="detail_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-view"><i class="fa-solid fa-eye"></i> Voir</a>
-                    <a href="edit_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i> Modifier</a>
-                    <a href="home.php?action=delete&id=<?= $offre->getId() ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre->getTitre()) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                    <a href="detail_job.php?id=<?= $offre['id'] ?>" class="btn-action btn-view"><i class="fa-solid fa-eye"></i> Voir</a>
+                    <a href="edit_job.php?id=<?= $offre['id'] ?>" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i> Modifier</a>
+                    <a href="home.php?action=delete&id=<?= $offre['id'] ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre['titre']) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
                 </div>
             </div>
             <?php endforeach; ?>
@@ -292,7 +292,7 @@ confirmOk.addEventListener('click', () => { if (deleteUrl) window.location.href 
 document.getElementById('download-pdf-home')?.addEventListener('click', async function() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const rows = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getStatut(), $o->getDateCreation()], $offres)) ?>;
+    const rows = <?= json_encode(array_map(fn($o) => [$o['titre'], $o['budget'] . " DT", $o['delai'], $o['statut'], $o['date_creation']], $offres)) ?>;
     doc.autoTable({ head: [["Mission", "Budget", "Délai", "Statut", "Date"]], body: rows });
     saveAs(doc.output('blob'), 'liste_missions.pdf');
 });
