@@ -40,3 +40,237 @@ body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-dark); col
   .main-panel { padding: 1.2rem; }
   .nav-item { padding: 0.85rem 1rem; }
 }
+
+/* ============================================
+   LIGHT MODE - Backoffice Admin
+   ============================================ */
+body.light-mode {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Sidebar */
+body.light-mode .admin-sidebar {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid rgba(0,0,0,0.1);
+}
+body.light-mode .admin-sidebar .logo {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  color: #1e293b;
+}
+body.light-mode .admin-sidebar .logo span {
+  color: #2563eb;
+}
+body.light-mode .admin-nav-item {
+  color: #475569;
+}
+body.light-mode .admin-nav-item:hover {
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+}
+body.light-mode .admin-nav-item.active {
+  background: rgba(37,99,235,0.12);
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.25);
+}
+body.light-mode .admin-nav-item i {
+  color: inherit;
+}
+
+/* Topbar */
+body.light-mode .admin-topbar {
+  background: rgba(255,255,255,0.95);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+body.light-mode .admin-search {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-mode .admin-search input {
+  color: #1e293b;
+  background: transparent;
+}
+body.light-mode .admin-search input::placeholder {
+  color: #94a3b8;
+}
+body.light-mode .admin-icon-btn {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: #475569;
+}
+body.light-mode .admin-icon-btn:hover {
+  background: rgba(37,99,235,0.1);
+  color: #2563eb;
+}
+body.light-mode .nav-avatar {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* Content area */
+body.light-mode .admin-content {
+  background: transparent;
+}
+body.light-mode .admin-page-title {
+  color: #0f172a;
+}
+
+/* Cards */
+body.light-mode .glass-card,
+body.light-mode .admin-section {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+/* Product cards */
+body.light-mode .product-card {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.light-mode .card-title {
+  color: #0f172a;
+}
+body.light-mode .card-category {
+  color: #2563eb;
+}
+body.light-mode .price-main {
+  color: #2563eb;
+}
+body.light-mode .price-currency {
+  color: #64748b;
+}
+
+/* Table */
+body.light-mode .data-table {
+  background: white;
+}
+body.light-mode .data-table th {
+  color: #374151;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+body.light-mode .data-table td {
+  color: #1e293b;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+body.light-mode .data-table tbody tr:hover {
+  background: rgba(37,99,235,0.04);
+}
+body.light-mode .data-table thead th {
+  color: #6b7280;
+}
+
+/* Stat cards on dashboard */
+body.light-mode .stat-card {
+  background: white;
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.light-mode .stat-label {
+  color: #64748b;
+}
+body.light-mode .stat-value {
+  color: #0f172a;
+}
+
+/* Forms */
+body.light-mode .category-form input,
+body.light-mode .category-form textarea,
+body.light-mode input[type="text"],
+body.light-mode input[type="number"],
+body.light-mode input[type="email"],
+body.light-mode textarea,
+body.light-mode select {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.15);
+  color: #1e293b;
+}
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+  color: #9ca3af;
+}
+body.light-mode label {
+  color: #374151;
+}
+
+/* Sidebar bottom border */
+body.light-mode [style*="border-top: 1px solid rgba(255,255,255,0.08)"] {
+  border-top: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+/* Hero glows hidden in light mode */
+body.light-mode .hero-glow,
+body.light-mode .hero-glow-2 {
+  opacity: 0.04;
+}
+
+/* Pagination */
+body.light-mode .pag-btn {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #374151;
+}
+body.light-mode .pag-btn.active {
+  background: #2563eb;
+  color: white;
+}
+body.light-mode .pag-btn:hover:not(.disabled):not(.active) {
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+}
+
+/* Filter options */
+body.light-mode .filter-option {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #374151;
+}
+body.light-mode .filter-option.active {
+  background: rgba(37,99,235,0.1) !important;
+  color: #2563eb;
+}
+
+/* Sort select */
+body.light-mode .sort-select {
+  background: white !important;
+  color: #1e293b !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* Text muted override */
+body.light-mode {
+  --text-muted: #64748b;
+  --border: rgba(0,0,0,0.08);
+  --bg-dark: #f1f5f9;
+  --bg-card: rgba(255,255,255,0.9);
+}
+
+/* More comprehensive light mode for backoffice titles */
+body.light-mode .section-title,
+body.light-mode .admin-list-title,
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode .metric-card {
+  color: #0f172a;
+}
+body.light-mode .metric-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+body.light-mode .admin-section p,
+body.light-mode .metric-card p {
+  color: #475569;
+}
+body.light-mode .btn-outline {
+  border-color: rgba(0,0,0,0.15);
+  color: #374151;
+}
+body.light-mode .btn-outline:hover {
+  background: rgba(0,0,0,0.05);
+  color: #0f172a;
+}
+body.light-mode .sidebar p {
+  color: #64748b;
+}

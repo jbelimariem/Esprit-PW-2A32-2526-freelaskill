@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
@@ -36,14 +36,14 @@ $categories = $categoryController->getAllData();
                 <a href="./dashboard.php" class="admin-nav-item">
                     <i class="fa-solid fa-house"></i> Dashboard
                 </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-chart-line"></i> Analytics
-                </a>
                 <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
                     Marketplace
                 </div>
+                <a href="ajouter_produit.php" class="admin-nav-item">
+                    <i class="fa-solid fa-plus"></i> Ajouter Produit
+                </a>
                 <a href="produits.php" class="admin-nav-item">
-                    <i class="fa-solid fa-box-open"></i> Produits
+                    <i class="fa-solid fa-list"></i> Liste des Produits
                 </a>
                 <a href="./pending_products.php" class="admin-nav-item">
                     <i class="fa-solid fa-clock"></i> Validation produits
@@ -57,18 +57,10 @@ $categories = $categoryController->getAllData();
                 <a href="./mes_achats.php" class="admin-nav-item">
                     <i class="fa-solid fa-bag-shopping"></i> Mes Achats
                 </a>
-                <a href="#" class="admin-nav-item">
+                <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-users"></i> Clients
-                </a>
-                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
-                    Paramètres
-                </div>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-gear"></i> Général
-                </a>
+
             </div>
 
             <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -85,7 +77,9 @@ $categories = $categoryController->getAllData();
                     <input type="text" placeholder="...">
                 </div>
                 <div class="admin-top-actions">
-                    <div class="admin-icon-btn"><i class="fa-regular fa-moon"></i></div>
+                    <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
+                        <i class="fa-regular fa-moon"></i>
+                    </div>
                     <div class="admin-icon-btn"><i class="fa-regular fa-bell"></i><span class="badge-dot"></span></div>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>

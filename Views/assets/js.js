@@ -1,5 +1,75 @@
 const CART_STORAGE_KEY = 'freelaSkillCart';
+const THEME_STORAGE_KEY = 'freelaSkillTheme';
 
+// ==========================================
+// Dark Mode / Light Mode Toggle
+// ==========================================
+function initTheme() {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+    applyTheme(savedTheme);
+}
+
+function applyTheme(theme) {
+    const html = document.documentElement;
+    const body = document.body;
+    
+    if (theme === 'light') {
+        html.style.colorScheme = 'light';
+        html.style.filter = 'invert(0)';
+        body.classList.add('light-mode');
+        body.classList.remove('dark-mode');
+        // Appliquer les variables CSS directement
+        html.style.setProperty('--bg-dark', '#f9fafb');
+        html.style.setProperty('--text-light', '#1f2937');
+        html.style.setProperty('--bg-card', 'rgba(0, 0, 0, 0.03)');
+        html.style.setProperty('--border', 'rgba(0, 0, 0, 0.08)');
+    } else {
+        html.style.colorScheme = 'dark';
+        html.style.filter = 'invert(0)';
+        body.classList.add('dark-mode');
+        body.classList.remove('light-mode');
+        // Réinitialiser les variables CSS
+        html.style.setProperty('--bg-dark', '#020617');
+        html.style.setProperty('--text-light', '#cbd5e1');
+        html.style.setProperty('--bg-card', 'rgba(255, 255, 255, 0.03)');
+        html.style.setProperty('--border', 'rgba(255, 255, 255, 0.08)');
+    }
+    localStorage.setItem(THEME_STORAGE_KEY, theme);
+    updateThemeIcon();
+}
+
+function toggleTheme() {
+    const currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    applyTheme(newTheme);
+}
+
+function updateThemeIcon() {
+    const themeBtn = document.querySelector('.theme-toggle-btn');
+    if (!themeBtn) return;
+    const currentTheme = localStorage.getItem(THEME_STORAGE_KEY) || 'dark';
+    const icon = themeBtn.querySelector('i');
+    if (currentTheme === 'light') {
+        icon.classList.remove('fa-moon');
+        icon.classList.add('fa-sun');
+    } else {
+        icon.classList.remove('fa-sun');
+        icon.classList.add('fa-moon');
+    }
+}
+
+// Initialize theme on page load
+document.addEventListener('DOMContentLoaded', () => {
+    initTheme();
+    const themeBtn = document.querySelector('.theme-toggle-btn');
+    if (themeBtn) {
+        themeBtn.addEventListener('click', toggleTheme);
+    }
+});
+
+// ==========================================
+// Cart Management
+// ==========================================
 function getCart() {
     try {
         return JSON.parse(localStorage.getItem(CART_STORAGE_KEY)) || [];
@@ -14,13 +84,25 @@ function saveCart(cart) {
 }
 
 function updateCartCount() {
+    const cart  = getCart();
+    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+    const amount= cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+    // Navbar badge
     const count = document.querySelector('.cart-count');
-    if (!count) return;
-    const total = getCart().reduce((sum, item) => sum + item.quantity, 0);
-    count.textContent = total;
+    if (count) count.textContent = total;
+
+    // Sidebar stats on panier.php
+    const sqty = document.getElementById('sidebar-qty');
+    const stot = document.getElementById('sidebar-total');
+    const sinf = document.getElementById('sidebar-cart-info');
+    if (sqty)  sqty.textContent  = total;
+    if (stot)  stot.textContent  = amount.toLocaleString('fr-FR');
+    if (sinf)  sinf.textContent  = total + ' article' + (total > 1 ? 's' : '');
 }
 
 function getCardProductData(card) {
+    const id = card.dataset.id || '';
     const title = card.querySelector('.card-title')?.textContent.trim() || '';
     const priceText = card.querySelector('.price-main')?.textContent.trim() || '0';
     const price = parseInt(priceText.replace(/[^\d]/g, ''), 10) || 0;
@@ -33,12 +115,12 @@ function getCardProductData(card) {
     const imageSrc = imgEl ? imgEl.getAttribute('src') : '';
 
     const badge = card.querySelector('.card-badge')?.textContent.trim() || '';
-    return { title, price, category, icon, imageSrc, badge };
+    return { id, title, price, category, icon, imageSrc, badge };
 }
 
 function addToCart(product) {
     const cart = getCart();
-    const existing = cart.find(item => item.title === product.title);
+    const existing = cart.find(item => (item.id && product.id) ? item.id === product.id : item.title === product.title);
     if (existing) {
         existing.quantity += 1;
     } else {
@@ -512,15 +594,6 @@ if (cartItemsContainer) {
     });
 }
 
-const checkoutButton = document.querySelector('#checkout-btn');
-if (checkoutButton) {
-    checkoutButton.addEventListener('click', e => {
-        e.preventDefault();
-        if (getCart().length === 0) return;
-        clearCart();
-        alert('Merci ! Votre commande a bien été prise en compte.');
-    });
-}
 
 // Open detail page when clicking a product card on the home page only
 if (document.body.classList.contains('home-page')) {
@@ -537,3 +610,80 @@ if (document.body.classList.contains('home-page')) {
     });
 }
 
+// PDF Export function
+function exportToPDF() {
+    const table = document.querySelector('.data-table');
+    if (!table) {
+        alert('Aucun tableau trouvé à exporter.');
+        return;
+    }
+
+    const pageTitle = document.querySelector('.admin-page-title');
+    const filename = (pageTitle ? pageTitle.textContent.trim() : 'Export') + '_' + new Date().toLocaleDateString('fr-FR').replace(/\//g, '-');
+
+    if (typeof html2pdf === 'undefined') {
+        alert('Erreur: Bibliothèque PDF non chargée. Veuillez rafraîchir la page.');
+        return;
+    }
+
+    const clonedTable = table.cloneNode(true);
+
+    // Supprimer la dernière colonne (Actions)
+    clonedTable.querySelectorAll('tr').forEach(row => {
+        const cells = row.querySelectorAll('th, td');
+        if (cells.length > 0) cells[cells.length - 1].remove();
+    });
+
+    // Forcer les styles inline sur chaque cellule pour écraser le thème
+    clonedTable.querySelectorAll('th').forEach(th => {
+        th.removeAttribute('class');
+        th.style.cssText = 'background-color: #e0e0e0 !important; color: #000000 !important; padding: 10px; border: 1px solid #999; font-weight: bold; font-family: Arial, sans-serif; font-size: 12px;';
+    });
+
+    clonedTable.querySelectorAll('td').forEach((td, i) => {
+        td.removeAttribute('class');
+        td.style.cssText = 'background-color: #ffffff !important; color: #000000 !important; padding: 10px; border: 1px solid #999; font-family: Arial, sans-serif; font-size: 12px; vertical-align: middle;';
+        // Lignes alternées
+        const row = td.closest('tr');
+        const rowIndex = row ? row.rowIndex : 0;
+        if (rowIndex % 2 === 0) td.style.backgroundColor = '#f5f5f5 !important';
+
+        td.querySelectorAll('*').forEach(el => {
+            el.removeAttribute('class');
+            el.style.color = '#000000';
+            el.style.background = 'transparent';
+            if (el.tagName === 'IMG') {
+                el.style.cssText = 'max-width: 60px; max-height: 60px; object-fit: cover; border-radius: 4px;';
+            }
+        });
+    });
+
+    clonedTable.style.cssText = 'width: 100%; border-collapse: collapse;';
+    clonedTable.removeAttribute('class');
+
+    // Conteneur principal
+    const element = document.createElement('div');
+    element.style.cssText = 'padding: 20px; background-color: #ffffff; color: #000000; font-family: Arial, sans-serif;';
+
+    const title = document.createElement('h2');
+    title.textContent = pageTitle ? pageTitle.textContent.trim() : "Rapport d'Export";
+    title.style.cssText = 'text-align: center; margin-bottom: 20px; color: #000000; font-family: Arial, sans-serif;';
+
+    element.appendChild(title);
+    element.appendChild(clonedTable);
+
+    const opt = {
+        margin: 10,
+        filename: filename + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+            scale: 2,
+            useCORS: true,
+            backgroundColor: '#ffffff',
+            ignoreElements: (el) => el.classList && el.classList.contains('no-export')
+        },
+        jsPDF: { orientation: 'landscape', unit: 'mm', format: 'a4' }
+    };
+
+    html2pdf().set(opt).from(element).save();
+}

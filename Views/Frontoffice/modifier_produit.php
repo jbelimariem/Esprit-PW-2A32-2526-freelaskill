@@ -64,6 +64,9 @@ $categories = $categoryController->getAllData();
         Freela<span>Skill</span>
     </div>
     <div class="nav-right">
+        <button class="theme-toggle-btn" style="background: none; border: none; color: #e2e8f0; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;" title="Toggle dark/light mode">
+            <i class="fa-regular fa-moon"></i>
+        </button>
         <a href="home.php" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
             <i class="fa-solid fa-arrow-left"></i> Retour
         </a>

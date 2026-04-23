@@ -78,9 +78,6 @@ $categories = $categoryController->getAllData();
                 <a href="./dashboard.php" class="admin-nav-item">
                     <i class="fa-solid fa-house"></i> Dashboard
                 </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-chart-line"></i> Analytics
-                </a>
                 <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
                     Marketplace
                 </div>
@@ -99,18 +96,10 @@ $categories = $categoryController->getAllData();
                 <a href="./mes_achats.php" class="admin-nav-item">
                     <i class="fa-solid fa-bag-shopping"></i> Mes Achats
                 </a>
-                <a href="#" class="admin-nav-item">
+                <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-users"></i> Clients
-                </a>
-                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
-                    Paramètres
-                </div>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-gear"></i> Général
-                </a>
+
             </div>
 
             <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">

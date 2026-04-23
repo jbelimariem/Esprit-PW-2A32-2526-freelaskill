@@ -56,6 +56,9 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
         <li><a href="#">Blog</a></li>
     </ul>
     <div class="nav-right">
+        <button class="theme-toggle-btn" style="background: none; border: none; color: #e2e8f0; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;" title="Toggle dark/light mode">
+            <i class="fa-regular fa-moon"></i>
+        </button>
         <a href="panier.php" class="cart-btn" style="position: relative;">
             <i class="fa-solid fa-bag-shopping"></i> Mes achats
             <span class="cart-count" style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 2px solid var(--bg-dark);">0</span>

@@ -76,19 +76,19 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <a href="./dashboard.php" class="admin-nav-item">
                     <i class="fa-solid fa-house"></i> Dashboard
                 </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-chart-line"></i> Analytics
-                </a>
                 <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
                     Marketplace
                 </div>
+                <a href="ajouter_produit.php" class="admin-nav-item">
+                    <i class="fa-solid fa-plus"></i> Ajouter Produit
+                </a>
                 <a href="produits.php" class="admin-nav-item active">
-                    <i class="fa-solid fa-box-open"></i> Produits
+                    <i class="fa-solid fa-list"></i> Liste des Produits
                 </a>
                 <a href="./pending_products.php" class="admin-nav-item">
                     <i class="fa-solid fa-clock"></i> Validation produits
                 </a>
-                                <a href="./ajouter_categorie.php" class="admin-nav-item">
+                <a href="./ajouter_categorie.php" class="admin-nav-item">
                     <i class="fa-solid fa-plus"></i> Ajouter Catégorie
                 </a>
                 <a href="./liste_categories.php" class="admin-nav-item">
@@ -97,26 +97,8 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <a href="./mes_achats.php" class="admin-nav-item">
                     <i class="fa-solid fa-bag-shopping"></i> Mes Achats
                 </a>
-                <a href="#" class="admin-nav-item">
+                <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
-                </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-users"></i> Clients
-                </a>
-                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
-                    Utilisateurs & rôles
-                </div>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-user-tie"></i> Freelancers
-                </a>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-user-graduate"></i> Étudiants
-                </a>
-                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
-                    Paramètres
-                </div>
-                <a href="#" class="admin-nav-item">
-                    <i class="fa-solid fa-gear"></i> Général
                 </a>
             </div>
 
@@ -134,7 +116,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                     <input type="text" id="main-search-input" placeholder="Rechercher par nom de produit...">
                 </div>
                 <div class="admin-top-actions">
-                    <div class="admin-icon-btn">
+                    <div class="admin-icon-btn theme-toggle-btn">
                         <i class="fa-regular fa-moon"></i>
                     </div>
                     <div class="admin-icon-btn">
@@ -173,9 +155,42 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                             <option>Prix décroissant</option>
                         </select>
 
-                        <a href="ajouter_produit.php" class="admin-btn" style="white-space: nowrap; font-size:0.85rem;"><i class="fa-solid fa-plus"></i> Ajouter produit</a>
+                        <button onclick="exportToPDF()" class="admin-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none; white-space: nowrap; font-size:0.85rem;">
+                            <i class="fa-solid fa-file-pdf"></i> Exporter
+                        </button>
                     </div>
                 </div>
+
+                <table class="data-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Prix</th>
+                            <th>Stock</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (empty($produits)): ?>
+                            <tr><td colspan="7" style="text-align: center;">Aucun produit</td></tr>
+                        <?php else: ?>
+                            <?php foreach ($produits as $produit): ?>
+                                <tr>
+                                    <td><?= $produit['idProduit'] ?></td>
+                                    <td><?= htmlspecialchars($produit['nom']) ?></td>
+                                    <td><?= htmlspecialchars($categoryNames[$produit['category_id']] ?? 'Autre') ?></td>
+                                    <td><?= number_format($produit['prix'], 0, ',', ' ') ?> DT</td>
+                                    <td><?= $produit['stock'] ?></td>
+                                    <td><?= $produit['statut'] ?></td>
+                                    <td></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
 
                 <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
                     <?php if (empty($produits)): ?>
@@ -316,6 +331,8 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     }
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../assets/pdf_export.js"></script>
     <script src="../assets/js.js?v=2"></script>
 </body>
 </html>

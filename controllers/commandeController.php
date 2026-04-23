@@ -16,7 +16,7 @@ class CommandeController {
     // Base de données : CRUD
     // -------------------------------------------------------
     public function getAll() {
-        $sql = "SELECT * FROM commande";
+        $sql = "SELECT * FROM commande ORDER BY idCommande DESC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
