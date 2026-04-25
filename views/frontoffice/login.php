@@ -80,7 +80,7 @@ $fieldError = function ($field) use ($errors) {
         .input-wrap {
             position: relative;
         }
-        .input-wrap i {
+        .input-wrap > i {
             position: absolute;
             left: 1rem;
             top: 50%;
@@ -91,7 +91,7 @@ $fieldError = function ($field) use ($errors) {
         }
         .input-wrap .form-input { padding-left: 2.6rem; }
         .input-wrap .form-input:focus + i,
-        .input-wrap:focus-within i { color: var(--tech-blue); }
+        .input-wrap:focus-within > i { color: var(--tech-blue); }
 
         .toggle-password {
             position: absolute;
@@ -105,6 +105,9 @@ $fieldError = function ($field) use ($errors) {
             background: none;
             border: none;
             padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
         }
         .toggle-password:hover { color: var(--text-muted); }
 
@@ -178,7 +181,7 @@ $fieldError = function ($field) use ($errors) {
         <?php endif; ?>
 
         <!-- Form -->
-        <form class="auth-form" method="POST" action="login.php" id="login-form" novalidate>
+        <form class="auth-form" method="POST" action="login.php" id="login-form" autocomplete="off" novalidate>
 
             <div class="form-group">
                 <label class="form-label" for="email">Adresse email</label>
@@ -189,8 +192,8 @@ $fieldError = function ($field) use ($errors) {
                         id="email"
                         name="email"
                         placeholder="vous@exemple.com"
-                        value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
-                        autocomplete="email"
+                        value=""
+                        autocomplete="off"
                     >
                     <i class="fa-solid fa-envelope"></i>
                 </div>
@@ -208,7 +211,8 @@ $fieldError = function ($field) use ($errors) {
                         id="password"
                         name="password"
                         placeholder="••••••••"
-                        autocomplete="current-password"
+                        value=""
+                        autocomplete="new-password"
                         style="padding-right: 3rem;"
                     >
                     <i class="fa-solid fa-lock"></i>
@@ -219,7 +223,7 @@ $fieldError = function ($field) use ($errors) {
                 <?php if ($fieldError('password') !== ''): ?>
                     <div class="field-error"><?php echo htmlspecialchars($fieldError('password')); ?></div>
                 <?php endif; ?>
-                <div class="forgot-link"><a href="#">Mot de passe oublié ?</a></div>
+                <div class="forgot-link"><a href="forgot_password.php">Mot de passe oublié ?</a></div>
             </div>
 
             <button type="submit" class="btn-cart" id="submit-btn">
@@ -231,6 +235,32 @@ $fieldError = function ($field) use ($errors) {
 
         <div class="auth-divider" style="margin-top:1.5rem;">ou</div>
 
+        <!-- CUSTOM GOOGLE BUTTON WITH OAUTH REDIRECT -->
+        <?php
+        $clientId = "512696696631-585q3lbt2rps9g8o81e8vqr9mijdh8tq.apps.googleusercontent.com";
+        $redirectUri = urlencode("http://localhost/projet2222/views/frontoffice/google_callback.php");
+        $googleOAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id={$clientId}&redirect_uri={$redirectUri}&response_type=id_token&scope=email%20profile&nonce=12345&response_mode=form_post";
+        ?>
+        <a href="<?php echo $googleOAuthUrl; ?>" class="btn-google" style="margin-top: 1rem;">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" height="20">
+            Continuer avec Google
+        </a>
+
+        <!-- FACE ID LOGIN BUTTON -->
+        <button type="button" class="btn-cart" onclick="startFaceLogin()" style="margin-top:0.75rem; background:rgba(16,185,129,0.1); color:#10b981; border:1px solid rgba(16,185,129,0.3);">
+            <i class="fa-solid fa-face-smile-beam"></i> Continuer avec Face ID
+        </button>
+
+        <!-- Face Login Container (Hidden) -->
+        <div id="face-login-container" style="display:none;margin-top:1.5rem;text-align:center;">
+            <div style="position:relative;width:280px;height:210px;margin:0 auto;border-radius:16px;overflow:hidden;border:2px solid #10b981;box-shadow:0 0 20px rgba(16,185,129,0.2);">
+                <video id="face-video" width="280" height="210" autoplay muted style="object-fit:cover;"></video>
+                <canvas id="face-canvas" style="position:absolute;top:0;left:0;"></canvas>
+            </div>
+            <p id="face-status" style="margin-top:1rem;font-weight:600;color:#10b981;">Chargement des modèles...</p>
+            <button type="button" class="btn-outline" onclick="stopFaceLogin()" style="margin-top:0.5rem;font-size:0.8rem;padding:0.4rem 1rem;">Annuler</button>
+        </div>
+
         <div class="auth-footer">
             Pas encore de compte ?
             <a href="register.php">Créer un compte</a>
@@ -240,6 +270,26 @@ $fieldError = function ($field) use ($errors) {
 </div>
 
 <script>
+function clearLoginInputs() {
+    const form = document.getElementById('login-form');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+
+    form?.reset();
+    if (email) email.value = '';
+    if (password) {
+        password.value = '';
+        password.type = 'password';
+    }
+}
+
+window.addEventListener('pageshow', clearLoginInputs);
+document.addEventListener('DOMContentLoaded', function() {
+    clearLoginInputs();
+    setTimeout(clearLoginInputs, 150);
+    setTimeout(clearLoginInputs, 600);
+});
+
 function togglePwd() {
     const pwd  = document.getElementById('password');
     const icon = document.getElementById('eye-icon');
@@ -258,6 +308,112 @@ document.getElementById('login-form').addEventListener('submit', function() {
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connexion...';
     btn.disabled = true;
 });
+
+<?php if (!empty($errors['_locked'])): ?>
+(function() {
+    let remaining = <?php echo (int) $errors['_locked']; ?>;
+    const display = document.getElementById('lockout-countdown');
+    const inputs  = document.querySelectorAll('#login-form input, #login-form button[type="submit"]');
+    inputs.forEach(el => el.disabled = true);
+    function fmt(s) {
+        const m = Math.floor(s / 60), sec = s % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+    }
+    function tick() {
+        if (display) display.textContent = fmt(remaining);
+        if (remaining <= 0) {
+            inputs.forEach(el => el.disabled = false);
+            if (display) { display.textContent = 'Vous pouvez reessayer !'; display.style.fontSize = '.95rem'; display.style.color = '#10b981'; }
+            return;
+        }
+        remaining--;
+        setTimeout(tick, 1000);
+    }
+    tick();
+})();
+<?php endif; ?>
+</script>
+
+
+<!-- Load face-api.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+<script>
+let videoStreamLogin = null;
+
+async function startFaceLogin() {
+    const container = document.getElementById('face-login-container');
+    const statusTxt = document.getElementById('face-status');
+    const video = document.getElementById('face-video');
+    container.style.display = 'block';
+    
+    statusTxt.textContent = "Chargement des modèles (Patientez...)";
+    statusTxt.style.color = '#10b981';
+
+    try {
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        statusTxt.textContent = "Démarrage de la caméra...";
+        videoStreamLogin = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = videoStreamLogin;
+
+        video.addEventListener('play', () => {
+            statusTxt.textContent = "Analyse de votre visage...";
+            const canvas = document.getElementById('face-canvas');
+            const displaySize = { width: video.width, height: video.height };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            const interval = setInterval(async () => {
+                if (!videoStreamLogin) { clearInterval(interval); return; }
+                const detections = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+                
+                if (detections) {
+                    const resized = faceapi.resizeResults(detections, displaySize);
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    faceapi.draw.drawDetections(canvas, resized);
+
+                    if (detections.descriptor) {
+                        clearInterval(interval);
+                        statusTxt.textContent = "Visage détecté, vérification...";
+                        
+                        const response = await fetch('face_api_handler.php?action=login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ descriptor: Array.from(detections.descriptor) })
+                        });
+                        
+                        const result = await response.json();
+                        if (result && result.success) {
+                            statusTxt.textContent = "Connexion réussie ! Redirection...";
+                            setTimeout(() => {
+                                window.location.href = result.nextPage || 'profile.php';
+                            }, 1000);
+                        } else {
+                            statusTxt.textContent = "Échec : " + (result ? result.message : 'Visage inconnu');
+                            statusTxt.style.color = "#ef4444";
+                            setTimeout(() => stopFaceLogin(), 3000);
+                        }
+                    }
+                }
+            }, 500);
+        });
+
+    } catch (err) {
+        console.error(err);
+        statusTxt.textContent = "Erreur caméra/modèles.";
+        statusTxt.style.color = "#ef4444";
+    }
+}
+
+function stopFaceLogin() {
+    if (videoStreamLogin) {
+        videoStreamLogin.getTracks().forEach(track => track.stop());
+        videoStreamLogin = null;
+    }
+    document.getElementById('face-login-container').style.display = 'none';
+}
 </script>
 
 </body>

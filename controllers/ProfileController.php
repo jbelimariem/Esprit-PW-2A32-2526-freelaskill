@@ -3,10 +3,9 @@
 
 require_once __DIR__ . '/UserController.php';
 
-class ProfileController extends UserController
-{
-    public function handleProfileActions(&$user, &$success)
-    {
+class ProfileController extends UserController {
+
+    public function handleProfileActions(&$user, &$success) {
         $errors = [];
         $action = $_POST['action'] ?? '';
 
@@ -17,28 +16,31 @@ class ProfileController extends UserController
             ];
         }
 
-        $userModel = $this->userModel();
         $userId = $user->getId();
 
         if ($action === 'update') {
-            $updatedUser = (new User())
-                ->setId($userId)
-                ->setNom($_POST['nom'] ?? '')
-                ->setPrenom($_POST['prenom'] ?? '')
-                ->setEmail($_POST['email'] ?? '')
-                ->setBio($_POST['bio'] ?? '')
-                ->setAvatar($user->getAvatar());
+            $updatedUser = new User(
+                $_POST['nom'] ?? '',
+                $_POST['prenom'] ?? '',
+                $_POST['email'] ?? '',
+                '',
+                $user->getRole(),
+                $_POST['bio'] ?? '',
+                $user->getAvatar(),
+                $user->getStatus()
+            );
+            $updatedUser->setId($userId);
 
             $errors = $this->validateProfileUser($updatedUser);
 
-            if (empty($errors) && $updatedUser->getEmail() !== $user->getEmail() && $userModel->emailExists($updatedUser->getEmail())) {
+            if (empty($errors) && $updatedUser->getEmail() !== $user->getEmail() && $this->emailExists($updatedUser->getEmail())) {
                 $this->addFieldError($errors, 'email', 'Cet email est deja utilise.');
             }
 
             if (empty($errors)) {
-                $userModel->update($updatedUser);
+                $this->update($updatedUser);
                 $_SESSION['user_nom'] = $updatedUser->getNom();
-                $user = $userModel->getById($userId);
+                $user = $this->getById($userId);
                 $success = true;
             }
         } elseif ($action === 'avatar') {
@@ -49,7 +51,7 @@ class ProfileController extends UserController
             $errors = $this->validatePasswordChange($newPassword, $confirmPassword);
 
             if (empty($errors)) {
-                $userModel->updatePassword($userId, $newPassword);
+                $this->updatePassword($userId, $newPassword);
                 $_SESSION['pwd_changed_time'] = time();
                 $success = true;
             }
@@ -66,14 +68,13 @@ class ProfileController extends UserController
                 }
 
                 if (empty($errors)) {
-                    $userModel->updateLinks(
-                        (new User())
-                            ->setId($userId)
-                            ->setGithubUrl($github)
-                            ->setLinkedinUrl($linkedin)
-                    );
+                    $linkUser = new User();
+                    $linkUser->setId($userId);
+                    $linkUser->setGithubUrl($github);
+                    $linkUser->setLinkedinUrl($linkedin);
+                    $this->updateLinks($linkUser);
 
-                    $user = $userModel->getById($userId);
+                    $user = $this->getById($userId);
                     $success = true;
                 }
             }
@@ -86,8 +87,8 @@ class ProfileController extends UserController
                 $field = $_POST['field'] ?? '';
 
                 if (in_array($field, ['github_url', 'linkedin_url'], true)) {
-                    $userModel->clearLink($userId, $field);
-                    $user = $userModel->getById($userId);
+                    $this->clearLink($userId, $field);
+                    $user = $this->getById($userId);
                     $success = true;
                 }
             }
@@ -105,8 +106,8 @@ class ProfileController extends UserController
                         }
                     }
 
-                    $userModel->clearFile($userId, $field);
-                    $user = $userModel->getById($userId);
+                    $this->clearFile($userId, $field);
+                    $user = $this->getById($userId);
                     $success = true;
                 }
             }
@@ -118,8 +119,7 @@ class ProfileController extends UserController
         ];
     }
 
-    public function handleOnboardingLinks(&$user)
-    {
+    public function handleOnboardingLinks(&$user) {
         $errors = [];
 
         if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -144,21 +144,18 @@ class ProfileController extends UserController
             return $errors;
         }
 
-        $userModel = $this->userModel();
-        $userModel->updateLinks(
-            (new User())
-                ->setId($userId)
-                ->setGithubUrl($github)
-                ->setLinkedinUrl($linkedin)
-        );
+        $linkUser = new User();
+        $linkUser->setId($userId);
+        $linkUser->setGithubUrl($github);
+        $linkUser->setLinkedinUrl($linkedin);
+        $this->updateLinks($linkUser);
 
         if ($files['cv_path'] !== null || $files['portfolio_path'] !== null) {
-            $userModel->updateFiles(
-                (new User())
-                    ->setId($userId)
-                    ->setCvUrl($files['cv_path'])
-                    ->setPortfolioUrl($files['portfolio_path'])
-            );
+            $fileUser = new User();
+            $fileUser->setId($userId);
+            $fileUser->setCvUrl($files['cv_path']);
+            $fileUser->setPortfolioUrl($files['portfolio_path']);
+            $this->updateFiles($fileUser);
         }
 
         header('Location: profile.php?links=saved');

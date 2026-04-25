@@ -27,15 +27,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: dark;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../assets/theme-init.js"></script>
     <title>Créer un compte — FreelaSkill</title>
     <meta name="description" content="Rejoignez FreelaSkill en tant que freelancer ou client et accédez à des milliers de missions.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/theme.js" defer></script>
     <style>
         .auth-wrapper {
             min-height: 100vh;
@@ -66,12 +68,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             z-index: 1;
             width: 100%;
             max-width: 520px;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
+            background: var(--surface-1);
+            border: 1px solid var(--border);
             border-radius: 24px;
             padding: 2.5rem;
             backdrop-filter: blur(20px);
             animation: fadeUp 0.5s ease forwards;
+            box-shadow: var(--card-shadow);
         }
         .auth-header { text-align: center; margin-bottom: 2rem; }
         .auth-logo {
@@ -84,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .auth-logo i { color: var(--tunisian-red); }
         .auth-logo span { color: var(--tech-blue); }
-        .auth-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; }
+        .auth-title { font-size: 1.6rem; font-weight: 700; margin-bottom: 0.4rem; color: var(--text-strong); }
         .auth-sub { color: var(--text-muted); font-size: 0.9rem; }
 
         .auth-form { display: flex; flex-direction: column; gap: 1.1rem; }
@@ -97,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             left: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #334155;
+            color: var(--input-icon);
             font-size: 0.9rem;
             transition: var(--transition);
         }
@@ -109,7 +112,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             right: 1rem;
             top: 50%;
             transform: translateY(-50%);
-            color: #334155;
+            color: var(--input-icon);
             cursor: pointer;
             font-size: 0.9rem;
             transition: var(--transition);
@@ -136,14 +139,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .role-card:hover   { border-color: rgba(37,99,235,0.4); background: rgba(37,99,235,0.05); }
         .role-card.selected { border-color: var(--tech-blue); background: rgba(37,99,235,0.1); box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
         .role-card .role-icon { font-size: 2rem; margin-bottom: 0.5rem; }
-        .role-card .role-name { font-size: 0.95rem; font-weight: 700; color: white; margin-bottom: 0.3rem; }
+        .role-card .role-name { font-size: 0.95rem; font-weight: 700; color: var(--text-strong); margin-bottom: 0.3rem; }
         .role-card .role-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.4; }
 
         /* Password strength */
         .strength-bar {
             height: 4px;
             border-radius: 4px;
-            background: rgba(255,255,255,0.06);
+            background: var(--surface-2);
             margin-top: 0.5rem;
             overflow: hidden;
         }
@@ -154,24 +157,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 0%;
         }
         .password-rules {
-            display: flex;
-            flex-wrap: nowrap;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 0.55rem;
             margin-top: 0.85rem;
         }
         .password-rule {
-            display: inline-flex;
+            display: flex;
             align-items: center;
+            justify-content: center;
             gap: 0.4rem;
-            padding: 0.42rem 0.9rem;
+            padding: 0.42rem 0.7rem;
             border-radius: 999px;
             border: 1px solid rgba(71,85,105,0.5);
             background: rgba(15,23,42,0.7);
             color: #64748b;
             font-size: 0.78rem;
             font-weight: 500;
-            letter-spacing: 0.01em;
             line-height: 1;
+            min-height: 42px;
+            min-width: 0;
+            text-align: center;
             transition: all 0.35s cubic-bezier(.4,0,.2,1);
             position: relative;
             overflow: hidden;
@@ -183,6 +189,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.08));
             opacity: 0;
             transition: opacity 0.35s ease;
+        }
+        .password-rule .rule-icon,
+        .password-rule > span:not(.rule-icon) {
+            position: relative;
+            z-index: 1;
         }
         .password-rule .rule-icon {
             font-size: 0.72rem;
@@ -196,7 +207,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             transition: all 0.35s cubic-bezier(.4,0,.2,1);
             flex-shrink: 0;
         }
-        .password-rule .rule-icon i { font-size: 0.6rem; color: #475569; transition: all 0.3s; }
+        .password-rule .rule-icon i {
+            font-size: 0.6rem;
+            color: #475569;
+            transition: all 0.3s;
+        }
         .password-rule.is-valid {
             border-color: rgba(16,185,129,0.7);
             background: rgba(16,185,129,0.12);
@@ -209,7 +224,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-color: rgba(16,185,129,0.7);
             animation: rulePop 0.35s cubic-bezier(.4,0,.2,1);
         }
-        .password-rule.is-valid .rule-icon i { color: #10b981; }
+        .password-rule.is-valid .rule-icon i {
+            color: #10b981;
+        }
         @keyframes rulePop {
             0%   { transform: scale(0.7); }
             60%  { transform: scale(1.2); }
@@ -223,6 +240,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .auth-footer a { color: var(--tech-blue); font-weight: 600; }
         .auth-footer a:hover { text-decoration: underline; }
+
+        .auth-divider {
+            text-align: center;
+            color: var(--placeholder);
+            font-size: 0.82rem;
+            position: relative;
+            margin: 0.5rem 0;
+        }
+        .auth-divider::before, .auth-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: var(--border);
+        }
+        .auth-divider::before { left: 0; }
+        .auth-divider::after  { right: 0; }
+
+        .modal-backdrop {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            z-index: 1000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: var(--transition);
+        }
+        .modal-backdrop.active { opacity: 1; pointer-events: auto; }
+        .step-pane { display: none; }
+        .step-pane.active { display: block; animation: fadeUp 0.3s ease; }
 
         .step-indicator {
             display: flex;
@@ -242,6 +287,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         @media (max-width: 500px) {
             .form-row { grid-template-columns: 1fr; }
             .role-grid { grid-template-columns: 1fr; }
+            .password-rules { gap: 0.35rem; }
+            .password-rule {
+                gap: 0.25rem;
+                padding-inline: 0.35rem;
+                font-size: clamp(0.58rem, 2.8vw, 0.72rem);
+            }
         }
         .field-error {
             margin-top: 0.45rem;
@@ -252,12 +303,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         .role-card.input-error {
             border-color: rgba(239, 68, 68, 0.65);
         }
+        html[data-theme='light'] .step-dot { background: #cbd5e1; }
     </style>
 </head>
 <body class="page-anim">
 
 <div class="auth-glow"></div>
 <div class="auth-glow-2"></div>
+<button type="button" class="theme-toggle theme-toggle--floating" data-theme-toggle>
+    <i class="fa-solid fa-sun" data-theme-icon></i>
+    <span data-theme-label>Jour</span>
+</button>
 
 <div class="auth-wrapper">
     <div class="auth-box">
@@ -372,8 +428,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input class="form-input<?php echo $fieldError('password') !== '' ? ' input-error' : ''; ?>" type="password" id="password" name="password"
                            placeholder="Minimum 8 caracteres"
                            autocomplete="new-password"
-                           style="padding-right:3rem;"
-                           oninput="updateStrength(this.value)">
+                           style="padding-right:3rem;">
                     <i class="fa-solid fa-lock field-icon"></i>
                     <button type="button" class="toggle-password" onclick="togglePwd('password','eye1')">
                         <i class="fa-regular fa-eye" id="eye1"></i>
@@ -430,14 +485,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         </form>
 
-        <div class="auth-footer">
-            Déjà un compte ? <a href="login.php">Se connecter</a>
+        <div class="auth-divider" style="margin-top:1.5rem;">ou</div>
+
+        <!-- CUSTOM GOOGLE BUTTON WITH OAUTH REDIRECT -->
+        <?php
+        $clientId = "512696696631-585q3lbt2rps9g8o81e8vqr9mijdh8tq.apps.googleusercontent.com";
+        $redirectUri = urlencode("http://localhost/projet2222/views/frontoffice/google_callback.php");
+        $googleOAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id={$clientId}&redirect_uri={$redirectUri}&response_type=id_token&scope=email%20profile&nonce=12345&response_mode=form_post";
+        ?>
+        <a href="<?php echo $googleOAuthUrl; ?>" class="btn-google" style="margin-top: 1rem;">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg" alt="Google" width="20" height="20">
+            Continuer avec Google
+        </a>
+
+        <div class="auth-footer" style="margin-top: 2rem;">
+            Vous avez déjà un compte ? <a href="login.php">Se connecter</a>
         </div>
 
     </div>
 </div>
 
 <script>
+
 // Role selector
 function selectRole(card, role) {
     document.querySelectorAll('.role-card').forEach(c => c.classList.remove('selected'));
@@ -477,21 +546,47 @@ function updateStrength(val) {
         upper: /[A-Z]/.test(val),
         special: /[^A-Za-z0-9]/.test(val)
     };
-    const score = Object.values(checks).filter(Boolean).length;
+    const score = (checks.length ? 1 : 0) + (checks.upper ? 1 : 0) + (checks.special ? 1 : 0);
     const pct   = (score / 3) * 100;
     const color = score <= 1 ? '#ef4444' : score === 2 ? '#F59E0B' : '#10b981';
 
-    document.getElementById('register-rule-length').classList.toggle('is-valid', checks.length);
-    document.getElementById('register-rule-upper').classList.toggle('is-valid', checks.upper);
-    document.getElementById('register-rule-special').classList.toggle('is-valid', checks.special);
+    const lengthRule = document.getElementById('register-rule-length');
+    const upperRule = document.getElementById('register-rule-upper');
+    const specialRule = document.getElementById('register-rule-special');
 
-    fill.style.width = pct + '%';
-    fill.style.background = color;
+    if (lengthRule) lengthRule.classList.toggle('is-valid', checks.length);
+    if (upperRule) upperRule.classList.toggle('is-valid', checks.upper);
+    if (specialRule) specialRule.classList.toggle('is-valid', checks.special);
+
+    if (fill) {
+        fill.style.width = pct + '%';
+        fill.style.background = color;
+    }
     if (score >= 1) updateStepDots(3);
     else            updateStepDots(2);
 }
 
-updateStrength(document.getElementById('password').value);
+function initRegisterPasswordRules() {
+    const passwordInput = document.getElementById('password');
+    if (!passwordInput) {
+        return;
+    }
+
+    const refreshRules = function () {
+        updateStrength(passwordInput.value);
+    };
+
+    passwordInput.addEventListener('input', refreshRules);
+    passwordInput.addEventListener('keyup', refreshRules);
+    passwordInput.addEventListener('change', refreshRules);
+    refreshRules();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRegisterPasswordRules);
+} else {
+    initRegisterPasswordRules();
+}
 // Loading state
 document.getElementById('register-form').addEventListener('submit', function() {
     const btn = document.getElementById('submit-btn');
@@ -502,4 +597,3 @@ document.getElementById('register-form').addEventListener('submit', function() {
 
 </body>
 </html>
-

@@ -2,70 +2,291 @@
 // controllers/UserController.php
 
 require_once __DIR__ . '/../Models/User.php';
-require_once __DIR__ . '/../Models/UserModel.php';
+require_once __DIR__ . '/../config.php';
 
-abstract class UserController
-{
-    public function getAll()
-    {
-        return $this->userModel()->getAll();
+class UserController {
+
+    protected $pdo;
+
+    public function __construct() {
+        $this->pdo = config::getConnexion();
     }
 
-    public function getById($id)
-    {
-        return $this->userModel()->getById($id);
+    // -------------------------------------------------------
+    // Helper: map a DB record (assoc array) to a User object
+    // -------------------------------------------------------
+    private function mapRecordToUser($record) {
+        if (!$record) {
+            return null;
+        }
+        $user = new User(
+            $record['nom'] ?? '',
+            $record['prenom'] ?? '',
+            $record['email'] ?? '',
+            $record['password'] ?? '',
+            $record['role'] ?? 'client',
+            $record['bio'] ?? '',
+            $record['avatar'] ?? '',
+            $record['status'] ?? 'active',
+            $record['github_url'] ?? '',
+            $record['linkedin_url'] ?? '',
+            $record['cv_url'] ?? null,
+            $record['portfolio_url'] ?? null
+        );
+        $user->setId($record['id'] ?? null);
+        $user->setCreatedAt($record['created_at'] ?? null);
+        $user->setFaceDescriptor($record['face_descriptor'] ?? null);
+        return $user;
     }
 
-    public function filter($search, $role, $status)
-    {
-        return $this->userModel()->filter($search, $role, $status);
+    private function mapRecordsToUsers(array $records) {
+        $users = [];
+        foreach ($records as $record) {
+            $users[] = $this->mapRecordToUser($record);
+        }
+        return $users;
     }
 
-    public function countAll()
-    {
-        return $this->userModel()->countAll();
+    // -------------------------------------------------------
+    // Base de données : CRUD
+    // -------------------------------------------------------
+    public function getAll() {
+        $sql = "SELECT * FROM users WHERE status != 'rejected' ORDER BY created_at DESC";
+        $stmt = $this->pdo->query($sql);
+        return $this->mapRecordsToUsers($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    public function countByRole($role)
-    {
-        return $this->userModel()->countByRole($role);
+    public function getById($id) {
+        $sql = "SELECT * FROM users WHERE id = ? LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+        return $this->mapRecordToUser($stmt->fetch(PDO::FETCH_ASSOC));
     }
 
-    public function countByStatus($status)
-    {
-        return $this->userModel()->countByStatus($status);
+    public function getByEmail($email) {
+        $sql = "SELECT * FROM users WHERE email = ? LIMIT 1";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$email]);
+        return $this->mapRecordToUser($stmt->fetch(PDO::FETCH_ASSOC));
     }
 
-    protected function userModel()
-    {
-        return new UserModel();
+    public function getByRole($role) {
+        $sql = "SELECT * FROM users WHERE role = ? ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$role]);
+        return $this->mapRecordsToUsers($stmt->fetchAll(PDO::FETCH_ASSOC));
     }
 
-    protected function addFieldError(array &$errors, $field, $message)
-    {
+    public function getByStatus($status) {
+        $sql = "SELECT * FROM users WHERE status = ? ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$status]);
+        return $this->mapRecordsToUsers($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function create(User $user) {
+        $sql = "INSERT INTO users (nom, prenom, email, password, role, bio, avatar, status, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $user->getNom(),
+            $user->getPrenom(),
+            $user->getEmail(),
+            password_hash($user->getPassword(), PASSWORD_DEFAULT),
+            $user->getRole(),
+            $user->getBio(),
+            $user->getAvatar(),
+            $user->getStatus()
+        ]);
+        return $this->pdo->lastInsertId();
+    }
+
+    public function update(User $user) {
+        $sql = "UPDATE users SET nom = ?, prenom = ?, email = ?, bio = ?, avatar = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $user->getNom(),
+            $user->getPrenom(),
+            $user->getEmail(),
+            $user->getBio(),
+            $user->getAvatar(),
+            $user->getId()
+        ]);
+    }
+
+    public function updateFull(User $user) {
+        $sql = "UPDATE users SET nom = ?, prenom = ?, email = ?, bio = ?, role = ?, status = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            $user->getNom(),
+            $user->getPrenom(),
+            $user->getEmail(),
+            $user->getBio(),
+            $user->getRole(),
+            $user->getStatus(),
+            $user->getId()
+        ]);
+    }
+
+    public function updatePassword($id, $newPassword) {
+        $sql = "UPDATE users SET password = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([password_hash($newPassword, PASSWORD_DEFAULT), $id]);
+    }
+
+    public function updateStatus($id, $status) {
+        $sql = "UPDATE users SET status = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$status, $id]);
+    }
+
+    public function updateFaceDescriptor($id, $faceDescriptor) {
+        $sql = "UPDATE users SET face_descriptor = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$faceDescriptor, $id]);
+    }
+
+    public function delete($id) {
+        $sql = "DELETE FROM users WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+    }
+
+    public function updateLinks(User $user) {
+        $sql = "UPDATE users SET github_url = ?, linkedin_url = ? WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user->getGithubUrl(), $user->getLinkedinUrl(), $user->getId()]);
+    }
+
+    public function updateFiles(User $user) {
+        if ($user->getCvUrl() !== null && $user->getPortfolioUrl() !== null) {
+            $sql = "UPDATE users SET cv_url = ?, portfolio_url = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$user->getCvUrl(), $user->getPortfolioUrl(), $user->getId()]);
+            return;
+        }
+        if ($user->getCvUrl() !== null) {
+            $sql = "UPDATE users SET cv_url = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$user->getCvUrl(), $user->getId()]);
+        }
+        if ($user->getPortfolioUrl() !== null) {
+            $sql = "UPDATE users SET portfolio_url = ? WHERE id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$user->getPortfolioUrl(), $user->getId()]);
+        }
+    }
+
+    public function clearLink($id, $field) {
+        $allowed = ['github_url', 'linkedin_url'];
+        if (!in_array($field, $allowed, true)) {
+            return;
+        }
+        $sql = "UPDATE users SET {$field} = '' WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+    }
+
+    public function clearFile($id, $field) {
+        $allowed = ['cv_url', 'portfolio_url'];
+        if (!in_array($field, $allowed, true)) {
+            return;
+        }
+        $sql = "UPDATE users SET {$field} = NULL WHERE id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$id]);
+    }
+
+    public function login($email, $password) {
+        $user = $this->getByEmail($email);
+        if ($user && password_verify($password, $user->getPassword())) {
+            return $user;
+        }
+        return false;
+    }
+
+    public function emailExists($email) {
+        $sql = "SELECT COUNT(*) FROM users WHERE email = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$email]);
+        return $stmt->fetchColumn() > 0;
+    }
+
+    public function countAll() {
+        return $this->pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
+    }
+
+    public function countByRole($role) {
+        $sql = "SELECT COUNT(*) FROM users WHERE role = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$role]);
+        return $stmt->fetchColumn();
+    }
+
+    public function countByStatus($status) {
+        $sql = "SELECT COUNT(*) FROM users WHERE status = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$status]);
+        return $stmt->fetchColumn();
+    }
+
+    public function search($query) {
+        $like = '%' . $query . '%';
+        $sql = "SELECT * FROM users WHERE nom LIKE ? OR prenom LIKE ? OR email LIKE ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$like, $like, $like]);
+        return $this->mapRecordsToUsers($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    public function filter($search, $role, $status) {
+        $sql = "SELECT * FROM users WHERE 1 = 1";
+        $params = [];
+
+        if ($search !== '') {
+            $like = '%' . $search . '%';
+            $sql .= " AND (nom LIKE ? OR prenom LIKE ? OR email LIKE ?)";
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+        }
+        if ($role !== '') {
+            $sql .= " AND role = ?";
+            $params[] = $role;
+        }
+        if ($status !== '') {
+            $sql .= " AND status = ?";
+            $params[] = $status;
+        }
+
+        $sql .= " ORDER BY created_at DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        return $this->mapRecordsToUsers($stmt->fetchAll(PDO::FETCH_ASSOC));
+    }
+
+    // -------------------------------------------------------
+    // Validation
+    // -------------------------------------------------------
+    protected function addFieldError(array &$errors, $field, $message) {
         if (!isset($errors[$field])) {
             $errors[$field] = $message;
         }
     }
 
-    protected function mergeErrors(array $errors, array $newErrors)
-    {
+    protected function mergeErrors(array $errors, array $newErrors) {
         foreach ($newErrors as $field => $message) {
             $this->addFieldError($errors, $field, $message);
         }
-
         return $errors;
     }
 
-    protected function validateRegistrationUser(User $user, $confirmPassword)
-    {
+    protected function validateRegistrationUser(User $user, $confirmPassword) {
         $errors = $this->validateProfileUser($user);
         $errors = $this->mergeErrors($errors, $this->validatePasswordRules($user->getPassword(), 'Le mot de passe est requis.', 'password'));
 
         if ($user->getPassword() !== $confirmPassword) {
             $this->addFieldError($errors, 'confirm_password', 'Les mots de passe ne correspondent pas.');
         }
-
         if (!in_array($user->getRole(), ['freelancer', 'client'], true)) {
             $this->addFieldError($errors, 'role', 'Veuillez choisir un role.');
         }
@@ -73,17 +294,16 @@ abstract class UserController
         return $errors;
     }
 
-    protected function validateProfileUser(User $user)
-    {
+    protected function validateProfileUser(User $user) {
         $errors = [];
 
-        if ($user->getNom() === '') {
+        if (trim($user->getNom()) === '') {
             $this->addFieldError($errors, 'nom', 'Le nom est requis.');
         }
-        if ($user->getPrenom() === '') {
+        if (trim($user->getPrenom()) === '') {
             $this->addFieldError($errors, 'prenom', 'Le prenom est requis.');
         }
-        if ($user->getEmail() === '') {
+        if (trim($user->getEmail()) === '') {
             $this->addFieldError($errors, 'email', "L'email est requis.");
         } elseif (!filter_var($user->getEmail(), FILTER_VALIDATE_EMAIL)) {
             $this->addFieldError($errors, 'email', 'Email invalide.');
@@ -92,8 +312,7 @@ abstract class UserController
         return $errors;
     }
 
-    protected function validatePasswordChange($password, $confirmPassword)
-    {
+    protected function validatePasswordChange($password, $confirmPassword) {
         $errors = $this->validatePasswordRules($password, 'Le nouveau mot de passe est requis.', 'new_password');
 
         if ($password !== $confirmPassword) {
@@ -103,15 +322,13 @@ abstract class UserController
         return $errors;
     }
 
-    protected function validatePasswordRules($password, $requiredMessage, $field = 'password')
-    {
+    protected function validatePasswordRules($password, $requiredMessage, $field = 'password') {
         $errors = [];
 
         if ($password === '') {
             $this->addFieldError($errors, $field, $requiredMessage);
             return $errors;
         }
-
         if (strlen($password) < 8) {
             $this->addFieldError($errors, $field, 'Le mot de passe doit contenir au moins 8 caracteres.');
         }
@@ -125,8 +342,7 @@ abstract class UserController
         return $errors;
     }
 
-    protected function validateAdminCreate(User $user)
-    {
+    protected function validateAdminCreate(User $user) {
         $errors = $this->validateProfileUser($user);
         $errors = $this->mergeErrors($errors, $this->validatePasswordRules($user->getPassword(), 'Le mot de passe est requis.', 'password'));
 
@@ -137,22 +353,23 @@ abstract class UserController
         return $errors;
     }
 
-    protected function validateAdminUpdate(User $user)
-    {
+    protected function validateAdminUpdate(User $user) {
         $errors = $this->validateProfileUser($user);
 
         if (!in_array($user->getRole(), ['freelancer', 'client'], true)) {
             $this->addFieldError($errors, 'role', 'Role invalide.');
         }
-        if (!in_array($user->getStatus(), ['active', 'banned', 'pending'], true)) {
+        if (!in_array($user->getStatus(), ['active', 'banned', 'pending', 'rejected'], true)) {
             $this->addFieldError($errors, 'status', 'Statut invalide.');
         }
 
         return $errors;
     }
 
-    protected function handleAvatarUpload(&$user, &$success)
-    {
+    // -------------------------------------------------------
+    // File uploads
+    // -------------------------------------------------------
+    protected function handleAvatarUpload(&$user, &$success) {
         $errors = [];
         $avatarFile = $_FILES['avatar_file'] ?? null;
         $maxSize = 3 * 1024 * 1024;
@@ -203,24 +420,26 @@ abstract class UserController
             }
         }
 
-        $this->userModel()->update(
-            (new User())
-                ->setId($user->getId())
-                ->setNom($user->getNom())
-                ->setPrenom($user->getPrenom())
-                ->setEmail($user->getEmail())
-                ->setBio($user->getBio())
-                ->setAvatar($relativeAvatarPath)
+        $updatedUser = new User(
+            $user->getNom(),
+            $user->getPrenom(),
+            $user->getEmail(),
+            '',
+            $user->getRole(),
+            $user->getBio(),
+            $relativeAvatarPath,
+            $user->getStatus()
         );
+        $updatedUser->setId($user->getId());
+        $this->update($updatedUser);
 
-        $user = $this->userModel()->getById($user->getId());
+        $user = $this->getById($user->getId());
         $success = true;
 
         return $errors;
     }
 
-    protected function handleDocumentsUpload(&$user, &$success)
-    {
+    protected function handleDocumentsUpload(&$user, &$success) {
         $result = $this->processDocumentUploads($user);
 
         if (!empty($result['errors'])) {
@@ -232,21 +451,19 @@ abstract class UserController
             return [$targetField => 'Veuillez selectionner au moins un fichier.'];
         }
 
-        $this->userModel()->updateFiles(
-            (new User())
-                ->setId($user->getId())
-                ->setCvUrl($result['cv_path'])
-                ->setPortfolioUrl($result['portfolio_path'])
-        );
+        $fileUser = new User();
+        $fileUser->setId($user->getId());
+        $fileUser->setCvUrl($result['cv_path']);
+        $fileUser->setPortfolioUrl($result['portfolio_path']);
+        $this->updateFiles($fileUser);
 
-        $user = $this->userModel()->getById($user->getId());
+        $user = $this->getById($user->getId());
         $success = true;
 
         return [];
     }
 
-    protected function processDocumentUploads(User $user)
-    {
+    protected function processDocumentUploads(User $user) {
         $errors = [];
         $maxSize = 5 * 1024 * 1024;
         $allowedCv = ['application/pdf'];
@@ -286,7 +503,6 @@ abstract class UserController
                             @unlink($oldFile);
                         }
                     }
-
                     $newCvPath = 'uploads/cv/' . $fileName;
                 } else {
                     $this->addFieldError($errors, 'cv_file', 'Impossible de sauvegarder le CV.');
@@ -315,7 +531,6 @@ abstract class UserController
                             @unlink($oldFile);
                         }
                     }
-
                     $newPortfolioPath = 'uploads/portfolio/' . $fileName;
                 } else {
                     $this->addFieldError($errors, 'portfolio_file', 'Impossible de sauvegarder le Portfolio.');
@@ -330,13 +545,14 @@ abstract class UserController
         ];
     }
 
-    protected function ensureDirectory($path)
-    {
+    // -------------------------------------------------------
+    // Utilitaires
+    // -------------------------------------------------------
+    protected function ensureDirectory($path) {
         return is_dir($path) || (mkdir($path, 0777, true) && is_dir($path));
     }
 
-    protected function uploadsPath($relativePath = '')
-    {
+    protected function uploadsPath($relativePath = '') {
         $relativePath = trim(str_replace('\\', '/', $relativePath), '/');
         $path = $this->projectPath('uploads');
 
@@ -347,8 +563,7 @@ abstract class UserController
         return $path;
     }
 
-    protected function projectPath($relativePath = '')
-    {
+    protected function projectPath($relativePath = '') {
         $basePath = dirname(__DIR__);
         $relativePath = trim(str_replace('\\', '/', $relativePath), '/');
 

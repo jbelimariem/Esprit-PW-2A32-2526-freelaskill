@@ -595,18 +595,18 @@ if ($profileAction === 'password') {
                                 </div>
                                 <div style="flex:1;min-width:0;">
                                     <div style="font-weight:700;color:white;font-size:.92rem;"><?php echo $s['label']; ?></div>
-                                    <?php if (!empty($user[$fieldKey])): ?>
+                                    <?php if (!empty($user->get($fieldKey))): ?>
                                         <div style="font-size:.75rem;color:#6ee7b7;display:flex;align-items:center;gap:.3rem;margin-top:.15rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
                                             <i class="fa-solid fa-circle-check" style="font-size:.65rem;"></i>
-                                            <?php echo htmlspecialchars($user[$fieldKey]); ?>
+                                            <?php echo htmlspecialchars($user->get($fieldKey)); ?>
                                         </div>
                                     <?php else: ?>
                                         <div style="font-size:.75rem;color:#475569;margin-top:.15rem;">Non renseign&eacute;</div>
                                     <?php endif; ?>
                                 </div>
                                 <!-- Action buttons when link is set -->
-                                <?php if (!empty($user[$fieldKey])): ?>
-                                    <a href="<?php echo htmlspecialchars($user[$fieldKey]); ?>" target="_blank"
+                                <?php if (!empty($user->get($fieldKey))): ?>
+                                    <a href="<?php echo htmlspecialchars($user->get($fieldKey)); ?>" target="_blank"
                                        style="font-size:.78rem;color:var(--tech-blue);text-decoration:none;display:flex;align-items:center;gap:.3rem;padding:.35rem .7rem;border-radius:8px;border:1px solid rgba(37,99,235,.3);white-space:nowrap;transition:background .2s;"
                                        onmouseover="this.style.background='rgba(37,99,235,.12)'" onmouseout="this.style.background=''">
                                         <i class="fa-solid fa-arrow-up-right-from-square"></i> Voir
@@ -626,7 +626,7 @@ if ($profileAction === 'password') {
                             <div style="position:relative;">
                                 <input class="form-input<?php echo $fieldError($linksErrors, $fieldKey) !== '' ? ' input-error' : ''; ?>" type="text" name="<?php echo $fieldKey; ?>" id="<?php echo $fieldKey; ?>"
                                        placeholder="<?php echo $s['placeholder']; ?>"
-                                       value="<?php echo htmlspecialchars($_POST[$fieldKey] ?? $user[$fieldKey] ?? ''); ?>"
+                                       value="<?php echo htmlspecialchars($_POST[$fieldKey] ?? $user->get($fieldKey) ?? ''); ?>"
                                        style="padding-left:2.5rem;font-size:.88rem;">
                                 <i class="<?php echo $s['icon']; ?>" style="position:absolute;left:.9rem;top:50%;transform:translateY(-50%);color:#334155;font-size:.85rem;"></i>
                             </div>
@@ -663,7 +663,7 @@ if ($profileAction === 'password') {
                         'portfolio_url' => ['label'=>'Portfolio',  'sub'=>'PDF, ZIP, DOCX',     'icon'=>'fa-solid fa-briefcase', 'col'=>'rgba(139,92,246,.18)','txt'=>'#a78bfa','border'=>'rgba(139,92,246,.4)', 'bg'=>'rgba(139,92,246,.05)','accept'=>'.pdf,.zip,.docx','inputId'=>'portfolio_file', 'spanId'=>'pf-fn',  'zoneId'=>'pf-zone'],
                     ];
                     foreach ($docFields as $fkey => $d):
-                        $hasFile = !empty($user[$fkey]);
+                        $hasFile = !empty($user->get($fkey));
                     ?>
 
                     <!-- <?php echo $d['label']; ?> doc card -->
@@ -684,12 +684,12 @@ if ($profileAction === 'password') {
                             <!-- ---- File EXISTS: show info + actions ---- -->
                             <div style="display:flex;align-items:center;gap:.75rem;padding:.65rem 1rem;border-radius:10px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.28);margin-bottom:.85rem;">
                                 <i class="fa-solid fa-circle-check" style="color:#10b981;font-size:.85rem;"></i>
-                                <span style="font-size:.82rem;color:#6ee7b7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo htmlspecialchars(basename($user[$fkey])); ?></span>
+                                <span style="font-size:.82rem;color:#6ee7b7;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"><?php echo htmlspecialchars(basename($user->get($fkey))); ?></span>
                             </div>
 
                             <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
                                 <!-- Download -->
-                                <a href="../../<?php echo htmlspecialchars($user[$fkey]); ?>" download target="_blank"
+                                <a href="../../<?php echo htmlspecialchars($user->get($fkey)); ?>" download target="_blank"
                                    style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:600;
                                           background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:var(--tech-blue);text-decoration:none;transition:background .2s;"
                                    onmouseover="this.style.background='rgba(37,99,235,.22)'" onmouseout="this.style.background='rgba(37,99,235,.12)'">
@@ -851,6 +851,45 @@ if ($profileAction === 'password') {
                 </div>
             </div>
 
+            <!-- ===== FACE ID SETUP CARD ===== -->
+            <div class="section-card">
+                <div class="section-card-header">
+                    <div class="section-card-title">
+                        <i class="fa-solid fa-face-smile-beam"></i>
+                        Reconnaissance Faciale (Face ID)
+                    </div>
+                </div>
+                <div class="section-card-body" style="text-align:center;">
+                    <?php if ($user->getFaceDescriptor()): ?>
+                        <div style="margin-bottom:1rem;color:#10b981;font-weight:600;display:flex;align-items:center;justify-content:center;gap:.5rem;">
+                            <i class="fa-solid fa-circle-check"></i> Votre visage est enregistré !
+                        </div>
+                        <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1.5rem;">Vous pouvez vous connecter en utilisant la reconnaissance faciale.</p>
+                        <button type="button" class="btn btn-outline" onclick="startFaceRegistration()" style="width:auto;margin:0 auto;">
+                            <i class="fa-solid fa-camera-rotate"></i> Mettre à jour mon visage
+                        </button>
+                    <?php else: ?>
+                        <div style="margin-bottom:1rem;color:var(--text-muted);display:flex;align-items:center;justify-content:center;gap:.5rem;">
+                            <i class="fa-solid fa-triangle-exclamation" style="color:#fbbf24;"></i> Visage non enregistré.
+                        </div>
+                        <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:1.5rem;">Activez Face ID pour vous connecter rapidement sans mot de passe.</p>
+                        <button type="button" class="btn btn-primary" onclick="startFaceRegistration()" style="width:auto;margin:0 auto;">
+                            <i class="fa-solid fa-camera"></i> Configurer Face ID
+                        </button>
+                    <?php endif; ?>
+
+                    <!-- Face API Container (Hidden by default) -->
+                    <div id="face-setup-container" style="display:none;margin-top:2rem;position:relative;">
+                        <div style="position:relative;width:320px;height:240px;margin:0 auto;border-radius:16px;overflow:hidden;border:2px solid var(--tech-blue);box-shadow:0 0 20px rgba(37,99,235,0.3);">
+                            <video id="face-video" width="320" height="240" autoplay muted style="object-fit:cover;"></video>
+                            <canvas id="face-canvas" style="position:absolute;top:0;left:0;"></canvas>
+                        </div>
+                        <p id="face-status" style="margin-top:1rem;font-weight:600;color:var(--tech-blue);">Chargement des modèles...</p>
+                        <button type="button" id="face-cancel-btn" class="btn btn-outline" onclick="stopFaceRegistration()" style="margin-top:1rem;width:auto;margin-left:auto;margin-right:auto;">Annuler</button>
+                    </div>
+                </div>
+            </div>
+
             <div class="section-card">
                 <div class="section-card-header">
                     <div class="section-card-title">
@@ -1000,6 +1039,89 @@ document.getElementById('avatarInput')?.addEventListener('change', function () {
 
     document.getElementById('avatarUploadForm')?.submit();
 });
+</script>
+
+<!-- Load face-api.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
+<script>
+let videoStream = null;
+
+async function startFaceRegistration() {
+    const container = document.getElementById('face-setup-container');
+    const statusTxt = document.getElementById('face-status');
+    const video = document.getElementById('face-video');
+    container.style.display = 'block';
+    
+    statusTxt.textContent = "Chargement des modèles (Patientez...)";
+    statusTxt.style.color = 'var(--tech-blue)';
+
+    try {
+        const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+        await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+
+        statusTxt.textContent = "Démarrage de la caméra...";
+        videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = videoStream;
+
+        video.addEventListener('play', () => {
+            statusTxt.textContent = "Regardez la caméra. Analyse en cours...";
+            const canvas = document.getElementById('face-canvas');
+            const displaySize = { width: video.width, height: video.height };
+            faceapi.matchDimensions(canvas, displaySize);
+
+            const interval = setInterval(async () => {
+                if (!videoStream) { clearInterval(interval); return; }
+                const detections = await faceapi.detectSingleFace(video).withFaceLandmarks().withFaceDescriptor();
+                
+                if (detections) {
+                    const resized = faceapi.resizeResults(detections, displaySize);
+                    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+                    faceapi.draw.drawDetections(canvas, resized);
+
+                    if (detections.descriptor) {
+                        clearInterval(interval);
+                        statusTxt.textContent = "Visage détecté ! Enregistrement...";
+                        statusTxt.style.color = "#10b981";
+                        
+                        const response = await fetch('face_api_handler.php?action=register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ descriptor: Array.from(detections.descriptor) })
+                        });
+                        
+                        const result = await response.json();
+                        if (result && result.success) {
+                            statusTxt.textContent = "Succès ! Votre visage est enregistré.";
+                            setTimeout(() => {
+                                stopFaceRegistration();
+                                window.location.reload();
+                            }, 2000);
+                        } else {
+                            statusTxt.textContent = "Erreur: " + (result ? result.message : 'inconnue');
+                            statusTxt.style.color = "#ef4444";
+                            setTimeout(() => stopFaceRegistration(), 3000);
+                        }
+                    }
+                }
+            }, 500);
+        });
+
+    } catch (err) {
+        console.error(err);
+        statusTxt.textContent = "Erreur d'accès à la caméra ou chargement des modèles.";
+        statusTxt.style.color = "#ef4444";
+    }
+}
+
+function stopFaceRegistration() {
+    if (videoStream) {
+        videoStream.getTracks().forEach(track => track.stop());
+        videoStream = null;
+    }
+    document.getElementById('face-setup-container').style.display = 'none';
+}
 </script>
 
 </body>

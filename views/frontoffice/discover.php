@@ -7,15 +7,17 @@ if (!empty($_SESSION['user_id'])) {
 }
 ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: dark;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../assets/theme-init.js"></script>
     <title>Découvrir — FreelaSkill</title>
     <meta name="description" content="Découvrez FreelaSkill, la plateforme ultime pour les freelances et les clients.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/theme.js" defer></script>
     <style>
         .discover-wrapper {
             position: relative;
@@ -71,8 +73,8 @@ if (!empty($_SESSION['user_id'])) {
         }
 
         .feature-card {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: var(--surface-1);
+            border: 1px solid var(--border);
             padding: 2.5rem 2rem;
             border-radius: var(--radius-lg);
             text-align: center;
@@ -82,9 +84,9 @@ if (!empty($_SESSION['user_id'])) {
 
         .feature-card:hover {
             transform: translateY(-5px);
-            border-color: rgba(59, 130, 246, 0.3);
-            background: rgba(255, 255, 255, 0.04);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), var(--neon-blue);
+            border-color: var(--border-hover);
+            background: var(--surface-2);
+            box-shadow: var(--card-shadow), var(--neon-blue);
         }
 
         .feature-icon {
@@ -99,7 +101,7 @@ if (!empty($_SESSION['user_id'])) {
             font-size: 1.25rem;
             font-weight: 600;
             margin-bottom: 1rem;
-            color: white;
+            color: var(--text-strong);
         }
 
         .feature-desc {
@@ -126,6 +128,10 @@ if (!empty($_SESSION['user_id'])) {
             Freela<span>Skill</span>
         </div>
         <div class="nav-right">
+            <button type="button" class="theme-toggle" data-theme-toggle>
+                <i class="fa-solid fa-sun" data-theme-icon></i>
+                <span data-theme-label>Jour</span>
+            </button>
             <a href="login.php" class="btn btn-outline" style="border: 1px solid rgba(255,255,255,0.2);">Log in</a>
             <a href="register.php" class="btn btn-primary">Sign up</a>
         </div>

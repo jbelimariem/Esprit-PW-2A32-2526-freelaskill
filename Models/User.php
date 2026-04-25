@@ -1,252 +1,90 @@
 <?php
 // Models/User.php
 
-class User implements ArrayAccess, JsonSerializable
-{
-    private $id = null;
-    private $nom = '';
-    private $prenom = '';
-    private $email = '';
-    private $password = '';
-    private $role = 'client';
-    private $bio = '';
-    private $avatar = '';
-    private $status = 'active';
-    private $created_at = null;
-    private $github_url = '';
-    private $linkedin_url = '';
-    private $cv_url = null;
-    private $portfolio_url = null;
+class User {
+    private $id;
+    private $nom;
+    private $prenom;
+    private $email;
+    private $password;
+    private $role;
+    private $bio;
+    private $avatar;
+    private $status;
+    private $created_at;
+    private $github_url;
+    private $linkedin_url;
+    private $cv_url;
+    private $portfolio_url;
+    private $face_descriptor;
 
-    public function __construct(array $data = [])
-    {
-        $this->hydrate($data);
+    public function __construct($nom = '', $prenom = '', $email = '', $password = '', $role = 'client', $bio = '', $avatar = '', $status = 'active', $github_url = '', $linkedin_url = '', $cv_url = null, $portfolio_url = null) {
+        $this->nom = $nom;
+        $this->prenom = $prenom;
+        $this->email = $email;
+        $this->password = $password;
+        $this->role = $role;
+        $this->bio = $bio;
+        $this->avatar = $avatar;
+        $this->status = $status;
+        $this->github_url = $github_url;
+        $this->linkedin_url = $linkedin_url;
+        $this->cv_url = $cv_url;
+        $this->portfolio_url = $portfolio_url;
     }
 
-    public function hydrate(array $data)
-    {
-        $mapping = [
-            'id' => 'setId',
-            'nom' => 'setNom',
-            'prenom' => 'setPrenom',
-            'email' => 'setEmail',
-            'password' => 'setPassword',
-            'role' => 'setRole',
-            'bio' => 'setBio',
-            'avatar' => 'setAvatar',
-            'status' => 'setStatus',
-            'created_at' => 'setCreatedAt',
-            'github_url' => 'setGithubUrl',
-            'linkedin_url' => 'setLinkedinUrl',
-            'cv_url' => 'setCvUrl',
-            'portfolio_url' => 'setPortfolioUrl',
-        ];
+    // --- Getters & Setters ---
 
-        foreach ($mapping as $field => $setter) {
-            if (array_key_exists($field, $data)) {
-                $this->$setter($data[$field]);
-            }
+    public function getId() { return $this->id; }
+    public function setId($id) { $this->id = $id; }
+
+    public function getNom() { return $this->nom; }
+    public function setNom($nom) { $this->nom = $nom; }
+
+    public function getPrenom() { return $this->prenom; }
+    public function setPrenom($prenom) { $this->prenom = $prenom; }
+
+    public function getEmail() { return $this->email; }
+    public function setEmail($email) { $this->email = $email; }
+
+    public function getPassword() { return $this->password; }
+    public function setPassword($password) { $this->password = $password; }
+
+    public function getRole() { return $this->role; }
+    public function setRole($role) { $this->role = $role; }
+
+    public function getBio() { return $this->bio; }
+    public function setBio($bio) { $this->bio = $bio; }
+
+    public function getAvatar() { return $this->avatar; }
+    public function setAvatar($avatar) { $this->avatar = $avatar; }
+
+    public function getStatus() { return $this->status; }
+    public function setStatus($status) { $this->status = $status; }
+
+    public function getCreatedAt() { return $this->created_at; }
+    public function setCreatedAt($created_at) { $this->created_at = $created_at; }
+
+    public function getGithubUrl() { return $this->github_url; }
+    public function setGithubUrl($github_url) { $this->github_url = $github_url; }
+
+    public function getLinkedinUrl() { return $this->linkedin_url; }
+    public function setLinkedinUrl($linkedin_url) { $this->linkedin_url = $linkedin_url; }
+
+    public function getCvUrl() { return $this->cv_url; }
+    public function setCvUrl($cv_url) { $this->cv_url = $cv_url; }
+
+    public function getPortfolioUrl() { return $this->portfolio_url; }
+    public function setPortfolioUrl($portfolio_url) { $this->portfolio_url = $portfolio_url; }
+
+    public function getFaceDescriptor() { return $this->face_descriptor; }
+    public function setFaceDescriptor($face_descriptor) { $this->face_descriptor = $face_descriptor; }
+
+    // Helper: access a property by name (used by views with dynamic field keys)
+    public function get($field) {
+        if (property_exists($this, $field)) {
+            return $this->$field;
         }
-
-        return $this;
-    }
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    public function setId($id)
-    {
-        $this->id = $id === null ? null : (int) $id;
-        return $this;
-    }
-
-    public function getNom()
-    {
-        return $this->nom;
-    }
-
-    public function setNom($nom)
-    {
-        $this->nom = trim((string) $nom);
-        return $this;
-    }
-
-    public function getPrenom()
-    {
-        return $this->prenom;
-    }
-
-    public function setPrenom($prenom)
-    {
-        $this->prenom = trim((string) $prenom);
-        return $this;
-    }
-
-    public function getEmail()
-    {
-        return $this->email;
-    }
-
-    public function setEmail($email)
-    {
-        $this->email = trim((string) $email);
-        return $this;
-    }
-
-    public function getPassword()
-    {
-        return $this->password;
-    }
-
-    public function setPassword($password)
-    {
-        $this->password = (string) $password;
-        return $this;
-    }
-
-    public function getRole()
-    {
-        return $this->role;
-    }
-
-    public function setRole($role)
-    {
-        $value = trim((string) $role);
-        $this->role = $value !== '' ? $value : 'client';
-        return $this;
-    }
-
-    public function getBio()
-    {
-        return $this->bio;
-    }
-
-    public function setBio($bio)
-    {
-        $this->bio = trim((string) $bio);
-        return $this;
-    }
-
-    public function getAvatar()
-    {
-        return $this->avatar;
-    }
-
-    public function setAvatar($avatar)
-    {
-        $this->avatar = trim((string) $avatar);
-        return $this;
-    }
-
-    public function getStatus()
-    {
-        return $this->status;
-    }
-
-    public function setStatus($status)
-    {
-        $value = trim((string) $status);
-        $this->status = $value !== '' ? $value : 'active';
-        return $this;
-    }
-
-    public function getCreatedAt()
-    {
-        return $this->created_at;
-    }
-
-    public function setCreatedAt($createdAt)
-    {
-        $this->created_at = $createdAt;
-        return $this;
-    }
-
-    public function getGithubUrl()
-    {
-        return $this->github_url;
-    }
-
-    public function setGithubUrl($githubUrl)
-    {
-        $this->github_url = trim((string) $githubUrl);
-        return $this;
-    }
-
-    public function getLinkedinUrl()
-    {
-        return $this->linkedin_url;
-    }
-
-    public function setLinkedinUrl($linkedinUrl)
-    {
-        $this->linkedin_url = trim((string) $linkedinUrl);
-        return $this;
-    }
-
-    public function getCvUrl()
-    {
-        return $this->cv_url;
-    }
-
-    public function setCvUrl($cvUrl)
-    {
-        $this->cv_url = ($cvUrl === '' ? null : $cvUrl);
-        return $this;
-    }
-
-    public function getPortfolioUrl()
-    {
-        return $this->portfolio_url;
-    }
-
-    public function setPortfolioUrl($portfolioUrl)
-    {
-        $this->portfolio_url = ($portfolioUrl === '' ? null : $portfolioUrl);
-        return $this;
-    }
-
-    public function offsetExists($offset)
-    {
-        return property_exists($this, $offset);
-    }
-
-    public function offsetGet($offset)
-    {
-        return property_exists($this, $offset) ? $this->$offset : null;
-    }
-
-    public function offsetSet($offset, $value)
-    {
-        if (property_exists($this, $offset)) {
-            $this->$offset = $value;
-        }
-    }
-
-    public function offsetUnset($offset)
-    {
-        if (property_exists($this, $offset)) {
-            $this->$offset = null;
-        }
-    }
-
-    public function jsonSerialize()
-    {
-        return [
-            'id' => $this->id,
-            'nom' => $this->nom,
-            'prenom' => $this->prenom,
-            'email' => $this->email,
-            'role' => $this->role,
-            'bio' => $this->bio,
-            'avatar' => $this->avatar,
-            'status' => $this->status,
-            'created_at' => $this->created_at,
-            'github_url' => $this->github_url,
-            'linkedin_url' => $this->linkedin_url,
-            'cv_url' => $this->cv_url,
-            'portfolio_url' => $this->portfolio_url,
-        ];
+        return null;
     }
 }

@@ -30,6 +30,7 @@ $flashMap = [
     'ban'      => ['Compte suspendu', "L'utilisateur ne peut plus acceder a la plateforme pour le moment.", 'warning', 'fa-ban'],
     'activate' => ['Compte reactive', "L'utilisateur peut a nouveau acceder a son espace.", 'success', 'fa-bolt'],
     'delete'   => ['Compte supprime', 'Le compte a ete retire definitivement.', 'error', 'fa-trash-can'],
+    'reject'   => ['Inscription refusee', "L'utilisateur a ete notifie du refus lors de sa prochaine connexion.", 'error', 'fa-xmark'],
 ];
 $flash = $flashMap[$_GET['msg'] ?? ''] ?? null;
 
@@ -50,6 +51,7 @@ if ($status !== '') {
         'active' => 'Actif',
         'banned' => 'Suspendu',
         'pending' => 'En attente',
+        'rejected' => 'Refusé',
     ];
     $activeFilters[] = 'Statut: ' . ($statusLabels[$status] ?? $status);
 }
@@ -95,6 +97,7 @@ if ($activeModal === 'update') {
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         /* ── Modal ──────────────────────────────────────── */
         .modal-backdrop {
@@ -401,28 +404,237 @@ if ($activeModal === 'update') {
         <?php endif; ?>
 
         <!-- METRICS ROW -->
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.5rem;margin-bottom:2.5rem;" class="animate-up">
-            <div class="metric-card">
-                <p style="color:var(--text-muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Total Utilisateurs</p>
-                <h2 style="font-size:2.2rem;color:white;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;"><?php echo $totalUsers; ?></h2>
-                <p style="color:var(--tech-blue);font-size:.82rem;"><i class="fa-solid fa-users"></i> Comptes enregistres</p>
+        <?php
+            $totalActive  = $userController->countByStatus('active');
+            $totalPending = $userController->countByStatus('pending');
+            $pctFreelancer = $totalUsers > 0 ? round(($totalFreelancers/$totalUsers)*100) : 0;
+            $pctClient     = $totalUsers > 0 ? round(($totalClients/$totalUsers)*100) : 0;
+            $pctBanned     = $totalUsers > 0 ? round(($totalBanned/$totalUsers)*100) : 0;
+            $pctActive     = $totalUsers > 0 ? round(($totalActive/$totalUsers)*100) : 0;
+        ?>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1.25rem;margin-bottom:2rem;" class="animate-up">
+
+            <!-- Card 1 -->
+            <div class="stat-card stat-card--blue">
+                <div class="stat-card__icon"><i class="fa-solid fa-users"></i></div>
+                <div class="stat-card__body">
+                    <p class="stat-card__label">Total Utilisateurs</p>
+                    <h2 class="stat-card__value" data-target="<?php echo $totalUsers; ?>">0</h2>
+                    <div class="stat-card__bar-wrap">
+                        <div class="stat-card__bar" style="width:100%;background:rgba(59,130,246,.5);"></div>
+                    </div>
+                    <p class="stat-card__sub"><i class="fa-solid fa-circle-check"></i> <?php echo $totalActive; ?> actifs &nbsp;·&nbsp; <?php echo $totalPending; ?> en attente</p>
+                </div>
             </div>
-            <div class="metric-card">
-                <p style="color:var(--text-muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Freelancers</p>
-                <h2 style="font-size:2.2rem;color:white;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;"><?php echo $totalFreelancers; ?></h2>
-                <p style="color:var(--tech-blue);font-size:.82rem;"><i class="fa-solid fa-laptop-code"></i> Talents actifs</p>
+
+            <!-- Card 2 -->
+            <div class="stat-card stat-card--green">
+                <div class="stat-card__icon"><i class="fa-solid fa-laptop-code"></i></div>
+                <div class="stat-card__body">
+                    <p class="stat-card__label">Freelancers</p>
+                    <h2 class="stat-card__value" data-target="<?php echo $totalFreelancers; ?>">0</h2>
+                    <div class="stat-card__bar-wrap">
+                        <div class="stat-card__bar" style="width:<?php echo $pctFreelancer; ?>%;background:rgba(16,185,129,.6);"></div>
+                    </div>
+                    <p class="stat-card__sub"><i class="fa-solid fa-arrow-trend-up"></i> <?php echo $pctFreelancer; ?>% des comptes</p>
+                </div>
             </div>
-            <div class="metric-card">
-                <p style="color:var(--text-muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Clients</p>
-                <h2 style="font-size:2.2rem;color:white;font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;"><?php echo $totalClients; ?></h2>
-                <p style="color:#8b5cf6;font-size:.82rem;"><i class="fa-solid fa-building"></i> Entreprises / Particuliers</p>
+
+            <!-- Card 3 -->
+            <div class="stat-card stat-card--purple">
+                <div class="stat-card__icon"><i class="fa-solid fa-building"></i></div>
+                <div class="stat-card__body">
+                    <p class="stat-card__label">Clients</p>
+                    <h2 class="stat-card__value" data-target="<?php echo $totalClients; ?>">0</h2>
+                    <div class="stat-card__bar-wrap">
+                        <div class="stat-card__bar" style="width:<?php echo $pctClient; ?>%;background:rgba(139,92,246,.6);"></div>
+                    </div>
+                    <p class="stat-card__sub"><i class="fa-solid fa-briefcase"></i> <?php echo $pctClient; ?>% des comptes</p>
+                </div>
             </div>
-            <div class="metric-card" style="border-color:rgba(239,68,68,.2);">
-                <p style="color:var(--text-muted);font-size:.82rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:.5rem;">Suspendus</p>
-                <h2 style="font-size:2.2rem;color:var(--tunisian-red);font-family:'JetBrains Mono',monospace;margin-bottom:.3rem;"><?php echo $totalBanned; ?></h2>
-                <p style="color:var(--tunisian-red);font-size:.82rem;"><i class="fa-solid fa-triangle-exclamation"></i> Requiert attention</p>
+
+            <!-- Card 4 -->
+            <div class="stat-card stat-card--red">
+                <div class="stat-card__icon"><i class="fa-solid fa-ban"></i></div>
+                <div class="stat-card__body">
+                    <p class="stat-card__label">Suspendus</p>
+                    <h2 class="stat-card__value" data-target="<?php echo $totalBanned; ?>">0</h2>
+                    <div class="stat-card__bar-wrap">
+                        <div class="stat-card__bar" style="width:<?php echo $pctBanned; ?>%;background:rgba(239,68,68,.6);"></div>
+                    </div>
+                    <p class="stat-card__sub"><i class="fa-solid fa-triangle-exclamation"></i> <?php echo $pctBanned; ?>% taux de suspension</p>
+                </div>
             </div>
         </div>
+
+        <!-- CHARTS ROW -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1.25rem;margin-bottom:2rem;" class="animate-up">
+
+            <!-- Donut Répartition -->
+            <div class="chart-card">
+                <div class="chart-card__header">
+                    <span><i class="fa-solid fa-chart-pie" style="color:var(--tech-blue);"></i> Répartition</span>
+                </div>
+                <div style="position:relative;height:180px;display:flex;align-items:center;justify-content:center;">
+                    <canvas id="donutChart"></canvas>
+                    <div class="donut-center">
+                        <span style="font-size:1.6rem;font-weight:700;color:white;"><?php echo $totalUsers; ?></span>
+                        <span style="font-size:.7rem;color:var(--text-muted);">comptes</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:1rem;justify-content:center;margin-top:.75rem;flex-wrap:wrap;">
+                    <span class="legend-dot" style="--c:#3b82f6;">Freelancers</span>
+                    <span class="legend-dot" style="--c:#8b5cf6;">Clients</span>
+                    <span class="legend-dot" style="--c:#ef4444;">Suspendus</span>
+                </div>
+            </div>
+
+            <!-- Bar Chart Statuts -->
+            <div class="chart-card">
+                <div class="chart-card__header">
+                    <span><i class="fa-solid fa-chart-bar" style="color:#10b981;"></i> Statuts</span>
+                </div>
+                <div style="height:180px;display:flex;align-items:flex-end;gap:.75rem;padding:.5rem .5rem 0;">
+                    <?php
+                        $barMax = max($totalActive, $totalPending, $totalBanned, 1);
+                        $bars = [
+                            ['label'=>'Actifs',   'val'=>$totalActive,  'color'=>'#10b981'],
+                            ['label'=>'Attente',  'val'=>$totalPending, 'color'=>'#f59e0b'],
+                            ['label'=>'Suspendus','val'=>$totalBanned,  'color'=>'#ef4444'],
+                        ];
+                    ?>
+                    <?php foreach($bars as $b): ?>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:.4rem;">
+                        <span style="font-size:.75rem;font-weight:700;color:white;"><?php echo $b['val']; ?></span>
+                        <div style="width:100%;border-radius:6px 6px 0 0;background:<?php echo $b['color']; ?>;opacity:.85;
+                                    height:<?php echo max(8, round(($b['val']/$barMax)*130)); ?>px;
+                                    transition:height .8s cubic-bezier(.4,0,.2,1);"></div>
+                        <span style="font-size:.7rem;color:var(--text-muted);"><?php echo $b['label']; ?></span>
+                    </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+
+            <!-- Area Chart -->
+            <div class="chart-card">
+                <div class="chart-card__header">
+                    <span><i class="fa-solid fa-chart-area" style="color:var(--tech-blue);"></i> Croissance</span>
+                </div>
+                <div style="position:relative;height:180px;display:flex;align-items:center;justify-content:center;padding-top:.5rem;">
+                    <canvas id="areaChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- HEALTH BAR ROW -->
+        <div class="health-bar-card animate-up" style="margin-bottom:2rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                <span style="font-weight:700;color:white;"><i class="fa-solid fa-heart-pulse" style="color:#ef4444;margin-right:.4rem;"></i>Santé de la plateforme</span>
+                <span class="health-score"><?php
+                    $score = $totalUsers > 0 ? max(0, 100 - $pctBanned*2) : 100;
+                    echo $score;
+                ?>% <span style="font-size:.7rem;color:var(--text-muted);">score</span></span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;">
+                <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
+                        <span style="font-size:.78rem;color:var(--text-muted);">Actifs</span>
+                        <span style="font-size:.78rem;color:#10b981;font-weight:600;"><?php echo $pctActive; ?>%</span>
+                    </div>
+                    <div class="hbar-track"><div class="hbar-fill" style="width:<?php echo $pctActive; ?>%;background:linear-gradient(90deg,#10b981,#34d399);"></div></div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
+                        <span style="font-size:.78rem;color:var(--text-muted);">Freelancers</span>
+                        <span style="font-size:.78rem;color:#3b82f6;font-weight:600;"><?php echo $pctFreelancer; ?>%</span>
+                    </div>
+                    <div class="hbar-track"><div class="hbar-fill" style="width:<?php echo $pctFreelancer; ?>%;background:linear-gradient(90deg,#3b82f6,#60a5fa);"></div></div>
+                </div>
+                <div>
+                    <div style="display:flex;justify-content:space-between;margin-bottom:.35rem;">
+                        <span style="font-size:.78rem;color:var(--text-muted);">Suspendus</span>
+                        <span style="font-size:.78rem;color:#ef4444;font-weight:600;"><?php echo $pctBanned; ?>%</span>
+                    </div>
+                    <div class="hbar-track"><div class="hbar-fill" style="width:<?php echo $pctBanned; ?>%;background:linear-gradient(90deg,#ef4444,#f87171);"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ══ PENDING APPROVALS PANEL ═══════════════════════════════════ -->
+        <?php $pendingUsers = $userController->filter('', '', 'pending'); ?>
+        <?php if (!empty($pendingUsers)): ?>
+        <section class="pending-panel animate-up" id="pending-section">
+            <div class="pending-panel__header">
+                <div style="display:flex;align-items:center;gap:.75rem;">
+                    <div class="pending-panel__icon-wrap">
+                        <i class="fa-solid fa-hourglass-half"></i>
+                    </div>
+                    <div>
+                        <div style="font-size:1.05rem;font-weight:700;color:white;">
+                            Comptes en attente d'approbation
+                        </div>
+                        <div style="font-size:.8rem;color:var(--text-muted);margin-top:.1rem;">
+                            Ces utilisateurs ont créé un compte et attendent votre validation pour accéder à la plateforme.
+                        </div>
+                    </div>
+                </div>
+                <span class="pending-panel__count"><?php echo count($pendingUsers); ?></span>
+            </div>
+
+            <div class="pending-list">
+                <?php foreach ($pendingUsers as $pu):
+                    $pi = strtoupper(mb_substr($pu->getPrenom(),0,1) . mb_substr($pu->getNom(),0,1));
+                    $since = date('d/m/Y à H:i', strtotime($pu->getCreatedAt()));
+                    $roleBadgeColor = $pu->getRole() === 'freelancer' ? '#3b82f6' : '#8b5cf6';
+                    $roleIcon = $pu->getRole() === 'freelancer' ? 'fa-laptop-code' : 'fa-building';
+                ?>
+                <div class="pending-row" id="pending-row-<?php echo $pu->getId(); ?>">
+
+                    <!-- Avatar -->
+                    <div class="pending-avatar">
+                        <?php echo $pi; ?>
+                        <span class="pending-avatar__pulse"></span>
+                    </div>
+
+                    <!-- Name + email -->
+                    <div class="pending-info">
+                        <div class="name"><?php echo htmlspecialchars($pu->getPrenom() . ' ' . $pu->getNom()); ?></div>
+                        <div class="email"><?php echo htmlspecialchars($pu->getEmail()); ?></div>
+                    </div>
+
+                    <!-- Role badge -->
+                    <span class="badge" style="background:<?php echo $pu->getRole()==='freelancer'?'rgba(59,130,246,.15)':'rgba(139,92,246,.15)'; ?>;color:<?php echo $pu->getRole()==='freelancer'?'#93c5fd':'#c4b5fd'; ?>;border:none;">
+                        <i class="fa-solid <?php echo $roleIcon; ?>"></i>
+                        <?php echo ucfirst($pu->getRole()); ?>
+                    </span>
+
+                    <!-- Date -->
+                    <span style="font-size:.72rem;color:#64748b;white-space:nowrap;">
+                        <i class="fa-regular fa-clock"></i> <?php echo $since; ?>
+                    </span>
+
+                    <!-- Approve -->
+                    <a href="?action=activate&id=<?php echo $pu->getId(); ?>"
+                       class="approve-btn approve-btn--yes"
+                       onclick="return confirmApprove(<?php echo $pu->getId(); ?>, '<?php echo htmlspecialchars($pu->getPrenom()); ?>');"
+                       title="Approuver">
+                        <i class="fa-solid fa-circle-check"></i> Approuver
+                    </a>
+
+                    <!-- Reject -->
+                    <a href="?action=reject&id=<?php echo $pu->getId(); ?>"
+                       class="approve-btn approve-btn--no"
+                       onclick="return confirm('Refuser le compte de <?php echo htmlspecialchars($pu->getPrenom().' '.$pu->getNom()); ?> ? L\'utilisateur sera notifie lors de sa prochaine connexion.');"
+                       title="Rejeter">
+                        <i class="fa-solid fa-xmark"></i> Rejeter
+                    </a>
+
+                </div>
+
+                <?php endforeach; ?>
+            </div>
+        </section>
+        <?php endif; ?>
 
         <!-- FILTERS + TABLE -->
         <section class="admin-section animate-up">
@@ -450,6 +662,7 @@ if ($activeModal === 'update') {
                     <option value="active"  <?php echo $status==='active' ?'selected':''; ?>>Actif</option>
                     <option value="banned"  <?php echo $status==='banned' ?'selected':''; ?>>Suspendu</option>
                     <option value="pending" <?php echo $status==='pending'?'selected':''; ?>>En attente</option>
+                    <option value="rejected" <?php echo $status==='rejected'?'selected':''; ?>>Refusé</option>
                 </select>
                 <button type="submit" class="btn btn-primary" style="white-space:nowrap;">
                     <i class="fa-solid fa-filter"></i> Filtrer
@@ -508,6 +721,8 @@ if ($activeModal === 'update') {
                                     $statusBadge = '<span class="badge badge-active"><i class="fa-solid fa-circle"></i> Actif</span>';
                                 } elseif ($u->getStatus() === 'banned') {
                                     $statusBadge = '<span class="badge badge-banned"><i class="fa-solid fa-ban"></i> Suspendu</span>';
+                                } elseif ($u->getStatus() === 'rejected') {
+                                    $statusBadge = '<span class="badge badge-banned" style="background:rgba(239,68,68,.1);color:#ef4444;"><i class="fa-solid fa-xmark"></i> Refusé</span>';
                                 } else {
                                     $statusBadge = '<span class="badge badge-pending"><i class="fa-solid fa-clock"></i> Attente</span>';
                                 }
@@ -543,10 +758,10 @@ if ($activeModal === 'update') {
                                                     title="Editer">
                                                 <i class="fa-solid fa-pen"></i>
                                             </button>
-                                            <?php if ($u->getStatus() === 'banned'): ?>
+                                            <?php if ($u->getStatus() === 'banned' || $u->getStatus() === 'rejected'): ?>
                                                 <a href="?action=activate&id=<?php echo $u->getId(); ?>"
                                                    class="action-btn action-btn-ok" title="Activer"
-                                                   onclick="return confirm('Réactiver ce compte ?');">
+                                                   onclick="return confirm('Activer ce compte ?');">
                                                     <i class="fa-solid fa-circle-check"></i>
                                                 </a>
                                             <?php else: ?>
@@ -882,6 +1097,146 @@ updateAdminPasswordStrength(document.getElementById('c-password').value);
 // ── Flash auto-dismiss ────────────────────────────────────────
 const flash = document.querySelector('.flash');
 if (flash) setTimeout(() => flash.style.opacity = '0', 4000);
+
+// ── Animated number counters ──────────────────────────────────
+document.querySelectorAll('.stat-card__value[data-target]').forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    if (isNaN(target)) return;
+    const duration = 900;
+    const start = performance.now();
+    function step(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(ease * target);
+        if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+});
+
+// ── Donut chart (Chart.js) ────────────────────────────────────
+(function() {
+    const ctx = document.getElementById('donutChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    const freelancers = <?php echo (int)$totalFreelancers; ?>;
+    const clients     = <?php echo (int)$totalClients; ?>;
+    const banned      = <?php echo (int)$totalBanned; ?>;
+    const total = freelancers + clients + banned || 1;
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [freelancers, clients, banned],
+                backgroundColor: ['rgba(59,130,246,.8)','rgba(139,92,246,.8)','rgba(239,68,68,.8)'],
+                borderColor: ['#3b82f6','#8b5cf6','#ef4444'],
+                borderWidth: 2,
+                hoverOffset: 6
+            }]
+        },
+        options: {
+            cutout: '72%',
+            plugins: { legend: { display: false }, tooltip: {
+                callbacks: {
+                    label: function(ctx) {
+                        const labels = ['Freelancers','Clients','Suspendus'];
+                        const pct = Math.round(ctx.parsed / total * 100);
+                        return ` ${labels[ctx.dataIndex]}: ${ctx.parsed} (${pct}%)`;
+                    }
+                }
+            }},
+            animation: { animateRotate: true, duration: 1000 }
+        }
+    });
+})();
+
+// ── Area chart (Chart.js) ─────────────────────────────────────
+(function() {
+    const ctx = document.getElementById('areaChart');
+    if (!ctx || typeof Chart === 'undefined') return;
+    
+    // Create gradient
+    let gradient = ctx.getContext('2d').createLinearGradient(0, 0, 0, 180);
+    gradient.addColorStop(0, 'rgba(59, 130, 246, 0.4)'); // --tech-blue with opacity
+    gradient.addColorStop(1, 'rgba(59, 130, 246, 0)');
+
+    <?php
+        $chartLabels = [];
+        $chartData = [];
+        // Extract 14-days stats
+        $stats = $dashboardData['chart_data'] ?? [];
+        foreach ($stats as $date => $count) {
+            // translate month names to French (optional, or just use d/m)
+            $chartLabels[] = date('d/m', strtotime($date));
+            $chartData[] = $count;
+        }
+    ?>
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: <?php echo json_encode($chartLabels); ?>,
+            datasets: [{
+                label: 'Inscriptions',
+                data: <?php echo json_encode($chartData); ?>,
+                backgroundColor: gradient,
+                borderColor: '#3b82f6',
+                borderWidth: 2,
+                pointBackgroundColor: '#3b82f6',
+                pointBorderColor: '#fff',
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#3b82f6',
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                fill: true,
+                tension: 0.4 // Smooth curve
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#94a3b8',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false, drawBorder: false },
+                    ticks: { 
+                        color: '#64748b', 
+                        font: { size: 10, family: "'Space Grotesk', sans-serif" },
+                        maxRotation: 0
+                    }
+                },
+                y: {
+                    grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+                    ticks: { 
+                        color: '#64748b', 
+                        font: { size: 10, family: "'Space Grotesk', sans-serif" },
+                        maxTicksLimit: 5 
+                    },
+                    beginAtZero: true
+                }
+            },
+            interaction: {
+                mode: 'nearest',
+                axis: 'x',
+                intersect: false
+            }
+        }
+    });
+})();
+
+// ── Pending approvals confirm ─────────────────────────────────
+function confirmApprove(id, prenom) {
+    return confirm('Approuver le compte de ' + prenom + ' ? Il pourra se connecter immédiatement.');
+}
 </script>
 
 </body>

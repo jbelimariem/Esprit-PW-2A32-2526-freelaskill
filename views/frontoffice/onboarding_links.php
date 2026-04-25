@@ -26,15 +26,17 @@ $fieldError = function ($field) use ($errors) {
 };
 ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: dark;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="../assets/theme-init.js"></script>
     <title>Complétez votre profil — FreelaSkill</title>
     <meta name="description" content="Ajoutez vos liens GitHub et LinkedIn pour maximiser votre visibilité sur FreelaSkill.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
+    <script src="../assets/theme.js" defer></script>
     <style>
         body { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; position: relative; overflow-x: hidden; }
 
@@ -51,9 +53,9 @@ $fieldError = function ($field) use ($errors) {
             padding: .35rem 1rem;
             border-radius: 999px;
             font-size: .78rem; font-weight: 600;
-            border: 1px solid rgba(255,255,255,.12);
+            border: 1px solid var(--border);
             color: #475569;
-            background: rgba(255,255,255,.04);
+            background: var(--surface-2);
             letter-spacing: .02em;
             transition: all .3s;
         }
@@ -64,15 +66,16 @@ $fieldError = function ($field) use ($errors) {
         /* Card */
         .ob-card {
             width: 100%; max-width: 700px;
-            background: rgba(255,255,255,.03);
-            border: 1px solid rgba(255,255,255,.08);
+            background: var(--surface-1);
+            border: 1px solid var(--border);
             border-radius: 24px;
             padding: 2.5rem;
             backdrop-filter: blur(20px);
             animation: fadeUp .45s ease forwards;
             position: relative; z-index: 1;
+            box-shadow: var(--card-shadow);
         }
-        .ob-title { font-size: 2rem; font-weight: 800; color: white; margin-bottom: .5rem; line-height: 1.2; }
+        .ob-title { font-size: 2rem; font-weight: 800; color: var(--text-strong); margin-bottom: .5rem; line-height: 1.2; }
         .ob-sub   { color: var(--text-muted); font-size: .95rem; margin-bottom: 2rem; }
 
         /* Two-column layout */
@@ -92,8 +95,8 @@ $fieldError = function ($field) use ($errors) {
 
         /* Social input card */
         .social-card {
-            background: rgba(255,255,255,.04);
-            border: 1px solid rgba(255,255,255,.08);
+            background: var(--surface-2);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.5rem;
             transition: border-color .25s;
@@ -114,26 +117,26 @@ $fieldError = function ($field) use ($errors) {
 
         .social-label { font-size: .82rem; font-weight: 700; color: #94a3b8; letter-spacing: .04em; text-transform: uppercase; margin-bottom: .5rem; }
         .social-input {
-            width: 100%; background: rgba(255,255,255,.05);
-            border: 1px solid rgba(255,255,255,.1);
-            border-radius: 10px; color: white;
+            width: 100%; background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 10px; color: var(--text-strong);
             padding: .6rem .9rem;
             font-family: 'Space Grotesk', sans-serif; font-size: .88rem;
             outline: none; box-sizing: border-box;
             transition: border-color .2s;
         }
-        .social-input::placeholder { color: #334155; }
+        .social-input::placeholder { color: var(--placeholder); }
         .social-input:focus { border-color: rgba(37,99,235,.6); }
 
         /* "No links" skip card */
         .skip-card {
-            background: rgba(255,255,255,.025);
-            border: 1px solid rgba(255,255,255,.07);
+            background: var(--surface-1);
+            border: 1px solid var(--border);
             border-radius: 16px;
             padding: 1.25rem 1.5rem;
             display: flex; flex-direction: column; gap: .3rem;
         }
-        .skip-title { font-size: .95rem; font-weight: 700; color: white; }
+        .skip-title { font-size: .95rem; font-weight: 700; color: var(--text-strong); }
         .skip-desc  { font-size: .83rem; color: var(--text-muted); line-height: 1.5; }
 
         /* Buttons row */
@@ -148,7 +151,7 @@ $fieldError = function ($field) use ($errors) {
             cursor: pointer; font-family: 'Space Grotesk', sans-serif;
             transition: all .2s; text-decoration: none;
         }
-        .btn-skip:hover { border-color: rgba(255,255,255,.25); color: white; }
+        .btn-skip:hover { border-color: rgba(255,255,255,.25); color: var(--text-strong); }
         .btn-next {
             background: linear-gradient(135deg, var(--tech-blue), #3b82f6);
             color: white; padding: .7rem 2rem;
@@ -178,12 +181,18 @@ $fieldError = function ($field) use ($errors) {
 
         .login-hint { text-align: center; margin-top: 1.5rem; font-size: .85rem; color: var(--text-muted); }
         .login-hint a { color: var(--tech-blue); font-weight: 600; }
+        html[data-theme='light'] .step-sep { color: #94a3b8; }
+        html[data-theme='light'] .skip-desc strong[style*='color:white'] { color: var(--text-strong) !important; }
     </style>
 </head>
 <body class="page-anim">
 
 <div class="glow-top"></div>
 <div class="glow-bottom"></div>
+<button type="button" class="theme-toggle theme-toggle--floating" data-theme-toggle>
+    <i class="fa-solid fa-sun" data-theme-icon></i>
+    <span data-theme-label>Jour</span>
+</button>
 
 <!-- Logo -->
 <div style="position:relative;z-index:1;margin-bottom:1.75rem;font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:.5rem;">
