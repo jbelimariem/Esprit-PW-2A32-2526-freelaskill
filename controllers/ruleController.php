@@ -69,36 +69,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Validation des champs requis
     if (empty($titre)) {
-        $errors[] = 'Le titre est requis.';
+        $errors['titre'] = 'Le titre est requis.';
     } elseif (strlen($titre) > 255) {
-        $errors[] = 'Le titre ne peut pas dépasser 255 caractères.';
+        $errors['titre'] = 'Le titre ne peut pas dépasser 255 caractères.';
     }
 
     if (empty($description)) {
-        $errors[] = 'La description est requise.';
+        $errors['description'] = 'La description est requise.';
     } elseif (strlen($description) > 1000) {
-        $errors[] = 'La description ne peut pas dépasser 1000 caractères.';
+        $errors['description'] = 'La description ne peut pas dépasser 1000 caractères.';
     }
 
     // Validation du type (optionnel mais limité)
     if (!empty($type) && strlen($type) > 100) {
-        $errors[] = 'Le type ne peut pas dépasser 100 caractères.';
+        $errors['type'] = 'Le type ne peut pas dépasser 100 caractères.';
     }
 
     // Validation de la valeur (optionnel)
     if (!empty($valeur) && strlen($valeur) > 500) {
-        $errors[] = 'La valeur ne peut pas dépasser 500 caractères.';
+        $errors['valeur'] = 'La valeur ne peut pas dépasser 500 caractères.';
     }
 
     // Validation du statut
     $validStatuts = ['actif', 'inactif'];
     if (!empty($statut) && !in_array($statut, $validStatuts)) {
-        $errors[] = 'Le statut doit être "actif" ou "inactif".';
+        $errors['statut'] = 'Le statut doit être "actif" ou "inactif".';
     }
 
     // Validation de l'ID contrat (optionnel, doit être numérique si fourni)
     if (!empty($id_contrat) && !is_numeric($id_contrat)) {
-        $errors[] = 'L\'ID contrat doit être un nombre.';
+        $errors['id_contrat'] = 'L\'ID contrat doit être un nombre.';
     }
 
     // Vérification des doublons pour le titre (si création)
@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $existingRules = getAllRules();
         foreach ($existingRules as $rule) {
             if (strtolower($rule['titre']) === strtolower($titre)) {
-                $errors[] = 'Une règle avec ce titre existe déjà.';
+                $errors['titre'] = 'Une règle avec ce titre existe déjà.';
                 break;
             }
         }
@@ -127,13 +127,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (updateRule($editedId, $data)) {
                 $successMessage = 'Règle mise à jour avec succès.';
             } else {
-                $errors[] = 'Impossible de mettre à jour la règle.';
+                $errors['general'] = 'Impossible de mettre à jour la règle.';
             }
         } else {
             if (createRule($data)) {
                 $successMessage = 'Règle ajoutée avec succès.';
             } else {
-                $errors[] = 'Impossible d’ajouter la règle.';
+                $errors['general'] = 'Impossible d’ajouter la règle.';
             }
         }
     }
@@ -147,10 +147,10 @@ if ($action === 'toggle' && $id !== null) {
             header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=toggle');
             exit;
         } else {
-            $errors[] = 'Impossible de changer le statut de la règle.';
+            $errors['general'] = 'Impossible de changer le statut de la règle.';
         }
     } else {
-        $errors[] = 'Règle introuvable.';
+        $errors['general'] = 'Règle introuvable.';
     }
 }
 
@@ -159,14 +159,14 @@ if ($action === 'delete' && $id !== null) {
         header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete');
         exit;
     } else {
-        $errors[] = 'Impossible de supprimer cette règle.';
+        $errors['general'] = 'Impossible de supprimer cette règle.';
     }
 }
 
 if ($action === 'edit' && $id !== null) {
     $currentRule = getRuleById($id);
     if (!$currentRule) {
-        $errors[] = 'Règle introuvable.';
+        $errors['general'] = 'Règle introuvable.';
         $action = 'list'; // Revenir à la liste si la règle n'existe pas
     }
 }

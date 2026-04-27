@@ -20,15 +20,42 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #050812; font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; overflow-x: hidden; }
+        body { background: var(--bg-main, #050812); font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; color: var(--text-main, white); }
         
-        /* SIDEBAR STYLES */
-        .sidebar { width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        /* SIDEBAR NAV */
+        .sidebar { width: 280px; background: var(--bg-sidebar, rgba(17, 24, 39, 0.4)); border-right: 1px solid var(--border-color, rgba(255,255,255,0.05)); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: background 0.3s; }
         .main-panel { margin-left: 280px; flex: 1; padding: 3rem 4rem; position: relative; }
-        .nav-item { padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none; }
-        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
+        
+        .side-nav { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .side-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm, 8px);
+            color: var(--text-muted, #9ca3af);
+            font-size: 0.88rem;
+            transition: var(--transition, 0.3s);
+            text-decoration: none;
+        }
+        .side-nav a:hover, .side-nav a.active { color: var(--text-main, white); background: var(--nav-hover, rgba(255,255,255,0.03)); }
+        .side-nav a.active { border-left: 3px solid var(--tech-blue, #3b82f6); }
+        .side-nav a.danger { color: var(--tunisian-red, #e3000f); }
+        .side-nav a.danger:hover { background: rgba(239,68,68,0.1); }
+        .nav-avatar.has-image {
+            padding: 0;
+            overflow: hidden;
+            background: rgba(15,23,42,0.95);
+        }
+        .nav-avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 50%;
+        }
 
-        .client-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: var(--radius-lg); padding: 1.5rem; transition: var(--transition); }
+        .client-card { background: var(--card-bg, rgba(255,255,255,0.02)); border: 1px solid var(--border-color, rgba(255,255,255,0.05)); border-radius: var(--radius-lg, 24px); padding: 1.5rem; transition: var(--transition, 0.3s); }
         .client-card:hover { border-color: rgba(255,255,255,0.1); transform: translateY(-3px); }
         .status-badge { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
         .status-actif { background: rgba(34, 197, 94, 0.1); color: #4ADE80; border: 1px solid rgba(34, 197, 94, 0.3); }
@@ -41,7 +68,51 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         .breadcrumb a { color: var(--tech-blue); text-decoration: none; transition: color 0.3s; }
         .breadcrumb a:hover { color: #60A5FA; }
         .breadcrumb i { font-size: 0.8rem; }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg-main: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --nav-hover: #f1f5f9;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm, 8px);
+            transition: var(--transition, 0.3s);
+            margin: 0 0.75rem;
+            font-size: 0.88rem;
+        }
+        .theme-toggle:hover {
+            background: var(--nav-hover, rgba(255,255,255,0.03));
+            color: var(--text-main);
+        }
     </style>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            icon.className = isLight ? 'fa-solid fa-moon w-5' : 'fa-solid fa-sun w-5';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon w-5';
+            }
+        });
+    </script>
 </head>
 <body>
     <aside class="sidebar animate-fade-up">
@@ -53,18 +124,23 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Espace <?php echo $roleName; ?></p>
         </div>
         
-        <?php if ($isClient): ?>
-            <a href="client_dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie w-5"></i> Tableau de bord</a>
-            <a href="publish_job.html" class="nav-item"><i class="fa-solid fa-plus-circle w-5"></i> Lancer un Projet</a>
-        <?php else: ?>
-            <a href="freelancer_jobs.html" class="nav-item"><i class="fa-solid fa-compass w-5"></i> Explorer Missions</a>
-        <?php endif; ?>
-        
-        <a href="front_rules_index.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Mes Règles</a>
-        <a href="front_contrat_index.php" class="nav-item"><i class="fa-solid fa-file-contract w-5"></i> Mes Contrats</a>
+        <nav class="side-nav">
+            <?php if ($isClient): ?>
+                <a href="client_dashboard.html"><i class="fa-solid fa-chart-pie w-5"></i> Tableau de bord</a>
+                <a href="publish_job.html"><i class="fa-solid fa-plus-circle w-5"></i> Lancer un Projet</a>
+            <?php else: ?>
+                <a href="freelancer_jobs.html"><i class="fa-solid fa-compass w-5"></i> Explorer Missions</a>
+            <?php endif; ?>
+            
+            <a href="front_rules_index.php" class="active"><i class="fa-solid fa-gavel w-5"></i> Mes Règles</a>
+            <a href="front_contrat_index.php"><i class="fa-solid fa-file-contract w-5"></i> Mes Contrats</a>
+        </nav>
 
-        <div style="margin-top: auto; padding: 2rem;">
-            <a href="front_rules_role.php" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #F87171; text-decoration: none; font-size: 0.85rem; padding: 0.8rem; border: 1px solid rgba(248,113,113,0.3); border-radius: 999px; transition: 0.3s;">
+        <div style="margin-top: auto; padding: 2rem 0;">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i id="theme-icon" class="fa-solid fa-sun w-5"></i> Changer le thème
+            </div>
+            <a href="front_rules_role.php" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #F87171; text-decoration: none; font-size: 0.85rem; padding: 0.8rem; border: 1px solid rgba(248,113,113,0.3); border-radius: 999px; transition: 0.3s; margin: 0 0.75rem;">
                 <i class="fa-solid fa-right-from-bracket"></i> Changer de profil
             </a>
         </div>
@@ -85,7 +161,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         </div>
         <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 3rem;" class="animate-fade-up delay-1">
             <div>
-                <h1 style="font-size: 2.5rem; color: white; margin-bottom: 0.5rem;">Gestion des <span style="color: var(--tech-blue)">Règles</span></h1>
+                <h1 style="font-size: 2.5rem; color: var(--text-main, white); margin-bottom: 0.5rem; margin-top: 0;">Gestion des <span style="color: var(--tech-blue)">Règles</span></h1>
                 <p style="color: var(--text-muted);">Créez et gérez vos règles de contrat et clauses personnalisées.</p>
             </div>
             <a href="front_rules_form.php" class="btn btn-primary" style="padding: 0.8rem 1.5rem;"><i class="fa-solid fa-plus"></i> Nouvelle Règle</a>
@@ -105,7 +181,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
             <?php if (empty($rules)): ?>
                 <div class="client-card" style="text-align: center; padding: 3rem;">
                     <i class="fa-solid fa-gavel" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 1rem;"></i>
-                    <h3 style="color: white; margin-bottom: 0.5rem;">Aucune règle n'a été trouvée</h3>
+                    <h3 style="color: var(--text-main, white); margin-bottom: 0.5rem;">Aucune règle n'a été trouvée</h3>
                     <p style="color: var(--text-muted);">Vous n'avez pas encore défini de règles. Commencez par en créer une !</p>
                 </div>
             <?php else: ?>
@@ -113,7 +189,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                     <div class="client-card">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                             <div style="display: flex; gap: 1rem; align-items: center;">
-                                <h3 style="color: white; font-size: 1.25rem;"><?php echo htmlspecialchars($rule['titre'], ENT_QUOTES, 'UTF-8'); ?></h3>
+                                <h3 style="color: var(--text-main, white); font-size: 1.25rem; margin: 0;"><?php echo htmlspecialchars($rule['titre'], ENT_QUOTES, 'UTF-8'); ?></h3>
                                 <?php if($rule['statut'] === 'actif'): ?>
                                     <span class="status-badge status-actif"><i class="fa-solid fa-check"></i> Actif</span>
                                 <?php else: ?>
@@ -125,7 +201,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                         <p style="color: var(--text-muted); margin-bottom: 1.5rem;"><?php echo htmlspecialchars($rule['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                         
                         <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem;">
-                            <span style="color: var(--text-muted);"><i class="fa-solid fa-tag"></i> Type: <span style="color: white;"><?php echo htmlspecialchars($rule['type'], ENT_QUOTES, 'UTF-8'); ?></span></span>
+                            <span style="color: var(--text-muted);"><i class="fa-solid fa-tag"></i> Type: <span style="color: var(--text-main, white);"><?php echo htmlspecialchars($rule['type'], ENT_QUOTES, 'UTF-8'); ?></span></span>
                             <div style="display: flex; gap: 0.5rem;">
                                 <a class="btn-action btn-edit" href="front_rules_form.php?action=edit&id=<?php echo intval($rule['id_rule']); ?>"><i class="fa-solid fa-pen"></i> Modifier</a>
                                 <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0; display:inline;">

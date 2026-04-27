@@ -10,16 +10,16 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
     <link rel="stylesheet" href="../Frontoffice/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; }
-        .sidebar { width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; }
+        body { display: flex; min-height: 100vh; background: var(--bg-main, #03060E); overflow-x: hidden; font-family: 'Inter', sans-serif; transition: background 0.3s, color 0.3s; color: var(--text-main, white); }
+        .sidebar { width: 280px; background: var(--bg-sidebar, rgba(17, 24, 39, 0.4)); border-right: 1px solid var(--border-color, rgba(255,255,255,0.05)); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: background 0.3s; }
         .main-panel { margin-left: 280px; flex: 1; padding: 2rem 3rem; position: relative; }
-        .nav-item { padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none; }
-        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
-        .table-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; }
+        .nav-item { padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition, 0.3s); font-size: 0.95rem; font-weight: 500; text-decoration: none; }
+        .nav-item:hover, .nav-item.active { background: var(--nav-hover, rgba(37,99,235,0.1)); color: var(--text-main, white); border-right: 4px solid var(--tech-blue); }
+        .table-container { background: var(--card-bg, rgba(255,255,255,0.02)); border: 1px solid var(--border-color, rgba(255,255,255,0.05)); border-radius: 24px; padding: 2rem; margin-bottom: 2rem; transition: background 0.3s; }
         .data-table { width: 100%; border-collapse: collapse; }
         .data-table th, .data-table td { padding: 1.25rem 1rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.05); }
         .data-table th { color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; }
-        .data-table td { color: white; }
+        .data-table td { color: var(--text-main, white); }
         .btn-action { display: inline-block; padding: 0.5rem 1rem; border-radius: 999px; text-decoration: none; font-size: 0.85rem; border: none; cursor: pointer; }
         .btn-edit { background: rgba(37,99,235,0.15); color: var(--tech-blue); }
         .btn-delete { background: rgba(239,68,68,0.15); color: #F87171; }
@@ -28,7 +28,50 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         .alert { padding: 1rem 1.25rem; border-radius: 16px; margin-bottom: 1.5rem; }
         .alert-success { background: rgba(34,197,94,0.15); color: #BBF7D0; }
         .alert-error { background: rgba(248,113,113,0.15); color: #fecaca; }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg-main: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --nav-hover: #f1f5f9;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+            transition: var(--transition, 0.3s);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+        .theme-toggle:hover {
+            background: var(--nav-hover, rgba(255,255,255,0.03));
+            color: var(--text-main);
+        }
     </style>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            icon.className = isLight ? 'fa-solid fa-moon w-5' : 'fa-solid fa-sun w-5';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon w-5';
+            }
+        });
+    </script>
 </head>
 <body>
     <aside class="sidebar animate-fade-up">
@@ -45,6 +88,12 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archivage</a>
         <a href="admin_rules_list.php" class="nav-item active"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
         <a href="admin_contrat.php" class="nav-item"><i class="fa-solid fa-file-contract w-5"></i> Gestion des contrats</a>
+
+        <div style="margin-top: auto;">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i id="theme-icon" class="fa-solid fa-sun w-5"></i> Changer le thème
+            </div>
+        </div>
     </aside>
 
     <main class="main-panel">
@@ -53,7 +102,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <a href="admin_rules_list.php" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); color: white; border-radius: 999px; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1);" class="animate-fade-up"><i class="fa-solid fa-arrow-left"></i> Retour au menu</a>
 
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;" class="animate-fade-up delay-1">
-            <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: white;">Liste des <span style="color: var(--tech-blue)">règles</span></h1>
+            <h1 style="font-family: 'Space Grotesk'; font-size: 2rem; color: var(--text-main, white);">Liste des <span style="color: var(--tech-blue)">règles</span></h1>
             <div style="display: flex; align-items: center; gap: 1rem;">
                 <a href="admin_rules_form.php" class="btn-add"><i class="fa-solid fa-plus"></i> Ajouter une règle</a>
                 <div style="display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.05);">

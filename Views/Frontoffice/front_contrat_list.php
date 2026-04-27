@@ -20,27 +20,56 @@ $roleName = $isClient ? 'Client' : 'Freelancer';
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #050812; font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; overflow-x: hidden; }
-        .sidebar { width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
+        body { background: var(--bg-main, #050812); font-family: 'Inter', sans-serif; display: flex; min-height: 100vh; overflow-x: hidden; transition: background 0.3s, color 0.3s; color: var(--text-main, white); }
+        .sidebar { width: 280px; background: var(--bg-sidebar, rgba(17, 24, 39, 0.4)); border-right: 1px solid var(--border-color, rgba(255,255,255,0.05)); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; transition: background 0.3s; }
         .main-panel { margin-left: 280px; flex: 1; padding: 3rem 4rem; position: relative; }
-        .nav-item { padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none; }
-        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
-        .btn-back { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); color: white; border-radius: 999px; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-back:hover { background: rgba(255,255,255,0.1); }
+        
+        /* SIDEBAR NAV */
+        .side-nav { padding: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+        .side-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm, 8px);
+            color: var(--text-muted, #9ca3af);
+            font-size: 0.88rem;
+            transition: var(--transition, 0.3s);
+            text-decoration: none;
+        }
+        .side-nav a:hover, .side-nav a.active { color: var(--text-main, white); background: var(--nav-hover, rgba(255,255,255,0.03)); }
+        .side-nav a.active { border-left: 3px solid var(--tech-blue, #3b82f6); }
+        .side-nav a.danger { color: var(--tunisian-red, #e3000f); }
+        .side-nav a.danger:hover { background: rgba(239,68,68,0.1); }
+        .nav-avatar.has-image {
+            padding: 0;
+            overflow: hidden;
+            background: rgba(15,23,42,0.95);
+        }
+        .nav-avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 50%;
+        }
+
+        .btn-back { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: var(--btn-back-bg, rgba(255,255,255,0.05)); color: var(--text-main, white); border-radius: 999px; text-decoration: none; font-size: 0.9rem; margin-bottom: 2rem; border: 1px solid var(--border-color, rgba(255,255,255,0.1)); }
+        .btn-back:hover { background: var(--btn-back-hover, rgba(255,255,255,0.1)); }
         .breadcrumb { display: flex; align-items: center; gap: 0.5rem; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem; }
         .breadcrumb a { color: var(--tech-blue); text-decoration: none; transition: color 0.3s; }
         .breadcrumb a:hover { color: #60A5FA; }
         .breadcrumb i { font-size: 0.8rem; }
         
         .contrats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
-        .contrat-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .contrat-card { background: var(--card-bg, rgba(255,255,255,0.02)); border: 1px solid var(--border-color, rgba(255,255,255,0.05)); border-radius: 20px; padding: 1.5rem; display: flex; flex-direction: column; position: relative; overflow: hidden; transition: background 0.3s; }
         .contrat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--tech-blue); }
         .contrat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
-        .contrat-title { font-size: 1.2rem; font-weight: 600; color: white; margin: 0; }
+        .contrat-title { font-size: 1.2rem; font-weight: 600; color: var(--text-main, white); margin: 0; }
         .status-badge { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
         .contrat-body { color: var(--text-muted); font-size: 0.9rem; flex: 1; }
-        .contrat-meta { display: flex; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.05); font-size: 0.85rem; }
-        .contrat-meta div { display: flex; align-items: center; gap: 0.4rem; color: #9CA3AF; }
+        .contrat-meta { display: flex; gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color, rgba(255,255,255,0.05)); font-size: 0.85rem; }
+        .contrat-meta div { display: flex; align-items: center; gap: 0.4rem; color: var(--text-muted); }
         .contrat-actions { display: flex; gap: 0.5rem; margin-top: 1.5rem; }
         .btn-action { flex: 1; text-align: center; padding: 0.6rem; border-radius: 12px; font-size: 0.85rem; text-decoration: none; border: none; cursor: pointer; font-weight: 500; }
         .btn-edit { background: rgba(37,99,235,0.1); color: var(--tech-blue); }
@@ -50,7 +79,53 @@ $roleName = $isClient ? 'Client' : 'Freelancer';
         .alert { padding: 1rem 1.25rem; border-radius: 16px; margin-bottom: 1.5rem; }
         .alert-success { background: rgba(34,197,94,0.15); color: #BBF7D0; }
         .alert-error { background: rgba(248,113,113,0.15); color: #fecaca; }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --bg-main: #f8fafc;
+            --bg-sidebar: #ffffff;
+            --border-color: #e2e8f0;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --nav-hover: #f1f5f9;
+            --btn-back-bg: #e2e8f0;
+            --btn-back-hover: #cbd5e1;
+        }
+
+        .theme-toggle {
+            cursor: pointer;
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm, 8px);
+            transition: var(--transition, 0.3s);
+            margin: 0 0.75rem;
+            font-size: 0.88rem;
+        }
+        .theme-toggle:hover {
+            background: var(--nav-hover, rgba(255,255,255,0.03));
+            color: var(--text-main);
+        }
     </style>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            const icon = document.getElementById('theme-icon');
+            icon.className = isLight ? 'fa-solid fa-moon w-5' : 'fa-solid fa-sun w-5';
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').className = 'fa-solid fa-moon w-5';
+            }
+        });
+    </script>
 </head>
 <body>
     <aside class="sidebar animate-fade-up">
@@ -62,17 +137,22 @@ $roleName = $isClient ? 'Client' : 'Freelancer';
             <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Espace <?php echo $roleName; ?></p>
         </div>
         
-        <?php if ($isClient): ?>
-            <a href="client_dashboard.html" class="nav-item"><i class="fa-solid fa-chart-pie w-5"></i> Tableau de bord</a>
-            <a href="publish_job.html" class="nav-item"><i class="fa-solid fa-plus-circle w-5"></i> Lancer un Projet</a>
-        <?php else: ?>
-            <a href="freelancer_jobs.html" class="nav-item"><i class="fa-solid fa-compass w-5"></i> Explorer Missions</a>
-        <?php endif; ?>
-        
-        <a href="front_rules_index.php" class="nav-item"><i class="fa-solid fa-gavel w-5"></i> Mes Règles</a>
-        <a href="front_contrat_index.php" class="nav-item active"><i class="fa-solid fa-file-contract w-5"></i> Mes Contrats</a>
+        <nav class="side-nav">
+            <?php if ($isClient): ?>
+                <a href="client_dashboard.html"><i class="fa-solid fa-chart-pie w-5"></i> Tableau de bord</a>
+                <a href="publish_job.html"><i class="fa-solid fa-plus-circle w-5"></i> Lancer un Projet</a>
+            <?php else: ?>
+                <a href="freelancer_jobs.html"><i class="fa-solid fa-compass w-5"></i> Explorer Missions</a>
+            <?php endif; ?>
+            
+            <a href="front_rules_index.php"><i class="fa-solid fa-gavel w-5"></i> Mes Règles</a>
+            <a href="front_contrat_index.php" class="active"><i class="fa-solid fa-file-contract w-5"></i> Mes Contrats</a>
+        </nav>
 
-        <div style="margin-top: auto; padding: 2rem;">
+        <div style="margin-top: auto; padding: 2rem 0;">
+            <div class="theme-toggle" onclick="toggleTheme()">
+                <i id="theme-icon" class="fa-solid fa-sun w-5"></i> Changer le thème
+            </div>
             <a href="front_rules_role.php" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; color: #F87171; text-decoration: none; font-size: 0.85rem; padding: 0.8rem; border: 1px solid rgba(248,113,113,0.3); border-radius: 999px; transition: 0.3s;">
                 <i class="fa-solid fa-right-from-bracket"></i> Changer de profil
             </a>
