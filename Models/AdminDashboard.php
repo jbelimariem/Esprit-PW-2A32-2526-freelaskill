@@ -50,4 +50,9 @@ class AdminDashboard {
         $stmt->execute([$s]);
         return $stmt->fetchColumn();
     }
+
+    public function delete($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM offres_emploi WHERE id = ?");
+        return $stmt->execute([$id]);
+    }
 }

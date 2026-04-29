@@ -18,7 +18,11 @@
             <nav class="admin-nav">
                 <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a>
                 <a href="add_job_admin.php" class="admin-nav-item active"><i class="fa-solid fa-plus-circle"></i> Ajouter</a>
+                <a href="admin_freelancers.php" class="admin-nav-item"><i class="fa-solid fa-users"></i> Freelancers</a>
             </nav>
+            <div class="admin-bottom" style="margin-top:auto; padding:1.5rem;">
+                <a href="../frontoffice/home.php" class="admin-nav-item" style="color:#94a3b8;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Quitter Admin</a>
+            </div>
         </aside>
 
         <main class="admin-main">
@@ -51,16 +55,19 @@
                         <div class="form-group">
                             <label class="form-label">Titre de l'offre <span>*</span></label>
                             <input name="titre" type="text" class="form-input" placeholder="Ex. Développeur React.js" value="<?= htmlspecialchars($data['titre'] ?? '') ?>">
+                            <?php if (isset($errors['titre'])): ?><div style="color: var(--tunisian-red); font-size: 0.85rem; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['titre'] ?></div><?php endif; ?>
                         </div>
 
                         <div class="form-grid">
                             <div class="form-group">
                                 <label class="form-label">Budget (DT) <span>*</span></label>
                                 <input name="budget" type="text" class="form-input" placeholder="Ex. 1500" value="<?= htmlspecialchars($data['budget'] ?? '') ?>">
+                                <?php if (isset($errors['budget'])): ?><div style="color: var(--tunisian-red); font-size: 0.85rem; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['budget'] ?></div><?php endif; ?>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">Délai <span>*</span></label>
                                 <input name="delai" type="text" class="form-input" placeholder="Ex. 15 jours" value="<?= htmlspecialchars($data['delai'] ?? '') ?>">
+                                <?php if (isset($errors['delai'])): ?><div style="color: var(--tunisian-red); font-size: 0.85rem; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['delai'] ?></div><?php endif; ?>
                             </div>
                         </div>
 
@@ -76,12 +83,14 @@
                             <div class="form-group">
                                 <label class="form-label">Compétences <span>*</span></label>
                                 <input name="competences" type="text" class="form-input" placeholder="Ex. React.js, PHP" value="<?= htmlspecialchars($data['competences'] ?? '') ?>">
+                                <?php if (isset($errors['competences'])): ?><div style="color: var(--tunisian-red); font-size: 0.85rem; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['competences'] ?></div><?php endif; ?>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Description <span>*</span></label>
                             <textarea name="description" rows="6" class="form-input"><?= htmlspecialchars($data['description'] ?? '') ?></textarea>
+                            <?php if (isset($errors['description'])): ?><div style="color: var(--tunisian-red); font-size: 0.85rem; margin-top: 5px;"><i class="fa-solid fa-circle-exclamation"></i> <?= $errors['description'] ?></div><?php endif; ?>
                         </div>
 
                         <div style="margin-top: 2rem; display: flex; gap: 1rem; border-top: 1px solid var(--border); padding-top: 2rem;">

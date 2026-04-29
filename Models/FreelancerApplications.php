@@ -11,15 +11,29 @@ class FreelancerApplications {
         $this->pdo = config::getConnexion();
     }
 
-    public function getMyApplications() {
+    public function getMyApplications($search = '') {
         // Since no login, we fetch all applications
         // We join with offres_emploi to get job details
         $sql = "SELECT a.*, o.titre as job_title, o.budget, o.delai, o.date_creation 
-                FROM applications a 
-                JOIN offres_emploi o ON a.job_id = o.id 
-                ORDER BY a.created_at DESC";
+                FROM job_applications a 
+                JOIN offres_emploi o ON a.job_id = o.id";
         
-        $stmt = $this->pdo->query($sql);
+        $params = [];
+        if (!empty($search)) {
+            $sql .= " WHERE o.titre LIKE ? OR DATE(a.created_at) = ?";
+            $params[] = "%$search%";
+            $params[] = $search;
+        }
+
+        $sql .= " ORDER BY a.created_at DESC";
+        
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function cancelApplication($id) {
+        $stmt = $this->pdo->prepare("DELETE FROM job_applications WHERE id = ?");
+        return $stmt->execute([$id]);
     }
 }

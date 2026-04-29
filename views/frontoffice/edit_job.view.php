@@ -37,17 +37,64 @@
 </head>
 <body class="page-anim">
 
-<nav>
-    <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-    <ul class="nav-links">
-        <li><a href="home.php">Accueil</a></li>
-        <li><a href="home.php" class="active">Client</a></li>
-        <li><a href="freelancer_home.php">Freelancers</a></li>
-    </ul>
-    <div class="nav-right">
-        <a href="home.php" class="cart-btn" style="background:rgba(255,255,255,0.06); color:white;"><i class="fa-solid fa-arrow-left"></i> Retour</a>
-    </div>
-</nav>
+<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
+            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+            <ul class="nav-links">
+                <li><a href="home.php">Accueil</a></li>
+                <li><a href="home.php" class="active">Client</a></li>
+                <li><a href="freelancer_home.php">Freelancers</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="nav-avatar">CL</div>
+            </div>
+        </nav>
+
+
+
+<div class="marketplace-layout">
+        <aside class="mkt-sidebar">
+        <!-- Card 1 : Profil marketplace -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-building"></i></div>
+                <div class="mkt-profile-name">Espace Client</div>
+                <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
+            </div>
+            <div class="mkt-profile-stats">
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">3</div>
+                    <div class="mkt-stat-label">OFFRES</div>
+                </div>
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">8</div>
+                    <div class="mkt-stat-label">CANDIDATS</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2 : Navigation + Filtres -->
+        <div class="mkt-sidebar-card">
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="home.php" class="nav-item ">
+                    <i class="fa-solid fa-list-ul"></i> Mes Offres
+                </a>
+                <a href="add_job.php" class="nav-item ">
+                    <i class="fa-solid fa-plus-circle"></i> Nouveau Offre
+                </a>
+                <a href="client_freelancers.php" class="nav-item ">
+                    <i class="fa-solid fa-users"></i> Freelancers
+                </a>
+                <a href="#" id="download-pdf-home" class="nav-item">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="mkt-main">
+        <!-- TOPBAR INSIDE MAIN -->
+        
 
 <section class="hero-banner">
     <div class="hero-glow"></div>
@@ -105,6 +152,8 @@
                 </form>
             </div>
         </div>
+    </div>
+</div>
     </div>
 </div>
 </body>

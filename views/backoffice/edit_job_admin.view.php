@@ -17,7 +17,12 @@
             <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
             <nav class="admin-nav">
                 <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a>
+                <a href="add_job_admin.php" class="admin-nav-item"><i class="fa-solid fa-plus-circle"></i> Ajouter</a>
+                <a href="admin_freelancers.php" class="admin-nav-item"><i class="fa-solid fa-users"></i> Freelancers</a>
             </nav>
+            <div class="admin-bottom" style="margin-top:auto; padding:1.5rem;">
+                <a href="../frontoffice/home.php" class="admin-nav-item" style="color:#94a3b8;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Quitter Admin</a>
+            </div>
         </aside>
 
         <main class="admin-main">

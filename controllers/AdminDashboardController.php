@@ -9,6 +9,12 @@ class AdminDashboardController {
         $q = $_GET['titre'] ?? '';
         $d = $_GET['date'] ?? '';
         
+        if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
+            $model->delete($_GET['id']);
+            header('Location: dashboard.php?success=deleted');
+            exit;
+        }
+
         if (!empty($q) || !empty($d)) { 
             $offres = $model->search($q, $d); 
         } elseif ($filtre !== 'all') { 

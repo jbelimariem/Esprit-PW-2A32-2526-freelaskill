@@ -34,6 +34,24 @@ function statutBadge($statut) {
 </head>
 <body class="page-anim home-page">
 
+<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
+            </div>
+            <ul class="nav-links">
+                <li><a href="home.php">Accueil</a></li>
+                <li><a href="home.php" class="active">Client</a></li>
+                <li><a href="freelancer_home.php">Freelancer</a></li>
+                <li><a href="#">Messagerie</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="nav-avatar">CL</div>
+            </div>
+        </nav>
+
+
+
 <?php $success = $_GET['success'] ?? ''; ?>
 <?php if ($success): ?>
 <div class="toast" id="toast">
@@ -48,37 +66,50 @@ function statutBadge($statut) {
 <script>setTimeout(() => { const t = document.getElementById('toast'); if(t) t.style.opacity='0'; }, 3500);</script>
 <?php endif; ?>
 
-<!-- NAVBAR -->
-<nav>
-    <div class="logo">
-        <i class="fa-solid fa-shapes"></i>
-        Freela<span>Skill</span>
-    </div>
-    <ul class="nav-links">
-        <li><a href="home.php">Accueil</a></li>
-        <li><a href="home.php" class="active">Client</a></li>
-        <li><a href="freelancer_home.php">Freelancers</a></li>
-        <li><a href="#">Messagerie</a></li>
-    </ul>
-    <div class="nav-right">
-        <div class="nav-avatar">CL</div>
-    </div>
-</nav>
-
-<!-- SUB NAVBAR -->
-<div class="sub-navbar">
-    <div class="sub-nav-container">
-        <ul class="sub-nav-links">
-            <li><a href="home.php" class="active"><i class="fa-solid fa-list-ul"></i> Mes Offres</a></li>
-            <li><a href="add_job.php"><i class="fa-solid fa-plus-circle"></i> Nouveaux Offre</a></li>
-        </ul>
-        <div class="sub-nav-actions">
-            <button id="download-pdf-home" class="btn-sub btn-sub-outline">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </button>
+<div class="marketplace-layout">
+        <aside class="mkt-sidebar">
+        <!-- Card 1 : Profil marketplace -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-building"></i></div>
+                <div class="mkt-profile-name">Espace Client</div>
+                <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
+            </div>
+            <div class="mkt-profile-stats">
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">3</div>
+                    <div class="mkt-stat-label">OFFRES</div>
+                </div>
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">8</div>
+                    <div class="mkt-stat-label">CANDIDATS</div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
+        <!-- Card 2 : Navigation + Filtres -->
+        <div class="mkt-sidebar-card">
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="home.php" class="nav-item active">
+                    <i class="fa-solid fa-list-ul"></i> Mes Offres
+                </a>
+                <a href="add_job.php" class="nav-item ">
+                    <i class="fa-solid fa-plus-circle"></i> Nouveau Offre
+                </a>
+                <a href="client_freelancers.php" class="nav-item ">
+                    <i class="fa-solid fa-users"></i> Freelancers
+                </a>
+                <a href="#" id="download-pdf-home" class="nav-item">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="mkt-main">
+        <!-- TOPBAR INSIDE MAIN -->
+        
 
 <!-- HERO BANNER -->
 <section class="hero-banner" style="padding: 2.5rem 1rem; min-height: auto;">
@@ -206,5 +237,7 @@ document.getElementById('download-pdf-home')?.addEventListener('click', async fu
     saveAs(doc.output('blob'), 'liste_missions.pdf');
 });
 </script>
+    </div>
+</div>
 </body>
 </html>

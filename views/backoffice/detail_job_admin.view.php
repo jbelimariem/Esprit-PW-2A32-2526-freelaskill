@@ -1,13 +1,13 @@
 <?php
 // views/backoffice/detail_job_admin.view.php — Template: Admin Détail complet d'une offre
 
-$competences = array_map('trim', explode(',', $offre['competences']));
+$competences = array_map('trim', explode(',', $offre->getCompetences()));
 $statutConfig = [
     'pending'  => ['label'=>'En attente','class'=>'statut-pending', 'icon'=>'fa-clock',       'color'=>'#F59E0B'],
     'approved' => ['label'=>'Approuvée', 'class'=>'statut-approved','icon'=>'fa-circle-check','color'=>'#10b981'],
     'rejected' => ['label'=>'Rejetée',   'class'=>'statut-rejected','icon'=>'fa-circle-xmark','color'=>'#ef4444'],
 ];
-$badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
+$badge = $statutConfig[$offre->getStatut()] ?? $statutConfig['pending'];
 ?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
@@ -23,7 +23,14 @@ $badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
     <div class="admin-layout">
         <aside class="admin-sidebar">
             <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-            <nav class="admin-nav"><a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a></nav>
+            <nav class="admin-nav">
+                <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a>
+                <a href="add_job_admin.php" class="admin-nav-item"><i class="fa-solid fa-plus-circle"></i> Ajouter</a>
+                <a href="admin_freelancers.php" class="admin-nav-item"><i class="fa-solid fa-users"></i> Freelancers</a>
+            </nav>
+            <div class="admin-bottom" style="margin-top:auto; padding:1.5rem;">
+                <a href="../frontoffice/home.php" class="admin-nav-item" style="color:#94a3b8;"><i class="fa-solid fa-arrow-right-from-bracket"></i> Quitter Admin</a>
+            </div>
         </aside>
 
         <main class="admin-main">
@@ -31,7 +38,7 @@ $badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
                 <div class="admin-header-row">
                     <h1 class="admin-page-title">Détails de la <span>Mission</span></h1>
                     <div style="display:flex; gap:1rem;">
-                        <a href="edit_job_admin.php?id=<?= $offre['id'] ?>" class="btn btn-primary">Modifier</a>
+                        <a href="edit_job_admin.php?id=<?= $offre->getId() ?>" class="btn btn-primary">Modifier</a>
                         <a href="dashboard.php" class="btn btn-outline">Retour</a>
                     </div>
                 </div>
@@ -40,7 +47,7 @@ $badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
                     <div>
                         <div class="glass-card">
                             <h3>Description</h3>
-                            <p style="white-space: pre-wrap; line-height:1.6;"><?= nl2br(htmlspecialchars($offre['description'])) ?></p>
+                            <p style="white-space: pre-wrap; line-height:1.6;"><?= nl2br(htmlspecialchars($offre->getDescription())) ?></p>
                         </div>
                         <div class="glass-card" style="margin-top:2rem;">
                             <h3>Compétences</h3>
@@ -57,20 +64,20 @@ $badge = $statutConfig[$offre['statut']] ?? $statutConfig['pending'];
                                 <?php else: ?>
                                     <?php foreach ($candidats as $can): ?>
                                      <div style="display:flex; align-items:center; gap:1rem; padding:1rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; margin-bottom:1rem;">
-                                        <div style="width:40px; height:40px; background:var(--tech-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;"><?= strtoupper(substr($can['name'], 0, 1)) ?></div>
+                                        <div style="width:40px; height:40px; background:var(--tech-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;"><?= strtoupper(substr($can->getName(), 0, 1)) ?></div>
                                         <div style="flex:1;">
-                                            <div style="font-weight:700;"><?= htmlspecialchars($can['name']) ?></div>
-                                            <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can['job_title']) ?></div>
-                                            <div style="font-size:0.75rem; margin-top:4px;">Statut : <strong><?= htmlspecialchars($can['status']) ?></strong></div>
+                                            <div style="font-weight:700;"><?= htmlspecialchars($can->getName()) ?></div>
+                                            <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can->getJobTitle()) ?></div>
+                                            <div style="font-size:0.75rem; margin-top:4px;">Statut : <strong><?= htmlspecialchars($can->getStatus()) ?></strong></div>
                                         </div>
                                         <div style="display:flex; gap:0.5rem;">
                                             <form method="POST" style="margin:0;">
-                                                <input type="hidden" name="app_id" value="<?= $can['id'] ?>">
+                                                <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
                                                 <input type="hidden" name="action_app" value="approved">
                                                 <button type="submit" class="btn" style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer;">Valider</button>
                                             </form>
                                             <form method="POST" style="margin:0;">
-                                                <input type="hidden" name="app_id" value="<?= $can['id'] ?>">
+                                                <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
                                                 <input type="hidden" name="action_app" value="rejected">
                                                 <button type="submit" class="btn" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer;">Refuser</button>
                                             </form>

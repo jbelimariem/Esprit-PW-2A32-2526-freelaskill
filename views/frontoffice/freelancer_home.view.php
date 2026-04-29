@@ -15,34 +15,66 @@
 </head>
 <body class="page-anim">
 
-<!-- NAVBAR -->
-<nav>
-    <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-    <ul class="nav-links">
-        <li><a href="home.php">Accueil</a></li>
-        <li><a href="home.php">Client</a></li>
-        <li><a href="freelancer_home.php" class="active">Freelancer</a></li>
-        <li><a href="#">Messagerie</a></li>
-    </ul>
-    <div class="nav-right">
-        <div class="nav-avatar">FR</div>
-    </div>
-</nav>
+<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
+            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+            <ul class="nav-links">
+                <li><a href="home.php">Accueil</a></li>
+                <li><a href="home.php">Client</a></li>
+                <li><a href="freelancer_home.php" class="active">Freelancer</a></li>
+                <li><a href="#">Messagerie</a></li>
+            </ul>
+            <div class="nav-right">
+                <div class="nav-avatar">FR</div>
+            </div>
+        </nav>
 
-<!-- SUB NAVBAR -->
-<div class="sub-navbar">
-    <div class="sub-nav-container">
-        <ul class="sub-nav-links">
-            <li><a href="freelancer_home.php" class="active"><i class="fa-solid fa-magnifying-glass"></i> Trouver des missions</a></li>
-            <li><a href="freelancer_applications.php"><i class="fa-solid fa-paper-plane"></i> Mes Candidatures</a></li>
-        </ul>
-        <div class="sub-nav-actions">
-            <button id="export-pdf" class="cart-btn" style="background:rgba(16,185,129,0.1); border-color:rgba(16,185,129,0.3); color:var(--tech-green);">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </button>
+
+
+<div class="marketplace-layout">
+    
+        <aside class="mkt-sidebar">
+        <!-- Card 1 : Profil marketplace -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-store"></i></div>
+                <div class="mkt-profile-name">Espace Freelancer</div>
+                <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
+            </div>
+            <div class="mkt-profile-stats">
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">12</div>
+                    <div class="mkt-stat-label">MISSIONS</div>
+                </div>
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val">5</div>
+                    <div class="mkt-stat-label">POSTULÉES</div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
+
+        <!-- Card 2 : Navigation + Filtres -->
+        <div class="mkt-sidebar-card">
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="freelancer_home.php" class="nav-item active">
+                    <i class="fa-solid fa-briefcase"></i> Missions
+                </a>
+                <a href="freelancer_applications.php" class="nav-item ">
+                    <i class="fa-solid fa-paper-plane"></i> Candidatures
+                </a>
+                <a href="#" id="export-pdf" class="nav-item">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+                <a href="home.php" class="nav-item danger">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <div class="mkt-main">
+        <!-- TOPBAR INSIDE MAIN -->
+        
 
 <section class="hero-banner">
     <div class="hero-glow"></div>
@@ -143,5 +175,7 @@
     });
 </script>
 
+    </div>
+</div>
 </body>
 </html>

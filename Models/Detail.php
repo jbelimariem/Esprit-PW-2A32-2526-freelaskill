@@ -20,7 +20,7 @@ class Detail {
 
     // --- Applications ---
     public function getApplicationsByJobId($job_id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM applications WHERE job_id = ? ORDER BY created_at DESC");
+        $stmt = $this->pdo->prepare("SELECT * FROM job_applications WHERE job_id = ? ORDER BY created_at DESC");
         $stmt->execute([$job_id]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $apps = [];
@@ -31,7 +31,7 @@ class Detail {
     }
 
     public function updateApplicationStatus($id, $status) {
-        $stmt = $this->pdo->prepare("UPDATE applications SET status = ? WHERE id = ?");
+        $stmt = $this->pdo->prepare("UPDATE job_applications SET status = ? WHERE id = ?");
         return $stmt->execute([$status, $id]);
     }
 }

@@ -11,7 +11,7 @@ class AdminDetail {
         $this->pdo = config::getConnexion();
     }
 
-    public function getById($id) {
+    public function getJobById($id) {
         $stmt = $this->pdo->prepare("SELECT * FROM offres_emploi WHERE id = ?");
         $stmt->execute([$id]);
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
