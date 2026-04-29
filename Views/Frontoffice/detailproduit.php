@@ -37,7 +37,7 @@ if (!empty($_GET['id'])) {
     <title><?= htmlspecialchars($produit['nom'] ?? 'Détail produit') ?> — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
 <body class="page-anim">
 
@@ -56,52 +56,74 @@ if (!empty($_GET['id'])) {
     </div>
 </nav>
 
-<section class="hero-banner">
-    <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-box-open"></i> Fiche produit</div>
-        <h1 class="hero-title"><?= htmlspecialchars($produit['nom'] ?? 'Produit introuvable') ?></h1>
-        <p class="hero-sub"><?= htmlspecialchars($produit['description'] ?? 'Sélectionnez un produit depuis la page d’accueil pour voir ses détails.') ?></p>
-    </div>
-</section>
+<!-- MARKETPLACE LAYOUT -->
+<div class="marketplace-layout">
 
-<div class="page-body">
-    <aside class="filters">
-        <div class="filter-section">
-            <div class="filter-title">Informations</div>
-            <?php if ($produit): ?>
-                <div class="filter-option active">
-                    <span><?= htmlspecialchars($categoryName) ?></span>
-                    <span class="filter-dot"></span>
-                </div>
-                <div class="filter-option">
-                    <span>Prix : <?= $priceFormatted ?> DT</span>
-                </div>
-                <div class="filter-option">
-                    <span><?= htmlspecialchars($stockText) ?></span>
-                </div>
-                <div class="filter-option">
-                    <span>Statut : <?= htmlspecialchars($produit['statut'] ?? 'N/A') ?></span>
-                </div>
-            <?php else: ?>
-                <div class="filter-option active">
-                    <span>Produit introuvable</span>
-                </div>
-            <?php endif; ?>
+    <!-- ── SIDEBAR ── -->
+    <aside class="mkt-sidebar">
+        <!-- Card 1 : Fiche Produit -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-box-open"></i></div>
+                <div class="mkt-profile-name">Fiche Produit</div>
+                <div class="mkt-profile-sub">Marketplace FreelaSkill</div>
+            </div>
         </div>
 
-        <div class="divider"></div>
+        <!-- Card 2 : Navigation + Infos produit -->
+        <div class="mkt-sidebar-card">
+            <!-- Navigation -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="home.php" class="nav-item">
+                    <i class="fa-solid fa-store"></i> Tout parcourir
+                </a>
+                <a href="panier.php" class="nav-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Mon panier
+                </a>
+                <a href="mes_ventes.php" class="nav-item">
+                    <i class="fa-solid fa-tag"></i> Mes ventes
+                </a>
+                <a href="vendreproduit.php" class="nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Vendre un produit
+                </a>
+            </div>
 
-        <div class="filter-section">
-            <div class="filter-title">À propos</div>
-            <div class="filter-option active">
-                <span><?= htmlspecialchars($produit['description'] ?? 'Aucune description disponible.') ?></span>
+            <!-- Informations -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Informations</div>
+                <?php if ($produit): ?>
+                    <div class="filter-option active">
+                        <span><i class="fa-solid fa-tag" style="color:#3b82f6;margin-right:.4rem;"></i><?= htmlspecialchars($categoryName) ?></span>
+                    </div>
+                    <div class="filter-option">
+                        <span><i class="fa-solid fa-money-bill" style="color:#10b981;margin-right:.4rem;"></i>Prix : <?= $priceFormatted ?> DT</span>
+                    </div>
+                    <div class="filter-option">
+                        <span><i class="fa-solid fa-box" style="color:#a855f7;margin-right:.4rem;"></i><?= htmlspecialchars($stockText) ?></span>
+                    </div>
+                <?php else: ?>
+                    <div class="filter-option active">
+                        <span>Produit introuvable</span>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </aside>
 
-    <div class="products-area">
+    <!-- ── MAIN PANEL ── -->
+    <div class="mkt-main">
+
+        <!-- HERO -->
+        <section class="hero-banner" style="padding: 2rem 2rem 3rem;">
+            <div class="hero-glow"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content" style="margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div class="hero-tag"><i class="fa-solid fa-box-open"></i> Fiche produit</div>
+                <h1 class="hero-title"><?= htmlspecialchars($produit['nom'] ?? 'Produit introuvable') ?></h1>
+                <p class="hero-sub"><?= htmlspecialchars($produit['description'] ?? 'Sélectionnez un produit depuis la page d’accueil pour voir ses détails.') ?></p>
+            </div>
+        </section>
         <div class="products-toolbar">
             <p class="result-count"><strong><?= $produit ? '1 article' : '0 article' ?></strong> sur cette fiche</p>
             <div class="toolbar-right">

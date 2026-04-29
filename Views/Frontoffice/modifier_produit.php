@@ -54,7 +54,7 @@ $categories = $categoryController->getAllData();
     <title>Vendre un produit — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css?v=2">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
 <body class="page-anim">
 
@@ -73,19 +73,55 @@ $categories = $categoryController->getAllData();
     </div>
 </nav>
 
-<section class="hero-banner">
-    <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-pen"></i> Modifier l'annonce</div>
-        <h1 class="hero-title">Mettez à jour votre annonce</h1>
-        <p class="hero-sub">Ajustez les informations de votre produit (prix, description, photos).</p>
-    </div>
-</section>
+<!-- MARKETPLACE LAYOUT -->
+<div class="marketplace-layout">
 
-<div class="page-body" style="grid-template-columns: 1fr; padding: 2rem 4rem 4rem;">
-    <div class="products-area" style="padding-right: 0;">
-        <div class="products-toolbar" style="flex-direction: column; align-items: stretch; gap: 1rem; margin-bottom: 2rem;">
+    <!-- ── SIDEBAR ── -->
+    <aside class="mkt-sidebar">
+        <!-- Card 1 : Modifier -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-pen"></i></div>
+                <div class="mkt-profile-name">Modifier l'annonce</div>
+                <div class="mkt-profile-sub">Marketplace FreelaSkill</div>
+            </div>
+        </div>
+
+        <!-- Card 2 : Navigation -->
+        <div class="mkt-sidebar-card">
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="home.php" class="nav-item">
+                    <i class="fa-solid fa-store"></i> Tout parcourir
+                </a>
+                <a href="panier.php" class="nav-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Mon panier
+                </a>
+                <a href="mes_ventes.php" class="nav-item">
+                    <i class="fa-solid fa-tag"></i> Mes ventes
+                </a>
+                <a href="vendreproduit.php" class="nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Vendre un produit
+                </a>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN PANEL -->
+    <div class="mkt-main">
+
+        <!-- HERO -->
+        <section class="hero-banner" style="padding: 2rem 2rem 3rem;">
+            <div class="hero-glow"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content" style="margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div class="hero-tag"><i class="fa-solid fa-pen"></i> Modifier l'annonce</div>
+                <h1 class="hero-title">Mettez à jour votre annonce</h1>
+                <p class="hero-sub">Ajustez les informations de votre produit (prix, description, photos).</p>
+            </div>
+        </section>
+
+        <div class="products-toolbar" style="flex-direction: column; align-items: stretch; gap: 1rem; margin-bottom: 2rem; width:100%;">
             <p class="result-count"><strong>Formulaire de modification</strong></p>
             <div class="toolbar-right" style="flex-wrap: wrap; gap: 1rem;">
                 <button class="view-btn active" title="Modifier le produit"><i class="fa-solid fa-pen"></i></button>

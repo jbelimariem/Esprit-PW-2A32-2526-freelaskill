@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 require_once __DIR__ . '/../../controllers/produitController.php';
 if (session_status() === PHP_SESSION_NONE) {
@@ -221,7 +221,7 @@ $chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
                 <a href="./pending_products.php" class="admin-nav-item">
                     <i class="fa-solid fa-clock"></i> Validation produits
                 </a>
-                                <a href="./ajouter_categorie.php" class="admin-nav-item">
+                <a href="./ajouter_categorie.php" class="admin-nav-item">
                     <i class="fa-solid fa-plus"></i> Ajouter Catégorie
                 </a>
                 <a href="./liste_categories.php" class="admin-nav-item">
@@ -232,6 +232,10 @@ $chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
                 </a>
                 <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
+                </a>
+                <a href="./notification.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;">3</span>
                 </a>
 
 
@@ -254,10 +258,10 @@ $chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
                     <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>

@@ -38,7 +38,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <title>Marketplace — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css?v=2">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
 <body class="page-anim home-page">
 
@@ -67,128 +67,119 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     </div>
 </nav>
 
-<!-- HERO BANNER -->
-<section class="hero-banner">
-    <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-tags"></i> Mes ventes</div>
-        <h1 class="hero-title">Gérez vos <span>annonces</span></h1>
-        <p class="hero-sub">Retrouvez toutes vos offres publiées. Vous pouvez les modifier ou les retirer à tout moment.</p>
-        <div class="search-container" style="display:flex; align-items:center; gap:0.5rem;">
-            <div class="search-wrap" style="flex:1;">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="main-search-input" placeholder="Rechercher un produit, une marque…">
+<!-- MARKETPLACE LAYOUT -->
+<div class="marketplace-layout">
+
+    <!-- ── SIDEBAR ── -->
+    <aside class="mkt-sidebar">
+
+        <!-- Card 1 : Profil marketplace -->
+        <div class="mkt-profile-card">
+            <div class="mkt-profile-header">
+                <div class="mkt-avatar"><i class="fa-solid fa-store"></i></div>
+                <div class="mkt-profile-name">Marketplace</div>
+                <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
             </div>
-            <button class="btn-search" id="main-search-btn" style="white-space:nowrap;"><i class="fa-solid fa-search"></i> Rechercher</button>
-        </div>
-        <div class="action-row" style="display:flex; align-items:center; gap:.75rem; margin-top:1.25rem; max-width:700px;">
-            <span style="color:#475569; font-size:.82rem;">
-                Vous vendez ? <strong style="color:#94A3B8; font-weight:500;">Déposez votre annonce gratuitement</strong>
-            </span>
-            <a href="vendreproduit.php" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap;">
-                + Vendre un produit
-            </a>
-        </div>
-    </div>
-</section>
-
-<!-- PAGE BODY -->
-<div class="page-body">
-
-    <!-- SIDEBAR NAVIGATION & FILTERS -->
-    <aside class="filters">
-        
-        <!-- Marketplace Nav -->
-        <div class="marketplace-sidebar-nav">
-            <div class="sidebar-header">
-                <h2>Marketplace</h2>
-                <div class="sidebar-settings" title="Paramètres"><i class="fa-solid fa-gear"></i></div>
-            </div>
-            
-            <a href="home.php" class="sidebar-nav-item">
-                <div class="item-left">
-                    <div class="icon-box"><i class="fa-solid fa-shop"></i></div>
-                    <span class="nav-label">Tout parcourir</span>
+            <div class="mkt-profile-stats">
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val"><?= $totalProduitCount ?></div>
+                    <div class="mkt-stat-label">Produits</div>
                 </div>
-            </a>
-            
-            <a href="#" class="sidebar-nav-item">
-                <div class="item-left">
-                    <div class="icon-box"><i class="fa-solid fa-bell"></i></div>
-                    <span class="nav-label">Notifications</span>
+                <div class="mkt-stat">
+                    <div class="mkt-stat-val"><?= count($categories) ?></div>
+                    <div class="mkt-stat-label">Catégories</div>
                 </div>
-            </a>
-            
-            <a href="panier.php" class="sidebar-nav-item">
-                <div class="item-left">
-                    <div class="icon-box"><i class="fa-solid fa-cart-shopping"></i></div>
-                    <span class="nav-label">Panier</span>
-                </div>
-                <i class="fa-solid fa-chevron-right chevron-icon"></i>
-            </a>
-            
-            <a href="mes_ventes.php" class="sidebar-nav-item active">
-                <div class="item-left">
-                    <div class="icon-box icon-blue"><i class="fa-solid fa-tag"></i></div>
-                    <span class="nav-label">Mes ventes</span>
-                </div>
-                <i class="fa-solid fa-chevron-right chevron-icon"></i>
-            </a>
-        </div>
-
-        <div class="filter-section">
-            <div class="filter-title">Catégorie</div>
-            <div class="filter-option active" data-filter="all">
-                <span>Tous les produits</span>
-                <span class="filter-count"><?= $totalProduitCount ?></span>
-                <span class="filter-dot"></span>
-            </div>
-            <?php foreach ($categories as $category): ?>
-                <div class="filter-option" data-filter="<?= htmlspecialchars($category['nom']) ?>">
-                    <span><?= htmlspecialchars($category['nom']) ?></span>
-                    <span class="filter-count"><?= $categoryCounts[$category['idCategory']] ?? 0 ?></span>
-                    <span class="filter-dot"></span>
-                </div>
-            <?php endforeach; ?>
-        </div>
-
-        <div class="divider"></div>
-
-        <div class="filter-section">
-            <div class="filter-title">Prix (DT)</div>
-            <div class="price-range">
-                <div class="price-inputs">
-                    <input class="price-input" type="number" placeholder="Min" value="0">
-                    <span class="price-sep">—</span>
-                    <input class="price-input" type="number" placeholder="Max" value="3000">
-                </div>
-                <input type="range" min="0" max="3000" value="3000">
             </div>
         </div>
 
-        <div class="divider"></div>
+        <!-- Card 2 : Navigation + Filtres -->
+        <div class="mkt-sidebar-card">
 
-        <div class="filter-section">
-            <div class="filter-title">Disponibilité</div>
-            <div class="filter-option active">
-                <span>En stock</span>
-                <span class="filter-dot"></span>
+            <!-- Navigation -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Navigation</div>
+                <a href="home.php" class="nav-item">
+                    <i class="fa-solid fa-store"></i> Tout parcourir
+                </a>
+                <a href="panier.php" class="nav-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Mon panier
+                </a>
+                <a href="mes_ventes.php" class="nav-item active">
+                    <i class="fa-solid fa-tag"></i> Mes ventes
+                </a>
+                <a href="vendreproduit.php" class="nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Vendre un produit
+                </a>
             </div>
-            <div class="filter-option">
-                <span>Stock faible</span>
-                <span class="filter-dot"></span>
+
+            <!-- Catégories -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Catégorie</div>
+                <div class="filter-option active" data-filter="all">
+                    <span>Tous les produits</span>
+                    <span class="filter-count"><?= $totalProduitCount ?></span>
+                </div>
+                <?php foreach ($categories as $category): ?>
+                    <div class="filter-option" data-filter="<?= htmlspecialchars($category['nom']) ?>">
+                        <span><?= htmlspecialchars($category['nom']) ?></span>
+                        <span class="filter-count"><?= $categoryCounts[$category['idCategory']] ?? 0 ?></span>
+                    </div>
+                <?php endforeach; ?>
             </div>
-            <div class="filter-option">
-                <span>Tous</span>
-                <span class="filter-dot"></span>
+
+            <!-- Prix -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Prix (DT)</div>
+                <div class="price-range">
+                    <div class="price-inputs">
+                        <input class="price-input" type="number" placeholder="Min" value="0">
+                        <span class="price-sep">—</span>
+                        <input class="price-input" type="number" placeholder="Max" value="3000">
+                    </div>
+                    <input type="range" min="0" max="3000" value="3000">
+                </div>
             </div>
-        </div>
+
+            <!-- Disponibilité -->
+            <div class="mkt-sidebar-section">
+                <div class="mkt-nav-label">Disponibilité</div>
+                <div class="filter-option active"><span><i class="fa-solid fa-circle-check" style="color:#10b981;margin-right:.4rem;"></i>En stock</span></div>
+                <div class="filter-option"><span>Stock faible</span></div>
+                <div class="filter-option"><span>Tous</span></div>
+            </div>
+
+        </div><!-- /mkt-sidebar-card -->
 
     </aside>
 
     <!-- PRODUCTS -->
-    <div class="products-area">
+    <div class="mkt-main">
+
+        <!-- HERO BANNER -->
+        <section class="hero-banner" style="padding: 2rem 2rem 3rem;">
+            <div class="hero-glow"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content" style="margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div class="hero-tag"><i class="fa-solid fa-tags"></i> Mes ventes</div>
+                <h1 class="hero-title">Gérez vos <span>annonces</span></h1>
+                <p class="hero-sub">Retrouvez toutes vos offres publiées. Vous pouvez les modifier ou les retirer à tout moment.</p>
+                <div class="search-container" style="display:flex; align-items:center; justify-content: center; width: 100%; gap:0.5rem;">
+                    <div class="search-wrap" style="flex:1; max-width: 500px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="main-search-input" placeholder="Rechercher un produit, une marque…">
+                    </div>
+                    <button class="btn-search" id="main-search-btn" style="white-space:nowrap;"><i class="fa-solid fa-search"></i> Rechercher</button>
+                </div>
+                <div class="action-row" style="display:flex; align-items:center; justify-content: center; gap:.75rem; margin-top:1.25rem; width: 100%;">
+                    <span style="color:#475569; font-size:.82rem;">
+                        Vous vendez ? <strong style="color:#94A3B8; font-weight:500;">Déposez votre annonce gratuitement</strong>
+                    </span>
+                    <a href="vendreproduit.php" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap;">
+                        + Vendre un produit
+                    </a>
+                </div>
+            </div>
+        </section>
 
         <!-- Toolbar -->
         <div class="products-toolbar">

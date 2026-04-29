@@ -1,4 +1,4 @@
-﻿        :root {
+        :root {
             --tech-blue: #3b82f6;
             --tech-blue-hover: #2563eb;
             --tech-green: #10b981;
@@ -1420,31 +1420,43 @@
         ══════════════════════════════════════════════ */
 
         .marketplace-layout {
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 2rem;
-            padding: 2rem 4rem 4rem;
-            max-width: 1400px;
-            margin: 0 auto;
-            align-items: start;
+            display: flex;
+            max-width: 100%;
+            margin: 0;
+            padding: 0;
+            align-items: stretch;
         }
 
-        /* ── Sidebar — always present, sticky like user project ── */
+        /* ── Sidebar — fixed to the left like back office ── */
         .mkt-sidebar {
-            position: sticky;
-            top: 85px;
-            align-self: start;
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 300px;
+            background: rgba(2, 6, 23, 0.7);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-right: 1px solid var(--border);
+            z-index: 90;
             display: flex;
             flex-direction: column;
             gap: 1rem;
+            padding: 80px 1rem 2rem 0;
+            overflow-y: auto;
         }
 
         /* ── Sidebar profile card ── */
         .mkt-profile-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: none;
+            border-radius: 0 1rem 1rem 0;
+            overflow: visible;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            flex-shrink: 0;
         }
         .mkt-profile-header {
             background: linear-gradient(135deg, rgba(37,99,235,0.2), rgba(139,92,246,0.15));
@@ -1488,10 +1500,14 @@
 
         /* ── Second sidebar card: nav + filters ── */
         .mkt-sidebar-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-left: none;
+            border-radius: 0 1rem 1rem 0;
+            padding: 1.25rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
         }
         .mkt-sidebar-section {
             padding: 0.75rem;
@@ -1534,7 +1550,19 @@
         .nav-item.danger:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
 
         /* ── Main panel ── */
-        .mkt-main { min-width: 0; }
+        .mkt-main {
+            flex: 1;
+            margin-left: 300px; /* same as sidebar width */
+            padding: 0 2rem 4rem;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .mkt-main > * {
+            width: 100%;
+            max-width: 1100px;
+        }
 
         /* ── Section card (user style) ── */
         .section-card {

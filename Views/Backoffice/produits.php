@@ -100,6 +100,10 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
+                <a href="./notification.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;"><?= isset($pendingProducts) ? count($pendingProducts) + 2 : 3 ?></span>
+                </a>
             </div>
 
             <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
@@ -119,10 +123,10 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                     <div class="admin-icon-btn theme-toggle-btn">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= isset($pendingProducts) ? count($pendingProducts) + 2 : 3 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>

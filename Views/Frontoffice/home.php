@@ -35,7 +35,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <meta name="description" content="Parcourez notre marketplace FreelaSkill — équipements tech, licences logiciels, accessoires créatifs.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css?v=4">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
 </head>
 <body class="page-anim home-page">
 
@@ -64,32 +64,6 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     </div>
 </nav>
 
-<!-- HERO -->
-<section class="hero-banner" style="padding: 3rem 4rem 2rem;">
-    <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content" style="max-width:750px;">
-        <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Marketplace Tunisia</div>
-        <h1 class="hero-title">Trouvez les outils<br>qu'il vous <span>faut</span></h1>
-        <p class="hero-sub">Équipements tech, licences logiciels, accessoires créatifs — livrés partout en Tunisie.</p>
-        <div class="search-container">
-            <div class="search-wrap">
-                <i class="fa-solid fa-magnifying-glass"></i>
-                <input type="text" id="main-search-input" placeholder="Rechercher un produit, une marque…">
-            </div>
-            <button class="btn-search" id="main-search-btn"><i class="fa-solid fa-search"></i> Rechercher</button>
-        </div>
-        <div class="action-row" style="display:flex; align-items:center; gap:.75rem; margin-top:1.25rem; max-width:700px;">
-            <span style="color:#475569; font-size:.82rem;">
-                Vous vendez ? <strong style="color:#94A3B8; font-weight:500;">Déposez votre annonce gratuitement</strong>
-            </span>
-            <a href="vendreproduit.php" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap; text-decoration:none; transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                + Vendre un produit
-            </a>
-        </div>
-    </div>
-</section>
-
 <!-- MARKETPLACE LAYOUT -->
 <div class="marketplace-layout">
 
@@ -99,7 +73,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
         <!-- Card 1 : Profil marketplace -->
         <div class="mkt-profile-card">
             <div class="mkt-profile-header">
-                <div class="mkt-avatar"><i class="fa-solid fa-shop"></i></div>
+                <div class="mkt-avatar"><i class="fa-solid fa-store"></i></div>
                 <div class="mkt-profile-name">Marketplace</div>
                 <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
             </div>
@@ -122,7 +96,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
                 <a href="home.php" class="nav-item active">
-                    <i class="fa-solid fa-shop"></i> Tout parcourir
+                    <i class="fa-solid fa-store"></i> Tout parcourir
                 </a>
                 <a href="panier.php" class="nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Mon panier
@@ -130,7 +104,9 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <a href="mes_ventes.php" class="nav-item">
                     <i class="fa-solid fa-tag"></i> Mes ventes
                 </a>
-               
+                <a href="vendreproduit.php" class="nav-item">
+                    <i class="fa-solid fa-plus-circle"></i> Vendre un produit
+                </a>
             </div>
 
             <!-- Catégories -->
@@ -176,6 +152,32 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 
     <!-- ── MAIN PANEL ── -->
     <div class="mkt-main">
+
+        <!-- HERO -->
+        <section class="hero-banner" style="padding: 2rem 2rem 3rem;">
+            <div class="hero-glow"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content" style="max-width:750px; margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div class="hero-tag"><i class="fa-solid fa-bolt"></i> Marketplace Tunisia</div>
+                <h1 class="hero-title">Trouvez les outils<br>qu'il vous <span>faut</span></h1>
+                <p class="hero-sub">Équipements tech, licences logiciels, accessoires créatifs — livrés partout en Tunisie.</p>
+                <div class="search-container" style="justify-content: center; width: 100%;">
+                    <div class="search-wrap" style="flex: 1; max-width: 500px;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="main-search-input" placeholder="Rechercher un produit, une marque…">
+                    </div>
+                    <button class="btn-search" id="main-search-btn"><i class="fa-solid fa-search"></i> Rechercher</button>
+                </div>
+                <div class="action-row" style="display:flex; align-items:center; justify-content: center; gap:.75rem; margin-top:1.25rem; width: 100%;">
+                    <span style="color:#475569; font-size:.82rem;">
+                        Vous vendez ? <strong style="color:#94A3B8; font-weight:500;">Déposez votre annonce gratuitement</strong>
+                    </span>
+                    <a href="vendreproduit.php" style="display:inline-flex; align-items:center; gap:6px; background:transparent; color:#94A3B8; border:1px solid rgba(255,255,255,0.1); padding:8px 16px; border-radius:10px; font-size:.82rem; font-weight:500; white-space:nowrap; text-decoration:none; transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        + Vendre un produit
+                    </a>
+                </div>
+            </div>
+        </section>
 
         <!-- Toolbar -->
         <div class="products-toolbar">

@@ -6,7 +6,7 @@
     <title>Panier — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css?v=4">
+    <link rel="stylesheet" href="../assets/style.css?v=6">
     <style>
         .address-block { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .address-block label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -73,17 +73,6 @@
     </div>
 </nav>
 
-<!-- HERO compact -->
-<section class="hero-banner" style="padding:2rem 4rem 1.5rem;">
-    <div class="hero-glow"></div>
-    <div class="hero-glow-2"></div>
-    <div class="hero-content">
-        <div class="hero-tag"><i class="fa-solid fa-cart-shopping"></i> Mon panier</div>
-        <h1 class="hero-title" style="font-size:2rem;">Vos articles sélectionnés</h1>
-        <p class="hero-sub" style="font-size:.9rem;margin-bottom:0;">Vérifiez votre commande et confirmez votre achat.</p>
-    </div>
-</section>
-
 <!-- MARKETPLACE LAYOUT — même structure que home.php -->
 <div class="marketplace-layout">
 
@@ -116,7 +105,7 @@
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
                 <a href="home.php" class="nav-item">
-                    <i class="fa-solid fa-shop"></i> Tout parcourir
+                    <i class="fa-solid fa-store"></i> Tout parcourir
                 </a>
                 <a href="panier.php" class="nav-item active">
                     <i class="fa-solid fa-cart-shopping"></i> Mon panier
@@ -149,6 +138,17 @@
 
     <!-- ── MAIN PANEL ── -->
     <div class="mkt-main">
+
+        <!-- HERO compact -->
+        <section class="hero-banner" style="padding:2rem 2rem 1.5rem;">
+            <div class="hero-glow"></div>
+            <div class="hero-glow-2"></div>
+            <div class="hero-content" style="margin: 0 auto; text-align: center; display: flex; flex-direction: column; align-items: center;">
+                <div class="hero-tag"><i class="fa-solid fa-cart-shopping"></i> Mon panier</div>
+                <h1 class="hero-title" style="font-size:2rem;">Vos articles sélectionnés</h1>
+                <p class="hero-sub" style="font-size:.9rem;margin-bottom:0;">Vérifiez votre commande et confirmez votre achat.</p>
+            </div>
+        </section>
 
         <div class="products-toolbar">
             <p class="result-count"><strong id="cart-qty">0</strong> article(s) dans le panier</p>
@@ -187,7 +187,7 @@
             <h2>Votre panier est vide</h2>
             <p>Ajoutez des produits depuis la Marketplace puis revenez ici.</p>
             <a href="home.php" class="btn btn-primary" style="margin-top:1.5rem;display:inline-flex;">
-                <i class="fa-solid fa-shop"></i> Retour à la boutique
+                <i class="fa-solid fa-store"></i> Retour à la boutique
             </a>
         </div>
 

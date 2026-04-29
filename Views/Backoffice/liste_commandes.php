@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../controllers/commandeController.php';
 require_once __DIR__ . '/../../controllers/CommandeProduitController.php';
 

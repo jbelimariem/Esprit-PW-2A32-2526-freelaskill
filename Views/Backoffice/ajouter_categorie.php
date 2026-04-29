@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
 $categoryController = new Category_prodController();
