@@ -9,8 +9,31 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && !empty($_GET['id']))
     if ($currentContrat) {
         $isEdit = true;
     } else {
-        $errors[] = "Contrat introuvable.";
+        $errors['general'] = "Contrat introuvable.";
     }
+}
+
+$availableRules = getAvailableRulesForContrat($isEdit ? $id : null);
+$selectedRuleIds = [];
+if ($isEdit) {
+    foreach ($availableRules as $r) {
+        if ($r['id_contrat'] == $id) {
+            $selectedRuleIds[] = $r['id_rule'];
+        }
+    }
+}
+
+// Repopulate form on error
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
+    $currentContrat = [
+        'titre' => $_POST['titre'] ?? '',
+        'description' => $_POST['description'] ?? '',
+        'budget' => $_POST['budget'] ?? '',
+        'delai' => $_POST['delai'] ?? '',
+        'statut' => $_POST['statut'] ?? 'brouillon',
+        'id_contrat' => $_POST['id_contrat'] ?? null
+    ];
+    $selectedRuleIds = $_POST['selected_rules'] ?? [];
 }
 ?>
 <!DOCTYPE html>
@@ -127,7 +150,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && !empty($_GET['id']))
         <?php endif; ?>
 
         <section class="form-card animate-fade-up delay-2">
-            <form id="contratForm" method="post" action="admin_contrat_list.php" novalidate>
+            <form id="contratForm" method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" novalidate>
                 <input type="hidden" name="action" value="save">
                 <input type="hidden" name="redirect_to" value="admin_contrat_list.php">
                 <?php if ($isEdit): ?>
@@ -181,6 +204,26 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && !empty($_GET['id']))
                             ?>
                         </select>
                     </label>
+
+                    <div style="grid-column: span 2; margin-bottom: 1.5rem; margin-top: 1rem;">
+                        <span style="color: var(--text-muted); font-size: 0.95rem; display: block; margin-bottom: 0.8rem; font-weight: 500;">Sélectionner des règles existantes (Optionnel)</span>
+                        <div style="background: var(--input-bg, rgba(255,255,255,0.05)); border: 1px solid var(--border-color, rgba(255,255,255,0.1)); border-radius: 0.85rem; padding: 1rem; max-height: 200px; overflow-y: auto;">
+                            <?php if (empty($availableRules)): ?>
+                                <p style="color: var(--text-muted); font-size: 0.9rem; margin: 0;">Aucune règle disponible.</p>
+                            <?php else: ?>
+                                <?php foreach ($availableRules as $rule): ?>
+                                    <?php $checked = in_array($rule['id_rule'], $selectedRuleIds) ? 'checked' : ''; ?>
+                                    <label style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.8rem; cursor: pointer; font-weight: normal; color: var(--text-main, white);">
+                                        <input type="checkbox" name="selected_rules[]" value="<?php echo $rule['id_rule']; ?>" <?php echo $checked; ?> style="width: 1.2rem; height: 1.2rem; margin: 0; cursor: pointer;">
+                                        <?php echo htmlspecialchars($rule['titre'], ENT_QUOTES, 'UTF-8'); ?> <span style="color: var(--text-muted); font-size: 0.85rem;">(Type: <?php echo htmlspecialchars($rule['type'], ENT_QUOTES, 'UTF-8'); ?>)</span>
+                                    </label>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </div>
+                        <span style="font-size: 0.8rem; color: var(--text-muted); display: block; margin-top: 0.5rem;">
+                            Cochez les cases pour sélectionner plusieurs règles. Ces règles seront définitivement liées à ce contrat.
+                        </span>
+                    </div>
                 </div>
 
                 <button type="submit">

@@ -4,10 +4,71 @@ require_once __DIR__ . '/../Models/Contrat.php';
 
 // --- Fonctions de base de données ---
 
-function getAllContrats() {
+function getAllContrats($search = '', $sortBy = 'date_creation', $order = 'DESC') {
     $pdo = config::getConnexion();
-    $stmt = $pdo->query('SELECT * FROM contrat ORDER BY date_creation DESC');
+    
+    // Sécurisation des colonnes de tri
+    $allowedSortColumns = ['titre', 'budget', 'delai', 'statut', 'date_creation'];
+    $allowedOrders = ['ASC', 'DESC'];
+    
+    if (!in_array($sortBy, $allowedSortColumns)) {
+        $sortBy = 'date_creation';
+    }
+    if (!in_array(strtoupper($order), $allowedOrders)) {
+        $order = 'DESC';
+    }
+
+    if (!empty($search)) {
+        $stmt = $pdo->prepare("SELECT * FROM contrat WHERE titre LIKE :search OR description LIKE :search ORDER BY $sortBy $order");
+        $stmt->execute(['search' => '%' . $search . '%']);
+    } else {
+        $stmt = $pdo->query("SELECT * FROM contrat ORDER BY $sortBy $order");
+    }
+    
     return $stmt->fetchAll();
+}
+
+function getContratStatistics() {
+    $pdo = config::getConnexion();
+    
+    $stats = [
+        'total' => 0,
+        'total_budget' => 0,
+        'avg_budget' => 0,
+        'max_budget' => 0,
+        'min_budget' => 0,
+        'by_status' => [
+            'brouillon' => 0,
+            'en_attente' => 0,
+            'actif' => 0,
+            'termine' => 0,
+            'annule' => 0,
+            'archive' => 0
+        ]
+    ];
+
+    // Total contrats
+    $stmt = $pdo->query('SELECT COUNT(*) as total FROM contrat');
+    $stats['total'] = $stmt->fetch()['total'];
+
+    // Stats financières (Total, Moyen, Max, Min)
+    $stmt = $pdo->query('SELECT SUM(budget) as total_budget, AVG(budget) as avg_budget, MAX(budget) as max_budget, MIN(budget) as min_budget FROM contrat');
+    $fin = $stmt->fetch();
+    $stats['total_budget'] = $fin['total_budget'] ?? 0;
+    $stats['avg_budget'] = $fin['avg_budget'] ?? 0;
+    $stats['max_budget'] = $fin['max_budget'] ?? 0;
+    $stats['min_budget'] = $fin['min_budget'] ?? 0;
+
+    // Répartition par statut
+    $stmt = $pdo->query('SELECT statut, COUNT(*) as count FROM contrat GROUP BY statut');
+    $statusData = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+    
+    // Fusionner avec les clés par défaut pour s'assurer que toutes les clés existent
+    foreach ($statusData as $st => $count) {
+        $stats['by_status'][$st] = $count;
+    }
+
+    return $stats;
 }
 
 function getContratById(int $id) {
@@ -252,4 +313,9 @@ if ($action === 'edit' && $id !== null) {
     }
 }
 
-$contrats = getAllContrats();
+// Les valeurs de tri et recherche récupérées du GET pour l'affichage de la liste
+$searchQuery = $_GET['search'] ?? '';
+$sortBy = $_GET['sort'] ?? 'date_creation';
+$order = $_GET['order'] ?? 'DESC';
+
+$contrats = getAllContrats($searchQuery, $sortBy, $order);

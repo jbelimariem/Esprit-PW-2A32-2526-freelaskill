@@ -119,7 +119,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'type' => htmlspecialchars($type, ENT_QUOTES, 'UTF-8'),
             'valeur' => htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8'),
             'statut' => $statut,
-            'id_contrat' => $id_contrat
+            'id_contrat' => $id_contrat === '' ? null : $id_contrat
         ];
 
         if (!empty($_POST['id_rule'])) {
