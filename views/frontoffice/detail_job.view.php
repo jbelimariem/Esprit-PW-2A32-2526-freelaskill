@@ -173,14 +173,40 @@ $appStatutConfig = [
                             </div>
                             <div style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-user-tie" style="margin-right: 5px; opacity: 0.7;"></i> <?= htmlspecialchars($can->getJobTitle()) ?></div>
                         </div>
-                        <form method="POST" novalidate style="margin: 0; display: flex; gap: 8px;">
+                        <?php if ($can->getFreelancerId()): ?>
+                            <a href="cv.php?id=<?= $can->getFreelancerId() ?>" target="_blank" class="btn-action" style="background: rgba(59,130,246,0.1); color: var(--tech-blue); border: 1px solid rgba(59,130,246,0.3); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                                <i class="fa-solid fa-file-pdf" style="margin-right: 6px;"></i> Voir CV
+                            </a>
+                        <?php endif; ?>
+
+                        <form method="POST" novalidate style="margin: 0; display: flex; gap: 8px; align-items: center;">
                             <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
-                            <button type="submit" name="action_app" value="approved" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(16,185,129,0.3);">
-                                <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Approuver
-                            </button>
-                            <button type="submit" name="action_app" value="rejected" class="btn-action" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(239,68,68,0.3);">
-                                <i class="fa-solid fa-xmark" style="margin-right: 6px;"></i> Refuser
-                            </button>
+                            <?php $currentStatus = $can->getStatus() ?? 'pending'; ?>
+                            
+                            <?php if ($currentStatus === 'pending'): ?>
+                                <button type="submit" name="action_app" value="approved" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(16,185,129,0.3); display: inline-flex; align-items: center;">
+                                    <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Approuver
+                                </button>
+                                <button type="submit" name="action_app" value="rejected" class="btn-action" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(239,68,68,0.3); display: inline-flex; align-items: center;">
+                                    <i class="fa-solid fa-xmark" style="margin-right: 6px;"></i> Refuser
+                                </button>
+                                
+                            <?php elseif ($currentStatus === 'approved'): ?>
+                                <span style="font-weight: 700; color: #10b981; font-size: 0.95rem; margin-right: 8px;">
+                                    <i class="fa-solid fa-check-circle" style="margin-right: 4px;"></i> Accepté
+                                </span>
+                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                                    <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Annuler
+                                </button>
+                                
+                            <?php elseif ($currentStatus === 'rejected'): ?>
+                                <span style="font-weight: 700; color: #ef4444; font-size: 0.95rem; margin-right: 8px;">
+                                    <i class="fa-solid fa-ban" style="margin-right: 4px;"></i> Refusé
+                                </span>
+                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.3s ease; display: inline-flex; align-items: center;">
+                                    <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Annuler
+                                </button>
+                            <?php endif; ?>
                         </form>
                     </div>
                     <?php endforeach; ?>

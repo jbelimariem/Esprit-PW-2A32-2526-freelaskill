@@ -9,9 +9,16 @@ class ClientFreelancers {
         $this->pdo = config::getConnexion();
     }
 
-    public function getAllFreelancers() {
-        $stmt = $this->pdo->query("SELECT id, nom, prenom, email, linkedin_url, cv_url FROM users WHERE role = 'freelancer' ORDER BY nom ASC");
-        return $stmt->fetchAll();
+    public function getAllFreelancers($search = '') {
+        if (!empty($search)) {
+            $stmt = $this->pdo->prepare("SELECT id, nom, prenom, email, linkedin_url, cv_url FROM users WHERE role = 'freelancer' AND (nom LIKE ? OR prenom LIKE ? OR email LIKE ?) ORDER BY nom ASC");
+            $likeSearch = "%$search%";
+            $stmt->execute([$likeSearch, $likeSearch, $likeSearch]);
+            return $stmt->fetchAll();
+        } else {
+            $stmt = $this->pdo->query("SELECT id, nom, prenom, email, linkedin_url, cv_url FROM users WHERE role = 'freelancer' ORDER BY nom ASC");
+            return $stmt->fetchAll();
+        }
     }
 
     public function getFreelancerById($id) {

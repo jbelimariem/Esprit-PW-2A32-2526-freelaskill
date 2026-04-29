@@ -20,7 +20,13 @@ class Detail {
 
     // --- Applications ---
     public function getApplicationsByJobId($job_id) {
-        $stmt = $this->pdo->prepare("SELECT * FROM job_applications WHERE job_id = ? ORDER BY created_at DESC");
+        $stmt = $this->pdo->prepare("
+            SELECT ja.*, u.id AS freelancer_id 
+            FROM job_applications ja 
+            LEFT JOIN users u ON ja.email = u.email 
+            WHERE ja.job_id = ? 
+            ORDER BY ja.created_at DESC
+        ");
         $stmt->execute([$job_id]);
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $apps = [];

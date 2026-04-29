@@ -10,27 +10,30 @@ class JobApplication {
     private $job_title;
     private $status;
     private $created_at;
+    private $freelancer_id;
 
     private $pdo;
 
     public function __construct($data = []) {
         $this->pdo = config::getConnexion();
         if (!empty($data)) {
-            $this->id         = $data['id']         ?? null;
-            $this->job_id     = $data['job_id']     ?? null;
-            $this->name       = $data['name']       ?? '';
-            $this->job_title  = $data['job_title']  ?? '';
-            $this->status     = $data['status']     ?? 'pending';
-            $this->created_at = $data['created_at'] ?? null;
+            $this->id            = $data['id']            ?? null;
+            $this->job_id        = $data['job_id']        ?? null;
+            $this->name          = $data['name']          ?? '';
+            $this->job_title     = $data['job_title']     ?? '';
+            $this->status        = $data['status']        ?? 'pending';
+            $this->created_at    = $data['created_at']    ?? null;
+            $this->freelancer_id = $data['freelancer_id'] ?? null;
         }
     }
 
     // --- GETTERS ---
-    public function getId()        { return $this->id; }
-    public function getJobId()     { return $this->job_id; }
-    public function getName()      { return $this->name; }
-    public function getJobTitle()  { return $this->job_title; }
-    public function getStatus()    { return $this->status; }
-    public function getCreatedAt() { return $this->created_at; }
+    public function getId()           { return $this->id; }
+    public function getJobId()        { return $this->job_id; }
+    public function getName()         { return $this->name; }
+    public function getJobTitle()     { return $this->job_title; }
+    public function getStatus()       { return $this->status; }
+    public function getCreatedAt()    { return $this->created_at; }
+    public function getFreelancerId() { return $this->freelancer_id; }
 
 }

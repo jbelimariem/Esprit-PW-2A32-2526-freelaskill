@@ -30,22 +30,22 @@
 
 
 <div class="marketplace-layout">
-        <aside class="mkt-sidebar">
+    <aside class="mkt-sidebar">
         <!-- Card 1 : Profil marketplace -->
         <div class="mkt-profile-card">
             <div class="mkt-profile-header">
-                <div class="mkt-avatar"><i class="fa-solid fa-building"></i></div>
-                <div class="mkt-profile-name">Espace Client</div>
+                <div class="mkt-avatar"><i class="fa-solid fa-store"></i></div>
+                <div class="mkt-profile-name">Espace Freelancer</div>
                 <div class="mkt-profile-sub">FreelaSkill Tunisia</div>
             </div>
             <div class="mkt-profile-stats">
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">3</div>
-                    <div class="mkt-stat-label">OFFRES</div>
+                    <div class="mkt-stat-val">12</div>
+                    <div class="mkt-stat-label">MISSIONS</div>
                 </div>
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">8</div>
-                    <div class="mkt-stat-label">CANDIDATS</div>
+                    <div class="mkt-stat-val">5</div>
+                    <div class="mkt-stat-label">POSTULÉES</div>
                 </div>
             </div>
         </div>
@@ -54,17 +54,17 @@
         <div class="mkt-sidebar-card">
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
-                <a href="home.php" class="nav-item ">
-                    <i class="fa-solid fa-list-ul"></i> Mes Offres
+                <a href="freelancer_home.php" class="nav-item active">
+                    <i class="fa-solid fa-briefcase"></i> Missions
                 </a>
-                <a href="add_job.php" class="nav-item ">
-                    <i class="fa-solid fa-plus-circle"></i> Nouveau Offre
+                <a href="freelancer_applications.php" class="nav-item ">
+                    <i class="fa-solid fa-paper-plane"></i> Candidatures
                 </a>
-                <a href="client_freelancers.php" class="nav-item active">
-                    <i class="fa-solid fa-users"></i> Freelancers
-                </a>
-                <a href="#" id="download-pdf-home" class="nav-item">
+                <a href="#" id="export-pdf" class="nav-item">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </a>
+                <a href="home.php" class="nav-item danger">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
                 </a>
             </div>
         </div>

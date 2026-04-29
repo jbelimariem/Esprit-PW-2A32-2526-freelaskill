@@ -138,6 +138,14 @@
                 <div class="hero-tag" style="margin: 0 auto 1.5rem;"><i class="fa-solid fa-star"></i> Talents</div>
                 <h1 class="hero-title">Découvrez nos <span>Freelancers</span></h1>
                 <p class="hero-sub" style="margin-left: auto; margin-right: auto;">Consultez la liste des talents ayant postulé sur la plateforme.</p>
+                
+                <form class="search-container" method="GET" action="client_freelancers.php" style="margin: 2rem auto 0; max-width: 600px;">
+                    <div class="search-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" name="q" placeholder="Rechercher par nom, prénom ou email..." value="<?= htmlspecialchars($q ?? '') ?>">
+                    </div>
+                    <button type="submit" class="btn-search">Rechercher</button>
+                </form>
             </div>
         </section>
 
