@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Rule.php';
+require_once __DIR__ . '/../Models/BadWordsService.php';
 
 // --- Fonctions de base de données ---
 
@@ -18,24 +19,42 @@ function getRuleById(int $id) {
     return $rule === false ? null : $rule;
 }
 
+function getRulesByContratTitre(string $titre_contrat) {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->prepare('SELECT * FROM rules WHERE titre_contrat = :titre_contrat ORDER BY date_creation DESC');
+    $stmt->execute(['titre_contrat' => $titre_contrat]);
+    return $stmt->fetchAll();
+}
+
+// Alias conservé pour compatibilité — utilise maintenant titre_contrat
+function getRulesByContratId(int $id_contrat) {
+    $pdo = config::getConnexion();
+    // Récupère le titre du contrat puis cherche les règles par titre
+    require_once __DIR__ . '/../config.php';
+    $stmt = $pdo->prepare('SELECT titre FROM contrat WHERE id_contrat = :id');
+    $stmt->execute(['id' => $id_contrat]);
+    $row = $stmt->fetch();
+    if (!$row) return [];
+    return getRulesByContratTitre($row['titre']);
+}
+
 function createRule(array $data) {
     $pdo = config::getConnexion();
     $stmt = $pdo->prepare(
-        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, id_contrat) VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :id_contrat)'
+        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat) VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
     );
     return $stmt->execute([
-        'titre' => $data['titre'],
-        'description' => $data['description'],
-        'type' => $data['type'],
-        'valeur' => $data['valeur'],
-        'statut' => $data['statut'],
-        'id_contrat' => $data['id_contrat']
+        'titre'         => $data['titre'],
+        'description'   => $data['description'],
+        'type'          => $data['type'],
+        'valeur'        => $data['valeur'],
+        'statut'        => $data['statut'],
+        'titre_contrat' => $data['titre_contrat'] ?? null,
     ]);
 }
 
 function updateRule(int $id, array $data) {
     $pdo = config::getConnexion();
-    // On met à jour seulement les champs fournis dans $data
     $fields = [];
     foreach ($data as $key => $value) {
         $fields[] = "$key = :$key";
@@ -60,12 +79,12 @@ $currentRule = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitisation des entrées
-    $type = filter_var(trim($_POST['type'] ?? ''), FILTER_SANITIZE_STRING);
-    $titre = filter_var(trim($_POST['titre'] ?? ''), FILTER_SANITIZE_STRING);
-    $description = filter_var(trim($_POST['description'] ?? ''), FILTER_SANITIZE_STRING);
-    $valeur = filter_var(trim($_POST['valeur'] ?? ''), FILTER_SANITIZE_STRING);
-    $statut = filter_var(trim($_POST['statut'] ?? ''), FILTER_SANITIZE_STRING);
-    $id_contrat = filter_var(trim($_POST['id_contrat'] ?? ''), FILTER_SANITIZE_STRING);
+    $type           = filter_var(trim($_POST['type']           ?? ''), FILTER_SANITIZE_STRING);
+    $titre          = filter_var(trim($_POST['titre']          ?? ''), FILTER_SANITIZE_STRING);
+    $description    = filter_var(trim($_POST['description']    ?? ''), FILTER_SANITIZE_STRING);
+    $valeur         = filter_var(trim($_POST['valeur']         ?? ''), FILTER_SANITIZE_STRING);
+    $statut         = filter_var(trim($_POST['statut']         ?? ''), FILTER_SANITIZE_STRING);
+    $titre_contrat  = filter_var(trim($_POST['titre_contrat']  ?? ''), FILTER_SANITIZE_STRING);
 
     // Validation des champs requis
     if (empty($titre)) {
@@ -80,25 +99,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['description'] = 'La description ne peut pas dépasser 1000 caractères.';
     }
 
-    // Validation du type (optionnel mais limité)
     if (!empty($type) && strlen($type) > 100) {
         $errors['type'] = 'Le type ne peut pas dépasser 100 caractères.';
     }
 
-    // Validation de la valeur (optionnel)
     if (!empty($valeur) && strlen($valeur) > 500) {
         $errors['valeur'] = 'La valeur ne peut pas dépasser 500 caractères.';
     }
 
-    // Validation du statut
     $validStatuts = ['actif', 'inactif'];
     if (!empty($statut) && !in_array($statut, $validStatuts)) {
         $errors['statut'] = 'Le statut doit être "actif" ou "inactif".';
     }
 
-    // Validation de l'ID contrat (optionnel, doit être numérique si fourni)
-    if (!empty($id_contrat) && !is_numeric($id_contrat)) {
-        $errors['id_contrat'] = 'L\'ID contrat doit être un nombre.';
+    if (!empty($titre_contrat) && strlen($titre_contrat) > 255) {
+        $errors['titre_contrat'] = 'Le titre du contrat ne peut pas dépasser 255 caractères.';
+    }
+
+    // ── Vérification Bad Words (API) ──────────────────────────────────
+    if (empty($errors)) {
+        $badWords = new BadWordsService();
+        $bwResult = $badWords->checkFields([
+            'titre'       => $titre,
+            'description' => $description,
+        ]);
+        if (!$bwResult['is_clean']) {
+            foreach ($bwResult['errors'] as $field => $msg) {
+                $errors[$field] = $msg;
+            }
+        }
     }
 
     // Vérification des doublons pour le titre (si création)
@@ -114,12 +143,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $data = [
-            'titre' => htmlspecialchars($titre, ENT_QUOTES, 'UTF-8'),
-            'description' => htmlspecialchars($description, ENT_QUOTES, 'UTF-8'),
-            'type' => htmlspecialchars($type, ENT_QUOTES, 'UTF-8'),
-            'valeur' => htmlspecialchars($valeur, ENT_QUOTES, 'UTF-8'),
-            'statut' => $statut,
-            'id_contrat' => $id_contrat === '' ? null : $id_contrat
+            'titre'         => htmlspecialchars($titre,         ENT_QUOTES, 'UTF-8'),
+            'description'   => htmlspecialchars($description,   ENT_QUOTES, 'UTF-8'),
+            'type'          => htmlspecialchars($type,          ENT_QUOTES, 'UTF-8'),
+            'valeur'        => htmlspecialchars($valeur,        ENT_QUOTES, 'UTF-8'),
+            'statut'        => $statut,
+            'titre_contrat' => $titre_contrat === '' ? null : htmlspecialchars($titre_contrat, ENT_QUOTES, 'UTF-8'),
         ];
 
         if (!empty($_POST['id_rule'])) {
@@ -133,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (createRule($data)) {
                 $successMessage = 'Règle ajoutée avec succès.';
             } else {
-                $errors['general'] = 'Impossible d’ajouter la règle.';
+                $errors['general'] = 'Impossible d\'ajouter la règle.';
             }
         }
     }
@@ -167,7 +196,7 @@ if ($action === 'edit' && $id !== null) {
     $currentRule = getRuleById($id);
     if (!$currentRule) {
         $errors['general'] = 'Règle introuvable.';
-        $action = 'list'; // Revenir à la liste si la règle n'existe pas
+        $action = 'list';
     }
 }
 

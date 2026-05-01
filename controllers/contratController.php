@@ -1,6 +1,24 @@
 <?php
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Contrat.php';
+require_once __DIR__ . '/../Models/BadWordsService.php';
+
+// Need createRule for AI-suggested rules
+function createRule(array $data) {
+    $pdo = config::getConnexion();
+    $stmt = $pdo->prepare(
+        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat)
+         VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
+    );
+    return $stmt->execute([
+        'titre'         => $data['titre'],
+        'description'   => $data['description'],
+        'type'          => $data['type']          ?? 'Général',
+        'valeur'        => $data['valeur']         ?? '',
+        'statut'        => $data['statut']         ?? 'actif',
+        'titre_contrat' => $data['titre_contrat']  ?? null,
+    ]);
+}
 
 // --- Fonctions de base de données ---
 
@@ -120,35 +138,26 @@ function updateContrat(int $id, array $data) {
 
 function deleteContrat(int $id) {
     $pdo = config::getConnexion();
-    // Libérer les règles associées avant la suppression
-    $stmt = $pdo->prepare('UPDATE rules SET id_contrat = NULL WHERE id_contrat = :id');
-    $stmt->execute(['id' => $id]);
-    
+    // Libérer les règles associées avant la suppression (on efface le titre_contrat correspondant)
+    $contrat = getContratById($id);
+    if ($contrat) {
+        $stmt = $pdo->prepare('UPDATE rules SET titre_contrat = NULL WHERE titre_contrat = :titre');
+        $stmt->execute(['titre' => $contrat['titre']]);
+    }
+
     $stmt = $pdo->prepare('DELETE FROM contrat WHERE id_contrat = :id');
     return $stmt->execute(['id' => $id]);
 }
 
 function assignRulesToContrat($contratId, $ruleIds) {
-    $pdo = config::getConnexion();
-    $stmt = $pdo->prepare('UPDATE rules SET id_contrat = NULL WHERE id_contrat = :id');
-    $stmt->execute(['id' => $contratId]);
-    
-    if (!empty($ruleIds) && is_array($ruleIds)) {
-        $inQuery = implode(',', array_fill(0, count($ruleIds), '?'));
-        $stmt = $pdo->prepare("UPDATE rules SET id_contrat = ? WHERE id_rule IN ($inQuery)");
-        $params = array_merge([$contratId], $ruleIds);
-        $stmt->execute($params);
-    }
+    // Cette fonction n'est plus utilisée car les règles sont liées par titre_contrat
+    // Conservée pour compatibilité ascendante
 }
 
 function getAvailableRulesForContrat($contratId = null) {
     $pdo = config::getConnexion();
-    if ($contratId) {
-        $stmt = $pdo->prepare('SELECT * FROM rules WHERE id_contrat IS NULL OR id_contrat = :id');
-        $stmt->execute(['id' => $contratId]);
-    } else {
-        $stmt = $pdo->query('SELECT * FROM rules WHERE id_contrat IS NULL');
-    }
+    // Retourne toutes les règles (sans filtre sur id_contrat qui n'existe plus)
+    $stmt = $pdo->query('SELECT * FROM rules ORDER BY date_creation DESC');
     return $stmt->fetchAll();
 }
 
@@ -212,6 +221,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['signature_freelance'] = 'La signature du freelancer est obligatoire.';
     }
 
+    // ── Vérification Bad Words (API) ──────────────────────────────────
+    if (empty($errors)) {
+        $badWords = new BadWordsService();
+        $bwResult = $badWords->checkFields([
+            'titre'          => $titre,
+            'description'    => $description,
+            'freelance_info' => $freelance_info,
+        ]);
+        if (!$bwResult['is_clean']) {
+            foreach ($bwResult['errors'] as $field => $msg) {
+                $errors[$field] = $msg;
+            }
+        }
+    }
+
     // Vérification de l'unicité du titre (Optionnel, mais bonne pratique)
     $existingContrats = getAllContrats();
     $currentId = !empty($_POST['id_contrat']) ? intval($_POST['id_contrat']) : null;
@@ -251,6 +275,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newId = createContrat($data);
             if ($newId) {
                 assignRulesToContrat($newId, $selected_rules);
+
+                // ── Sauvegarder les règles suggérées par l'IA ──────────
+                if (!empty($_POST['suggested_rules_json'])) {
+                    $suggestedRules = json_decode($_POST['suggested_rules_json'], true);
+                    if (is_array($suggestedRules)) {
+                        $contratTitre = $data['titre'];
+                        foreach ($suggestedRules as $sr) {
+                            if (!empty($sr['titre']) && !empty($sr['description'])) {
+                                createRule([
+                                    'titre'         => htmlspecialchars($sr['titre'],       ENT_QUOTES, 'UTF-8'),
+                                    'description'   => htmlspecialchars($sr['description'], ENT_QUOTES, 'UTF-8'),
+                                    'type'          => htmlspecialchars($sr['type']   ?? 'Général', ENT_QUOTES, 'UTF-8'),
+                                    'valeur'        => htmlspecialchars($sr['valeur'] ?? '',         ENT_QUOTES, 'UTF-8'),
+                                    'statut'        => 'actif',
+                                    'titre_contrat' => $contratTitre,
+                                ]);
+                            }
+                        }
+                    }
+                }
+
                 if (!empty($_POST['redirect_to'])) {
                     header('Location: ' . $_POST['redirect_to'] . '?success=create');
                     exit;

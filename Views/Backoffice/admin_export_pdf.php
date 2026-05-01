@@ -77,25 +77,132 @@ if (isset($_GET['id'])) {
     
     $pdf->Ln(10);
     
+    // Règles associées
+    require_once __DIR__ . '/../../controllers/ruleController.php';
+    $rules = getRulesByContratId($id);
+    
+    if (!empty($rules)) {
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->SetFillColor(240, 240, 240);
+        $pdf->Cell(0, 8, ' Regles Associees', 0, 1, 'L', true);
+        $pdf->Ln(3);
+
+        foreach ($rules as $index => $r) {
+            // Numéro + titre de la règle
+            $pdf->SetFont('Arial', 'B', 11);
+            $pdf->SetFillColor(230, 238, 255);
+            $r_titre = iconv('UTF-8', 'windows-1252//TRANSLIT', ($index + 1) . '. ' . $r['titre']);
+            $pdf->Cell(0, 8, $r_titre, 0, 1, 'L', true);
+
+            // Type et valeur sur une ligne
+            $pdf->SetFont('Arial', '', 10);
+            $pdf->SetFillColor(255, 255, 255);
+            if (!empty($r['type'])) {
+                $pdf->Cell(40, 6, 'Type :', 0, 0);
+                $pdf->Cell(0, 6, iconv('UTF-8', 'windows-1252//TRANSLIT', $r['type']), 0, 1);
+            }
+            if (!empty($r['valeur'])) {
+                $pdf->Cell(40, 6, 'Valeur :', 0, 0);
+                $pdf->Cell(0, 6, iconv('UTF-8', 'windows-1252//TRANSLIT', $r['valeur']), 0, 1);
+            }
+
+            // Statut
+            $pdf->Cell(40, 6, 'Statut :', 0, 0);
+            $pdf->Cell(0, 6, ucfirst($r['statut']), 0, 1);
+
+            // Description détaillée
+            if (!empty($r['description'])) {
+                $pdf->SetFont('Arial', 'I', 10);
+                $pdf->SetTextColor(60, 60, 60);
+                $pdf->Cell(40, 6, 'Description :', 0, 1);
+                $r_desc = iconv('UTF-8', 'windows-1252//TRANSLIT', $r['description']);
+                $pdf->MultiCell(0, 5, $r_desc, 0, 'L');
+                $pdf->SetTextColor(0, 0, 0);
+            }
+
+            $pdf->Ln(4);
+        }
+
+        $pdf->Ln(4);
+        $pdf->SetFillColor(240, 240, 240);
+    } else {
+        $pdf->SetFont('Arial', 'B', 12);
+        $pdf->SetFillColor(240, 240, 240);
+        $pdf->Cell(0, 8, ' Regles Associees', 0, 1, 'L', true);
+        $pdf->Ln(2);
+        $pdf->SetFont('Arial', 'I', 10);
+        $pdf->SetTextColor(128, 128, 128);
+        $pdf->Cell(0, 7, 'Aucune regle associee a ce contrat.', 0, 1);
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->Ln(5);
+        $pdf->SetFillColor(240, 240, 240);
+    }
+
     // Intervenants et signatures
     $pdf->SetFont('Arial', 'B', 12);
+    $pdf->SetFillColor(240, 240, 240);
     $pdf->Cell(0, 8, ' Intervenants & Signatures', 0, 1, 'L', true);
     $pdf->Ln(2);
     $pdf->SetFont('Arial', '', 11);
-    
+    $pdf->SetTextColor(0, 0, 0);
+
     $pdf->Cell(50, 7, 'Freelancer:', 0, 0);
-    $pdf->Cell(0, 7, iconv('UTF-8', 'windows-1252', $contrat['freelance_info']), 0, 1);
-    
-    $pdf->Ln(10);
-    
-    // Bloc signatures
-    $pdf->Cell(95, 10, 'Signature Client:', 0, 0);
-    $pdf->Cell(95, 10, 'Signature Freelancer:', 0, 1);
-    
-    $pdf->SetFont('Arial', 'I', 11);
-    $pdf->SetTextColor(50, 50, 200);
-    $pdf->Cell(95, 10, iconv('UTF-8', 'windows-1252', $contrat['signature_client']), 0, 0);
-    $pdf->Cell(95, 10, iconv('UTF-8', 'windows-1252', $contrat['signature_freelance']), 0, 1);
+    $pdf->Cell(0, 7, iconv('UTF-8', 'windows-1252//TRANSLIT', $contrat['freelance_info'] ?? ''), 0, 1);
+
+    $pdf->Ln(8);
+
+    // Fonction helper pour décoder et sauvegarder une signature base64 en fichier temp
+    $saveSigToTemp = function($dataUrl) {
+        if (empty($dataUrl) || strpos($dataUrl, 'data:image/') !== 0) return null;
+        $parts = explode(',', $dataUrl, 2);
+        if (count($parts) < 2) return null;
+        $imgData = base64_decode($parts[1]);
+        if (!$imgData) return null;
+        $tmpFile = tempnam(sys_get_temp_dir(), 'sig_') . '.png';
+        file_put_contents($tmpFile, $imgData);
+        return $tmpFile;
+    };
+
+    // Titres des colonnes signatures
+    $pdf->SetFont('Arial', 'B', 11);
+    $pdf->Cell(95, 7, 'Signature Client', 0, 0, 'C');
+    $pdf->Cell(95, 7, 'Signature Freelancer', 0, 1, 'C');
+    $pdf->Ln(2);
+
+    $sigClientFile    = $saveSigToTemp($contrat['signature_client'] ?? '');
+    $sigFreelanceFile = $saveSigToTemp($contrat['signature_freelance'] ?? '');
+
+    $sigY = $pdf->GetY();
+    $sigH = 35; // hauteur de la zone signature
+
+    // Cadre client
+    $pdf->Rect(10, $sigY, 90, $sigH);
+    if ($sigClientFile) {
+        $pdf->Image($sigClientFile, 12, $sigY + 2, 86, $sigH - 4);
+        @unlink($sigClientFile);
+    } else {
+        $pdf->SetFont('Arial', 'I', 9);
+        $pdf->SetTextColor(150, 150, 150);
+        $pdf->SetXY(10, $sigY + ($sigH / 2) - 3);
+        $pdf->Cell(90, 6, 'Non signe', 0, 0, 'C');
+        $pdf->SetTextColor(0, 0, 0);
+    }
+
+    // Cadre freelancer
+    $pdf->Rect(105, $sigY, 90, $sigH);
+    if ($sigFreelanceFile) {
+        $pdf->Image($sigFreelanceFile, 107, $sigY + 2, 86, $sigH - 4);
+        @unlink($sigFreelanceFile);
+    } else {
+        $pdf->SetFont('Arial', 'I', 9);
+        $pdf->SetTextColor(150, 150, 150);
+        $pdf->SetXY(105, $sigY + ($sigH / 2) - 3);
+        $pdf->Cell(90, 6, 'Non signe', 0, 0, 'C');
+        $pdf->SetTextColor(0, 0, 0);
+    }
+
+    $pdf->SetY($sigY + $sigH + 5);
+    $pdf->Ln(5);
     
     $pdf->Output('I', 'Contrat_' . $id . '.pdf');
 

@@ -9,16 +9,16 @@ class Rule
     private $valeur;
     private $date_creation;
     private $statut;
-    private $id_contrat;
+    private $titre_contrat;
 
-    public function __construct($titre = '', $description = '', $type = '', $valeur = '', $statut = '', $id_contrat = null)
+    public function __construct($titre = '', $description = '', $type = '', $valeur = '', $statut = '', $titre_contrat = null)
     {
         $this->titre = $titre;
         $this->description = $description;
         $this->type = $type;
         $this->valeur = $valeur;
         $this->statut = $statut;
-        $this->id_contrat = $id_contrat;
+        $this->titre_contrat = $titre_contrat;
     }
 
     public function getIdRule() { return $this->id_rule; }
@@ -42,6 +42,6 @@ class Rule
     public function getStatut() { return $this->statut; }
     public function setStatut($statut) { $this->statut = $statut; }
 
-    public function getIdContrat() { return $this->id_contrat; }
-    public function setIdContrat($id_contrat) { $this->id_contrat = $id_contrat; }
+    public function getTitreContrat() { return $this->titre_contrat; }
+    public function setTitreContrat($titre_contrat) { $this->titre_contrat = $titre_contrat; }
 }

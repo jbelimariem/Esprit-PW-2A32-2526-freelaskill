@@ -1,68 +1,99 @@
-<?php
-// admin_contrat.php - Menu central pour les contrats
-?>
+<?php $activePage = 'contrats'; ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: dark;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Gestion des Contrats</title>
-    <link rel="stylesheet" href="../Frontoffice/css/style.css">
+    <title>Admin — Gestion des Contrats · FreelaSkill</title>
+    <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { display: flex; min-height: 100vh; background: #03060E; overflow-x: hidden; font-family: 'Inter', sans-serif; }
-        .sidebar { width: 280px; background: rgba(17, 24, 39, 0.4); border-right: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(20px); flex-shrink: 0; padding: 2rem 0; display: flex; flex-direction: column; position: fixed; height: 100vh; z-index: 100; }
-        .main-panel { margin-left: 280px; flex: 1; padding: 3rem 4rem; position: relative; }
-        .nav-item { padding: 1rem 2rem; color: var(--text-muted); display: flex; align-items: center; gap: 1rem; cursor: pointer; transition: var(--transition); font-size: 0.95rem; font-weight: 500; text-decoration: none; }
-        .nav-item:hover, .nav-item.active { background: rgba(37,99,235,0.1); color: white; border-right: 4px solid var(--tech-blue); }
-        .menu-container { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 24px; padding: 3rem; margin-top: 2rem; max-width: 800px; width: 100%; margin-left: auto; margin-right: auto; }
-        .action-button { 
-            display: block; width: 100%; padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 999px; text-align: center; font-size: 1.1rem; font-weight: 600; text-decoration: none; transition: all 0.3s ease; 
-        }
-        .btn-primary-action { background: #2563EB; color: white; box-shadow: 0 4px 14px 0 rgba(37, 99, 235, 0.39); }
-        .btn-primary-action:hover { background: #1D4ED8; transform: translateY(-2px); }
-        .btn-secondary-action { background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); }
-        .btn-secondary-action:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-    </style>
+    <script src="css/admin.js" defer></script>
 </head>
 <body>
-    <aside class="sidebar animate-fade-up">
-        <div style="padding: 0 2rem; margin-bottom: 3rem;">
-            <div class="logo">
-                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
-                Freela<span>Skill</span>
+
+<?php include __DIR__ . '/partials/sidebar.php'; ?>
+
+<!-- Glow décoratif -->
+<div class="glow-orb" style="width:500px;height:500px;background:#2563EB;top:-100px;right:-100px;"></div>
+<div class="glow-orb" style="width:400px;height:400px;background:#EF4444;bottom:-100px;left:100px;"></div>
+
+<main class="admin-main">
+
+    <!-- Topbar -->
+    <div class="admin-topbar animate-in">
+        <div>
+            <div class="admin-breadcrumb">
+                <i class="fa-solid fa-house"></i>
+                <span class="sep">/</span>
+                <span class="current">Gestion des Contrats</span>
             </div>
-            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v3.0</p>
+            <h1 class="admin-page-title">Gestion des <span>Contrats</span></h1>
         </div>
-        <a href="admin_dashboard.html" class="nav-item"><i class="fa-solid fa-cube w-5"></i> Dashboard Central</a>
-        <a href="admin_approbations.html" class="nav-item"><i class="fa-solid fa-check-double w-5"></i> Validations</a>
-        <a href="admin_litiges.html" class="nav-item"><i class="fa-solid fa-scale-balanced w-5"></i> Litiges</a>
-        <a href="admin_archivage.html" class="nav-item"><i class="fa-solid fa-box-archive w-5"></i> Archivage</a>
-        <a href="admin_rules_list.php" class="nav-item"><i class="fa-solid fa-gavel w-5"></i> Gestion des règles</a>
-        <a href="admin_contrat.php" class="nav-item active"><i class="fa-solid fa-file-contract w-5"></i> Gestion des contrats</a>
-    </aside>
-
-    <main class="main-panel">
-        <div class="hero-glow-bg-2" style="top: 0; right: 0; opacity: 0.5;"></div>
-
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem;" class="animate-fade-up delay-1">
-            <h1 style="font-size: 2.5rem; color: white; margin-bottom: 0.5rem;">Gestion des <span style="color: var(--tech-blue)">contrats</span></h1>
-            <div style="display: flex; align-items: center; gap: 1rem; background: rgba(255,255,255,0.05); padding: 0.5rem 1rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.05);">
-                <i class="fa-solid fa-user-shield" style="color: var(--tech-blue);"></i> <span style="font-size: 0.85rem; color: var(--text-muted);">SuperAdmin Connecté</span>
+        <div class="topbar-actions">
+            <div class="admin-badge">
+                <i class="fa-solid fa-user-shield"></i>
+                SuperAdmin
             </div>
-        </header>
+        </div>
+    </div>
 
-        <section class="menu-container animate-fade-up delay-2">
-            <div style="text-align: center; margin-bottom: 2rem;">
-                <p style="color: var(--text-muted);">Sélectionnez votre action : créer un nouveau contrat ou consulter la liste.</p>
+    <!-- Menu cards -->
+    <div class="menu-grid animate-in delay-1">
+
+        <a href="admin_contrat_form.php" class="menu-card" style="--card-glow: rgba(37,99,235,0.12);">
+            <div class="menu-card-icon" style="background:rgba(37,99,235,0.12); color:var(--tech-blue);">
+                <i class="fa-solid fa-file-signature"></i>
             </div>
-            <a href="admin_contrat_form.php" class="action-button btn-primary-action">
-                Créer un nouveau contrat
-            </a>
-            <a href="admin_contrat_list.php" class="action-button btn-secondary-action">
-                Voir la liste des contrats
-            </a>
-        </section>
-    </main>
+            <div>
+                <div class="menu-card-title">Créer un Contrat</div>
+                <div class="menu-card-desc">Rédigez un nouveau contrat en définissant le budget, le délai, les règles et les conditions d'engagement.</div>
+            </div>
+            <div class="menu-card-arrow" style="color:var(--tech-blue);">
+                Commencer <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </a>
+
+        <a href="admin_contrat_list.php" class="menu-card" style="--card-glow: rgba(16,185,129,0.12);">
+            <div class="menu-card-icon" style="background:rgba(16,185,129,0.12); color:#10B981;">
+                <i class="fa-solid fa-folder-open"></i>
+            </div>
+            <div>
+                <div class="menu-card-title">Liste des Contrats</div>
+                <div class="menu-card-desc">Consultez, filtrez et gérez tous les contrats de la plateforme. Exportez en PDF ou archivez.</div>
+            </div>
+            <div class="menu-card-arrow" style="color:#10B981;">
+                Voir la liste <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </a>
+
+        <a href="admin_rules_list.php" class="menu-card" style="--card-glow: rgba(168,85,247,0.12);">
+            <div class="menu-card-icon" style="background:rgba(168,85,247,0.12); color:#A855F7;">
+                <i class="fa-solid fa-gavel"></i>
+            </div>
+            <div>
+                <div class="menu-card-title">Gestion des Règles</div>
+                <div class="menu-card-desc">Définissez et gérez les règles, clauses et conditions qui s'appliquent aux contrats.</div>
+            </div>
+            <div class="menu-card-arrow" style="color:#A855F7;">
+                Gérer les règles <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </a>
+
+        <a href="admin_export_pdf.php?action=export_all" class="menu-card" target="_blank" style="--card-glow: rgba(245,158,11,0.12);">
+            <div class="menu-card-icon" style="background:rgba(245,158,11,0.12); color:#F59E0B;">
+                <i class="fa-solid fa-file-pdf"></i>
+            </div>
+            <div>
+                <div class="menu-card-title">Export PDF Global</div>
+                <div class="menu-card-desc">Exportez la liste complète de tous les contrats en un seul fichier PDF.</div>
+            </div>
+            <div class="menu-card-arrow" style="color:#F59E0B;">
+                Exporter <i class="fa-solid fa-arrow-right"></i>
+            </div>
+        </a>
+
+    </div>
+
+</main>
 </body>
 </html>

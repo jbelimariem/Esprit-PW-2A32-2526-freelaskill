@@ -1,14 +1,276 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Nunito', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f6f9fb; color: #1f2d3a; }
-.topbar { background: #1a5f47; color: #fff; padding: 20px; border-radius: 0 0 10px 10px; margin-bottom: 15px; }
-.topbar p { margin-top: 8px; opacity: 0.95; }
-.nav { display: flex; gap: 10px; padding: 0 16px 16px; margin-bottom: 8px; }
-.nav button { padding: 10px 14px; border: 1px solid #9abfc2; background: #fff; border-radius: 8px; cursor: pointer; }
-.nav button.active { border-color: #1a5f47; background: #e5f4ee; }
-main { padding: 0 16px 24px; }
-.panel { background: #fff; border: 1px solid #d6e4e8; border-radius: 10px; padding: 14px; margin-bottom: 16px; }
-.section-title { color: #1a5f47; }
-.table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-.table th, .table td { padding: 10px; border: 1px solid #dce9ea; }
-.table th { background: #f2faf7; text-align: left; }
-@media (max-width: 768px) { .nav { flex-wrap: wrap; } }
+body { font-family: 'Space Grotesk', sans-serif; background: var(--bg-dark); color: white; }
+.sidebar { width: 280px; min-height: 100vh; background: rgba(2, 6, 23, 0.92); border-right: 1px solid rgba(255,255,255,0.08); padding: 2rem 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; position: sticky; top: 0; }
+.sidebar .logo { display: flex; align-items: center; gap: 0.75rem; font-size: 1.4rem; font-weight: 700; }
+.sidebar .logo span { color: var(--tech-blue); }
+.sidebar p { color: var(--text-muted); font-size: 0.85rem; line-height: 1.6; }
+.nav-item { color: var(--text-muted); display: flex; align-items: center; gap: 0.85rem; padding: 1rem 1.25rem; border-radius: var(--radius-md); cursor: pointer; transition: var(--transition); border: 1px solid transparent; }
+.nav-item:hover, .nav-item.active { background: rgba(59,130,246,0.14); color: white; border-color: rgba(59,130,246,0.35); }
+.main-panel { flex: 1; padding: 2rem 3rem; min-height: 100vh; }
+.metric-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-lg); box-shadow: 0 28px 70px rgba(0,0,0,0.14); }
+.metric-card::after { content: ''; position: absolute; top: 0; right: 0; width: 130px; height: 130px; background: radial-gradient(circle, rgba(59,130,246,0.18), transparent 60%); opacity: 0.1; filter: blur(24px); }
+.admin-card { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); }
+.admin-grid { display: grid; gap: 1.75rem; grid-template-columns: minmax(300px, 1fr) 1.4fr; }
+.admin-section { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: var(--radius-lg); padding: 1.5rem; }
+.section-title { font-size: 1.05rem; color: white; margin-bottom: 1rem; letter-spacing: 0.03em; }
+.category-form { display: grid; gap: 1rem; }
+.category-form label { color: var(--text-muted); font-size: 0.9rem; }
+.category-form input,
+.category-form textarea { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-md); color: white; padding: 1rem; font-family: 'Space Grotesk', sans-serif; font-size: 0.95rem; }
+.category-form textarea { min-height: 140px; resize: vertical; }
+.data-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.02); }
+.data-table th,
+.data-table td { padding: 1rem 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+.data-table thead th { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.78rem; color: var(--text-muted); }
+.data-table tbody tr:hover { background: rgba(59,130,246,0.08); }
+.data-table td { color: white; vertical-align: middle; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; padding: 0.75rem 1.25rem; border-radius: var(--radius-full); font-weight: 600; text-decoration: none; transition: var(--transition); border: 1px solid transparent; }
+.btn:hover { transform: translateY(-1px); }
+.btn-outline { background: transparent; color: var(--text-light); border-color: rgba(255,255,255,0.12); }
+.btn-outline:hover { background: rgba(255,255,255,0.06); }
+.btn-danger { background: rgba(239,68,68,0.16); color: var(--tunisian-red); border-color: rgba(239,68,68,0.25); }
+.btn-cart { background: linear-gradient(135deg, var(--tech-blue), #2563eb); color: white; border: none; }
+.btn-cart:hover { box-shadow: var(--neon-blue); }
+@media (max-width: 980px) {
+  .main-panel { padding: 1.5rem; }
+  .admin-grid { grid-template-columns: 1fr; }
+  .sidebar { position: relative; width: 100%; border-right: none; min-height: auto; }
+}
+@media (max-width: 640px) {
+  .main-panel { padding: 1.2rem; }
+  .nav-item { padding: 0.85rem 1rem; }
+}
+
+/* ============================================
+   LIGHT MODE - Backoffice Admin
+   ============================================ */
+body.light-mode {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* Sidebar */
+body.light-mode .admin-sidebar {
+  background: rgba(255, 255, 255, 0.95);
+  border-right: 1px solid rgba(0,0,0,0.1);
+}
+body.light-mode .admin-sidebar .logo {
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  color: #1e293b;
+}
+body.light-mode .admin-sidebar .logo span {
+  color: #2563eb;
+}
+body.light-mode .admin-nav-item {
+  color: #475569;
+}
+body.light-mode .admin-nav-item:hover {
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+}
+body.light-mode .admin-nav-item.active {
+  background: rgba(37,99,235,0.12);
+  color: #2563eb;
+  border-color: rgba(37,99,235,0.25);
+}
+body.light-mode .admin-nav-item i {
+  color: inherit;
+}
+
+/* Topbar */
+body.light-mode .admin-topbar {
+  background: rgba(255,255,255,0.95);
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+body.light-mode .admin-search {
+  background: rgba(0,0,0,0.04);
+  border-color: rgba(0,0,0,0.1);
+}
+body.light-mode .admin-search input {
+  color: #1e293b;
+  background: transparent;
+}
+body.light-mode .admin-search input::placeholder {
+  color: #94a3b8;
+}
+body.light-mode .admin-icon-btn {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.08);
+  color: #475569;
+}
+body.light-mode .admin-icon-btn:hover {
+  background: rgba(37,99,235,0.1);
+  color: #2563eb;
+}
+body.light-mode .nav-avatar {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+}
+
+/* Content area */
+body.light-mode .admin-content {
+  background: transparent;
+}
+body.light-mode .admin-page-title {
+  color: #0f172a;
+}
+
+/* Cards */
+body.light-mode .glass-card,
+body.light-mode .admin-section {
+  background: rgba(255,255,255,0.9);
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+
+/* Product cards */
+body.light-mode .product-card {
+  background: rgba(255,255,255,0.95) !important;
+  border-color: rgba(0,0,0,0.08) !important;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.light-mode .card-title {
+  color: #0f172a;
+}
+body.light-mode .card-category {
+  color: #2563eb;
+}
+body.light-mode .price-main {
+  color: #2563eb;
+}
+body.light-mode .price-currency {
+  color: #64748b;
+}
+
+/* Table */
+body.light-mode .data-table {
+  background: white;
+}
+body.light-mode .data-table th {
+  color: #374151;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+}
+body.light-mode .data-table td {
+  color: #1e293b;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+body.light-mode .data-table tbody tr:hover {
+  background: rgba(37,99,235,0.04);
+}
+body.light-mode .data-table thead th {
+  color: #6b7280;
+}
+
+/* Stat cards on dashboard */
+body.light-mode .stat-card {
+  background: white;
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+body.light-mode .stat-label {
+  color: #64748b;
+}
+body.light-mode .stat-value {
+  color: #0f172a;
+}
+
+/* Forms */
+body.light-mode .category-form input,
+body.light-mode .category-form textarea,
+body.light-mode input[type="text"],
+body.light-mode input[type="number"],
+body.light-mode input[type="email"],
+body.light-mode textarea,
+body.light-mode select {
+  background: rgba(255,255,255,0.9);
+  border-color: rgba(0,0,0,0.15);
+  color: #1e293b;
+}
+body.light-mode input::placeholder,
+body.light-mode textarea::placeholder {
+  color: #9ca3af;
+}
+body.light-mode label {
+  color: #374151;
+}
+
+/* Sidebar bottom border */
+body.light-mode [style*="border-top: 1px solid rgba(255,255,255,0.08)"] {
+  border-top: 1px solid rgba(0,0,0,0.08) !important;
+}
+
+/* Hero glows hidden in light mode */
+body.light-mode .hero-glow,
+body.light-mode .hero-glow-2 {
+  opacity: 0.04;
+}
+
+/* Pagination */
+body.light-mode .pag-btn {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.1);
+  color: #374151;
+}
+body.light-mode .pag-btn.active {
+  background: #2563eb;
+  color: white;
+}
+body.light-mode .pag-btn:hover:not(.disabled):not(.active) {
+  background: rgba(37,99,235,0.08);
+  color: #2563eb;
+}
+
+/* Filter options */
+body.light-mode .filter-option {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  color: #374151;
+}
+body.light-mode .filter-option.active {
+  background: rgba(37,99,235,0.1) !important;
+  color: #2563eb;
+}
+
+/* Sort select */
+body.light-mode .sort-select {
+  background: white !important;
+  color: #1e293b !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+
+/* Text muted override */
+body.light-mode {
+  --text-muted: #64748b;
+  --border: rgba(0,0,0,0.08);
+  --bg-dark: #f1f5f9;
+  --bg-card: rgba(255,255,255,0.9);
+}
+
+/* More comprehensive light mode for backoffice titles */
+body.light-mode .section-title,
+body.light-mode .admin-list-title,
+body.light-mode h1,
+body.light-mode h2,
+body.light-mode h3,
+body.light-mode .metric-card {
+  color: #0f172a;
+}
+body.light-mode .metric-card {
+  background: white;
+  border: 1px solid rgba(0,0,0,0.08);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+}
+body.light-mode .admin-section p,
+body.light-mode .metric-card p {
+  color: #475569;
+}
+body.light-mode .btn-outline {
+  border-color: rgba(0,0,0,0.15);
+  color: #374151;
+}
+body.light-mode .btn-outline:hover {
+  background: rgba(0,0,0,0.05);
+  color: #0f172a;
+}
+body.light-mode .sidebar p {
+  color: #64748b;
+}

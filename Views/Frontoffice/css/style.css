@@ -1,10 +1,14 @@
-﻿/* style.css - FreelaSkill FrontOffice (V3: Startup Futuriste Tunisienne) */
+/* style.css - FreelaSkill FrontOffice (V3: Startup Futuriste Tunisienne) */
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 :root {
     /* Palette Startup Futuriste Tunisienne */
     --bg-dark: #0A0F1C;         /* Fond Nuit Profond (Base) */
     --bg-card: #111827;         /* Fond Carte Gris Sombre */
+    
+    --card-bg: rgba(255, 255, 255, 0.02);
+    --input-bg: rgba(255, 255, 255, 0.05);
+    --hover-bg: rgba(255, 255, 255, 0.1);
     
     --tunisian-red: #E70013;    /* Rouge Drapeau (Accents) */
     --tech-blue: #2563EB;       /* Bleu Futuriste (Principal) */
@@ -624,5 +628,59 @@ footer {
     .search-panel {
         flex-direction: column;
         align-items: stretch;
-    }
+}
+
+/* LIGHT MODE OVERRIDES */
+body.light-mode {
+    --bg-dark: #f8fafc;
+    --bg-card: #ffffff;
+    
+    --card-bg: #ffffff;
+    --input-bg: #f1f5f9;
+    --hover-bg: #e2e8f0;
+    
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border-color: #e2e8f0;
+    --glass-bg: rgba(255, 255, 255, 0.9);
+    --neon-blue: 0 0 15px rgba(37, 99, 235, 0.15);
+    --neon-red: 0 0 15px rgba(231, 0, 19, 0.15);
+}
+
+body.light-mode a[style*="background: rgba(255,255,255,0.02)"],
+body.light-mode div[style*="background: rgba(255,255,255,0.02)"] {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+}
+
+body.light-mode a[style*="rgba(255,255,255,0.05)"],
+body.light-mode div[style*="rgba(255,255,255,0.05)"] {
+    border-color: #e2e8f0 !important;
+}
+
+body.light-mode th[style*="background: rgba(255,255,255,0.02)"] {
+    background: #f1f5f9 !important;
+    color: #475569 !important;
+}
+
+body.light-mode input, 
+body.light-mode textarea, 
+body.light-mode select {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #cbd5e1 !important;
+}
+
+body.light-mode .mkt-sidebar {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+}
+
+body.light-mode .mkt-profile-card,
+body.light-mode .mkt-sidebar-card,
+body.light-mode .form-card {
+    background: #ffffff !important;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03) !important;
 }
