@@ -1156,14 +1156,3 @@ include __DIR__ . '/../frontoffice/chatbot_widget.php';
 
 </body>
 </html>
-
-
-
-include __DIR__ . '/../frontoffice/chatbot_widget.php';
-?>
-
-</body>
-</html>
-
-
-
