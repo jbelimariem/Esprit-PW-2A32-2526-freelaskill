@@ -8,6 +8,62 @@ class AuthController extends UserController {
     private $maxAttempts = 5;
     private $lockoutSeconds = 900; // 15 minutes
 
+    private function startSessionIfNeeded() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+    }
+
+    private function redirectAuthenticatedUser() {
+        if (!empty($_SESSION['user_id'])) {
+            header('Location: profile.php');
+            exit;
+        }
+    }
+
+    public function executeLoginPage() {
+        $this->startSessionIfNeeded();
+        $this->redirectAuthenticatedUser();
+
+        $errors = $this->handleLogin();
+        $fieldError = function ($field) use ($errors) {
+            return $errors[$field] ?? '';
+        };
+
+        include __DIR__ . '/../views/frontoffice/login.view.php';
+    }
+
+    public function executeRegisterPage() {
+        $this->startSessionIfNeeded();
+        $this->redirectAuthenticatedUser();
+
+        $errors = $this->handleRegister();
+        $fieldError = function ($field) use ($errors) {
+            return $errors[$field] ?? '';
+        };
+        $data = $this->buildRegisterFormData();
+
+        include __DIR__ . '/../views/frontoffice/register.view.php';
+    }
+
+    private function buildRegisterFormData() {
+        $data = [];
+
+        if (isset($_GET['role']) && in_array($_GET['role'], ['freelancer', 'client'], true)) {
+            $data['role'] = $_GET['role'];
+        }
+
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $data['nom'] = $_POST['nom'] ?? '';
+            $data['prenom'] = $_POST['prenom'] ?? '';
+            $data['email'] = $_POST['email'] ?? '';
+            $data['role'] = $_POST['role'] ?? '';
+            $data['bio'] = $_POST['bio'] ?? '';
+        }
+
+        return $data;
+    }
+
     // -------------------------------------------------------
     // Rate limiting helpers (session-based per IP)
     // -------------------------------------------------------
@@ -82,7 +138,7 @@ class AuthController extends UserController {
         if ($this->isLockedOut()) {
             $remaining = $this->getLockoutSecondsRemaining();
             $minutes = ceil($remaining / 60);
-            return ['_global' => "Trop de tentatives. Compte temporairement bloque. Reessayez dans {$minutes} minute(s).", '_locked' => $remaining];
+            return ['_global' => "Trop de tentatives. Compte bloque.", '_locked' => $remaining];
         }
 
         $email = trim($_POST['email'] ?? '');
@@ -116,7 +172,7 @@ class AuthController extends UserController {
                 $remaining = $this->maxAttempts - $this->getAttemptCount();
 
                 if ($this->isLockedOut()) {
-                    return ['_global' => "Trop de tentatives. Compte bloque 15 minutes.", '_locked' => $this->lockoutSeconds];
+                    return ['_global' => "Trop de tentatives. Compte bloque.", '_locked' => $this->lockoutSeconds];
                 }
 
                 $warn = $remaining <= 2 ? " ({$remaining} tentative(s) restante(s))" : '';

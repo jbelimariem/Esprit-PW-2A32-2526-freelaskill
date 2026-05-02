@@ -183,6 +183,7 @@ if (!empty($_SESSION['user_id'])) {
     </div>
 </div>
 
+<?php include __DIR__ . '/chatbot_widget.php'; ?>
 </body>
 </html>
 

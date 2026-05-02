@@ -1,4 +1,5 @@
-        :root {
+        :root,
+        :root[data-theme='dark'] {
             --tech-blue: #3b82f6;
             --tech-blue-hover: #2563eb;
             --tech-green: #10b981;
@@ -11,13 +12,13 @@
             --bg-card: rgba(255, 255, 255, 0.03);
             --border: rgba(255, 255, 255, 0.08);
             --border-hover: rgba(59, 130, 246, 0.4);
-            --surface-1: rgba(255, 255, 255, 0.03);
-            --surface-2: rgba(255, 255, 255, 0.05);
-            --surface-elevated: rgba(2, 6, 23, 0.7);
-            --input-bg: rgba(255,255,255,0.04);
-            --input-border: rgba(255,255,255,0.12);
-            --placeholder: #334155;
-            --input-icon: #334155;
+            --surface-1: rgba(255, 255, 255, 0.04);
+            --surface-2: rgba(255, 255, 255, 0.07);
+            --surface-elevated: #0d1526;
+            --input-bg: rgba(255,255,255,0.06);
+            --input-border: rgba(255,255,255,0.14);
+            --placeholder: #64748b;
+            --input-icon: #64748b;
             --card-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
             --table-row-hover: rgba(59,130,246,0.08);
             --radius-sm: 8px;
@@ -209,10 +210,10 @@
 
         .btn-outline {
             background: transparent;
-            color: #cbd5e1;
-            border-color: rgba(255,255,255,0.12);
+            color: var(--text-strong);
+            border-color: var(--border);
         }
-        .btn-outline:hover { background: rgba(255,255,255,0.06); }
+        .btn-outline:hover { background: var(--surface-2); }
 
         .btn-danger {
             background: rgba(239,68,68,0.16);
@@ -486,6 +487,7 @@
         }
         .alert-error   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.25);  color: #fca5a5; }
         .alert-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.25); color: #6ee7b7; }
+        .alert-info    { background: rgba(37,99,235,0.12); border: 1px solid rgba(37,99,235,0.28); color: #93c5fd; }
 
         /* ── ADMIN PANEL LAYOUT ── */
         .admin-layout { display: flex; min-height: 100vh; background: var(--page-bg); }
@@ -531,6 +533,13 @@
             top: 1.25rem;
             right: 1.25rem;
             z-index: 120;
+        }
+        .theme-toggle--auto {
+            top: auto;
+            right: auto;
+            left: 1.25rem;
+            bottom: 1.25rem;
+            z-index: 210;
         }
 
         /* ── PROFILE AVATAR ── */

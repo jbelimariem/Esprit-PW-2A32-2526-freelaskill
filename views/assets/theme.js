@@ -1,5 +1,18 @@
 const THEME_STORAGE_KEY = 'freelaskill-theme';
 
+function ensureThemeToggle() {
+    if (document.querySelector('[data-theme-toggle]') || !document.body) {
+        return;
+    }
+
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'theme-toggle theme-toggle--floating theme-toggle--auto';
+    button.setAttribute('data-theme-toggle', '');
+    button.innerHTML = '<i class="fa-solid fa-sun" data-theme-icon></i><span data-theme-label>Jour</span>';
+    document.body.appendChild(button);
+}
+
 function getStoredTheme() {
     try {
         const value = localStorage.getItem(THEME_STORAGE_KEY);
@@ -32,6 +45,10 @@ function applyTheme(theme) {
             label.textContent = nextTheme === 'light' ? 'Jour' : 'Nuit';
         }
     });
+
+    document.dispatchEvent(new CustomEvent('freelaskill:themechange', {
+        detail: { theme: resolvedTheme }
+    }));
 }
 
 function toggleTheme() {
@@ -47,6 +64,7 @@ function toggleTheme() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    ensureThemeToggle();
     applyTheme(getStoredTheme());
 
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {

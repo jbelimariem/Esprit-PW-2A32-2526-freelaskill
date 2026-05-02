@@ -88,7 +88,7 @@ $mailErr = $result['mailErr'];
                 <div class="form-group" style="margin-bottom:1.25rem;">
                     <label class="form-label" for="email">Adresse email</label>
                     <div class="input-wrap">
-                        <input class="form-input" type="email" id="email" name="email"
+                        <input class="form-input" type="text" id="email" name="email"
                                placeholder="vous@exemple.com"
                                value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
                                autocomplete="email">
@@ -110,5 +110,6 @@ $mailErr = $result['mailErr'];
 
     </div>
 </div>
+<?php include __DIR__ . '/chatbot_widget.php'; ?>
 </body>
 </html>

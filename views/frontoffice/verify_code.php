@@ -88,7 +88,7 @@ if ($valid) {
             <!-- 6 individual digit inputs -->
             <div class="code-inputs">
                 <?php for ($i = 1; $i <= 6; $i++): ?>
-                    <input class="code-digit" type="text" maxlength="1" inputmode="numeric" pattern="[0-9]"
+                    <input class="code-digit" type="text" inputmode="numeric"
                            id="d<?php echo $i; ?>" autocomplete="off">
                 <?php endfor; ?>
             </div>
@@ -178,5 +178,6 @@ const iv = setInterval(() => {
 // Focus first digit on load
 digits[0].focus();
 </script>
+<?php include __DIR__ . '/chatbot_widget.php'; ?>
 </body>
 </html>

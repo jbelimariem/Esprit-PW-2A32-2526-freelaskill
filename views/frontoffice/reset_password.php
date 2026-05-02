@@ -196,5 +196,6 @@ document.getElementById('confirm_password').addEventListener('input', function (
     document.getElementById('match-error').style.display = (!match && this.value) ? 'block' : 'none';
 });
 </script>
+<?php include __DIR__ . '/chatbot_widget.php'; ?>
 </body>
 </html>

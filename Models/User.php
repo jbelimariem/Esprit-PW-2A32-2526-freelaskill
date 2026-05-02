@@ -80,11 +80,4 @@ class User {
     public function getFaceDescriptor() { return $this->face_descriptor; }
     public function setFaceDescriptor($face_descriptor) { $this->face_descriptor = $face_descriptor; }
 
-    // Helper: access a property by name (used by views with dynamic field keys)
-    public function get($field) {
-        if (property_exists($this, $field)) {
-            return $this->$field;
-        }
-        return null;
-    }
 }

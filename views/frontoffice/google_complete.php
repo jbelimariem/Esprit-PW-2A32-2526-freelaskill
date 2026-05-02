@@ -89,12 +89,12 @@ $fieldError = function ($field) use ($errors) {
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
                     <div>
                         <label class="form-label">Nom</label>
-                        <input class="form-input" type="text" name="nom" required value="<?php echo htmlspecialchars($_POST['nom'] ?? ''); ?>">
+                        <input class="form-input" type="text" name="nom" value="<?php echo htmlspecialchars($_POST['nom'] ?? ''); ?>">
                         <?php if ($fieldError('nom')): ?><div class="field-error"><?php echo htmlspecialchars($fieldError('nom')); ?></div><?php endif; ?>
                     </div>
                     <div>
                         <label class="form-label">Prénom</label>
-                        <input class="form-input" type="text" name="prenom" required value="<?php echo htmlspecialchars($_POST['prenom'] ?? ''); ?>">
+                        <input class="form-input" type="text" name="prenom" value="<?php echo htmlspecialchars($_POST['prenom'] ?? ''); ?>">
                         <?php if ($fieldError('prenom')): ?><div class="field-error"><?php echo htmlspecialchars($fieldError('prenom')); ?></div><?php endif; ?>
                     </div>
                 </div>
@@ -105,7 +105,7 @@ $fieldError = function ($field) use ($errors) {
                         <input class="form-input<?php echo $fieldError('password') !== '' ? ' input-error' : ''; ?>" type="password" id="password" name="password"
                                placeholder="Minimum 8 caracteres"
                                autocomplete="new-password"
-                               style="padding-right:3rem;" required>
+                               style="padding-right:3rem;">
                         <i class="fa-solid fa-lock field-icon" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--input-icon);"></i>
                         <button type="button" class="toggle-password" onclick="togglePwd('password','eye1')" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;">
                             <i class="fa-regular fa-eye" id="eye1"></i>
@@ -137,7 +137,7 @@ $fieldError = function ($field) use ($errors) {
                         <input class="form-input<?php echo $fieldError('confirm_password') !== '' ? ' input-error' : ''; ?>" type="password" id="confirm_password" name="confirm_password"
                                placeholder="••••••••"
                                autocomplete="new-password"
-                               style="padding-right:3rem;" required>
+                               style="padding-right:3rem;">
                         <i class="fa-solid fa-shield-halved field-icon" style="position:absolute;left:1rem;top:50%;transform:translateY(-50%);color:var(--input-icon);"></i>
                         <button type="button" class="toggle-password" onclick="togglePwd('confirm_password','eye2')" style="position:absolute;right:1rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text-muted);cursor:pointer;padding:0;">
                             <i class="fa-regular fa-eye" id="eye2"></i>
