@@ -450,6 +450,7 @@ function stopFaceLogin() {
 </script>
 
 <?php include __DIR__ . '/chatbot_widget.php'; ?>
+<?php include __DIR__ . '/translate_widget.php'; ?>
 </body>
 </html>
 

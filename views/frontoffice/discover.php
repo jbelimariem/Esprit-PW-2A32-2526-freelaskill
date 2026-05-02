@@ -184,6 +184,7 @@ if (!empty($_SESSION['user_id'])) {
 </div>
 
 <?php include __DIR__ . '/chatbot_widget.php'; ?>
+<?php include __DIR__ . '/translate_widget.php'; ?>
 </body>
 </html>
 

@@ -1152,6 +1152,11 @@ $chatbotSuggestions = [
     'Redige un message court pour expliquer un refus d inscription.' => 'Refus inscription',
 ];
 include __DIR__ . '/../frontoffice/chatbot_widget.php';
+
+// Translate widget — paths adjusted for backoffice location
+$trlAssetBase = '../assets';
+$trlEndpoint  = '../frontoffice/translate_api.php';
+include __DIR__ . '/../frontoffice/translate_widget.php';
 ?>
 
 </body>
