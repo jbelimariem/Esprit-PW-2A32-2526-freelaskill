@@ -3,6 +3,9 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Rule.php';
 require_once __DIR__ . '/../Models/BadWordsService.php';
 
+// Buffer output pour permettre les redirections
+if (!ob_get_level()) ob_start();
+
 // --- Fonctions de base de données ---
 
 function getAllRules() {
@@ -156,13 +159,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!empty($_POST['id_rule'])) {
             $editedId = intval($_POST['id_rule']);
             if (updateRule($editedId, $data)) {
-                $successMessage = 'Règle mise à jour avec succès.';
+                $redirectUrl = (!empty($_POST['redirect_to']) ? $_POST['redirect_to'] : 'front_rules_list.php') . '?success=update';
+                if (!headers_sent()) { header('Location: ' . $redirectUrl); exit; }
+                else { echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>'; exit; }
             } else {
                 $errors['general'] = 'Impossible de mettre à jour la règle.';
             }
         } else {
             if (createRule($data)) {
-                $successMessage = 'Règle ajoutée avec succès.';
+                $redirectUrl = (!empty($_POST['redirect_to']) ? $_POST['redirect_to'] : 'front_rules_list.php') . '?success=create';
+                if (!headers_sent()) { header('Location: ' . $redirectUrl); exit; }
+                else { echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>'; exit; }
             } else {
                 $errors['general'] = 'Impossible d\'ajouter la règle.';
             }

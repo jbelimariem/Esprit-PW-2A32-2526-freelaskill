@@ -83,7 +83,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                 </select>
                 <button type="button" id="btn-suggest-rules" onclick="suggestRules(this)"
                         style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.9rem;background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
-                    <i class="fa-solid fa-lightbulb"></i> Suggérer des règles
+                    <i class="fa-solid fa-lightbulb"></i> Générer description
                 </button>
                 <div style="display:inline-flex;align-items:center;gap:0.3rem;">
                     <select id="translate-from" style="padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">

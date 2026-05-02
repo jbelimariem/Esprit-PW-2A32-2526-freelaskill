@@ -7,6 +7,9 @@ require_once __DIR__ . '/../Models/NotificationRepository.php';
 require_once __DIR__ . '/../Models/ContratVersion.php';
 require_once __DIR__ . '/../Models/ContratVersionRepository.php';
 
+// Buffer output pour permettre les redirections même si du HTML a été envoyé
+if (!ob_get_level()) ob_start();
+
 // createRule is defined in ruleController.php — include it if not already loaded
 if (!function_exists('createRule')) {
     require_once __DIR__ . '/../Models/Rule.php';
@@ -250,30 +253,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['freelance_info'] = 'Les informations du freelancer sont obligatoires.';
     }
 
-    // Signature : seule la signature du rôle actuel est obligatoire à la création
-    // L'autre partie signera via la page de détails
+    // Signature : optionnelle à la création, obligatoire seulement en modification
+    // L'autre partie peut signer via la page de détails
     $userRole = $_SESSION['user_role'] ?? 'client';
-    if ($userRole === 'client') {
-        if (empty($signature_client)) {
-            $errors['signature_client'] = 'Votre signature est obligatoire.';
-        }
-        // La signature freelancer est optionnelle à la création (sera ajoutée plus tard)
-    } else {
-        if (empty($signature_freelance)) {
-            $errors['signature_freelance'] = 'Votre signature est obligatoire.';
-        }
-        // La signature client est optionnelle à la création
-    }
-
-    // Pour le backoffice (admin), les deux sont requises
-    if (!isset($_SESSION['user_role'])) {
-        if (empty($signature_client)) {
-            $errors['signature_client'] = 'La signature du client est obligatoire.';
-        }
-        if (empty($signature_freelance)) {
-            $errors['signature_freelance'] = 'La signature du freelancer est obligatoire.';
-        }
-    }
+    // Pas de validation de signature obligatoire — les deux parties signent quand elles veulent
     if (empty($errors)) {
         $badWords = new BadWordsService();
         $bwResult = $badWords->checkFields([
@@ -288,14 +271,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Vérification de l'unicité du titre (Optionnel, mais bonne pratique)
-    $existingContrats = getAllContrats();
-    $currentId = !empty($_POST['id_contrat']) ? intval($_POST['id_contrat']) : null;
-    
-    foreach ($existingContrats as $c) {
-        if ($currentId && $c['id_contrat'] == $currentId) continue;
-        if (!empty($titre) && strtolower($c['titre']) === strtolower($titre)) {
-            $errors['titre'] = 'Un contrat avec ce titre existe déjà.';
+    // Vérification de l'unicité du titre — seulement si pas d'autres erreurs
+    if (empty($errors) && !empty($titre)) {
+        $existingContrats = getAllContrats();
+        $currentId = !empty($_POST['id_contrat']) ? intval($_POST['id_contrat']) : null;
+        foreach ($existingContrats as $c) {
+            if ($currentId && $c['id_contrat'] == $currentId) continue;
+            if (strtolower(trim($c['titre'])) === strtolower(trim($titre))) {
+                $errors['titre'] = 'Un contrat avec ce titre existe déjà.';
+                break;
+            }
         }
     }
 
@@ -316,8 +301,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (updateContrat($editedId, $data)) {
                 assignRulesToContrat($editedId, $selected_rules);
                 if (!empty($_POST['redirect_to'])) {
-                    header('Location: ' . $_POST['redirect_to'] . '?success=update');
-                    exit;
+                    $redirectUrl = $_POST['redirect_to'] . '?success=update';
+                    if (!headers_sent()) {
+                        header('Location: ' . $redirectUrl);
+                        exit;
+                    } else {
+                        echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>';
+                        exit;
+                    }
                 }
                 $successMessage = 'Contrat mis à jour avec succès.';
             } else {
@@ -349,8 +340,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
 
                 if (!empty($_POST['redirect_to'])) {
-                    header('Location: ' . $_POST['redirect_to'] . '?success=create');
-                    exit;
+                    $redirectUrl = $_POST['redirect_to'] . '?success=create';
+                    if (!headers_sent()) {
+                        header('Location: ' . $redirectUrl);
+                        exit;
+                    } else {
+                        // Fallback JS redirect si headers déjà envoyés
+                        echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>';
+                        exit;
+                    }
                 }
                 $successMessage = 'Contrat ajouté avec succès.';
             } else {

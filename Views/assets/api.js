@@ -232,10 +232,51 @@ async function generateDescription(btn) {
 }
 
 async function suggestRules(btn) {
-    const titre = document.getElementById('titre')?.value?.trim()
-               || document.getElementById('titre_contrat')?.value?.trim();
-    const lang  = document.getElementById('lang-select')?.value || 'fr';
+    // Détecter le contexte
+    const isRuleForm   = !!document.getElementById('type');
+    const titreContrat = document.getElementById('titre_contrat')?.value?.trim();
+    const titreRule    = document.getElementById('titre')?.value?.trim();
+    const typeRule     = document.getElementById('type')?.value?.trim();
+    const lang         = document.getElementById('lang-select')?.value || 'fr';
 
+    // ── Sur formulaire de RÈGLE : générer la description de la règle ──
+    if (isRuleForm) {
+        if (!titreRule) {
+            showApiToast('Remplissez d\'abord le titre de la règle.', 'error');
+            const f = document.getElementById('titre');
+            if (f) { f.focus(); f.style.borderColor = '#EF4444'; setTimeout(() => f.style.borderColor = '', 2000); }
+            return;
+        }
+        showApiLoader(btn, 'Génération IA...');
+        // Utiliser generate_description avec le titre de la règle comme contexte
+        const result = await apiPost('generate_description', {
+            titre:      (typeRule ? typeRule + ' : ' : '') + titreRule,
+            freelancer: '',
+            budget:     0,
+            delai:      0,
+            lang,
+            context:    'rule' // indique qu'on génère pour une règle
+        });
+        hideApiLoader(btn);
+
+        if (result.success) {
+            const descEl = document.getElementById('description');
+            if (descEl) {
+                descEl.value = result.text;
+                descEl.style.borderColor = 'rgba(168,85,247,0.6)';
+                descEl.style.boxShadow   = '0 0 0 3px rgba(168,85,247,0.15)';
+                setTimeout(() => { descEl.style.borderColor = ''; descEl.style.boxShadow = ''; }, 2500);
+                descEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+            showApiToast('Description générée par IA ✓', 'success');
+        } else {
+            showApiToast(result.error || 'Erreur Gemini.', 'error');
+        }
+        return;
+    }
+
+    // ── Sur formulaire de CONTRAT : suggérer des règles à associer ────
+    const titre = titreContrat || titreRule;
     if (!titre) {
         showApiToast('Remplissez d\'abord le titre du contrat.', 'error');
         return;
@@ -247,7 +288,9 @@ async function suggestRules(btn) {
 
     if (result.success && result.rules) {
         displaySuggestedRules(result.rules);
-        const source = result.source === 'local' ? `${result.rules.length} règles suggérées (modèle local) ✓` : `${result.rules.length} règles suggérées ✓`;
+        const source = result.source === 'local'
+            ? `${result.rules.length} règles suggérées (modèle local) ✓`
+            : `${result.rules.length} règles suggérées ✓`;
         showApiToast(source, 'success');
     } else {
         showApiToast(result.error || 'Erreur Gemini.', 'error');
@@ -257,6 +300,9 @@ async function suggestRules(btn) {
 function displaySuggestedRules(rules) {
     const existing = document.getElementById('suggested-rules-panel');
     if (existing) existing.remove();
+
+    // Détecter le contexte : formulaire de règle (a id="type") ou formulaire de contrat
+    const isRuleForm = !!document.getElementById('type');
 
     const panel = document.createElement('div');
     panel.id = 'suggested-rules-panel';
@@ -271,11 +317,13 @@ function displaySuggestedRules(rules) {
     panel.innerHTML = `
         <div style="font-size:0.82rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:1rem;">
             <i class="fa-solid fa-robot"></i> Règles suggérées par l'IA
+            ${isRuleForm ? '<span style="font-size:0.72rem;font-weight:400;color:#64748B;text-transform:none;margin-left:0.5rem;">Cliquez sur une règle pour remplir le formulaire</span>' : ''}
         </div>
         ${rules.map((r, i) => `
-            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.6rem;display:flex;align-items:flex-start;gap:0.75rem;">
-                <input type="checkbox" id="suggested-rule-${i}" checked
-                       style="width:1rem;height:1rem;accent-color:#2563EB;cursor:pointer;flex-shrink:0;margin-top:2px;">
+            <div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.6rem;display:flex;align-items:flex-start;gap:0.75rem;${isRuleForm ? 'cursor:pointer;' : ''}"
+                 ${isRuleForm ? `onclick="fillRuleFormFromSuggestion(${JSON.stringify(r).replace(/"/g, '&quot;')})"` : ''}>
+                ${!isRuleForm ? `<input type="checkbox" id="suggested-rule-${i}" checked
+                       style="width:1rem;height:1rem;accent-color:#2563EB;cursor:pointer;flex-shrink:0;margin-top:2px;">` : ''}
                 <div style="flex:1;">
                     <div style="font-weight:600;color:#F1F5F9;font-size:0.88rem;">${r.titre}</div>
                     <div style="font-size:0.78rem;color:#94A3B8;margin-top:0.2rem;">
@@ -284,25 +332,70 @@ function displaySuggestedRules(rules) {
                     </div>
                     <div style="font-size:0.82rem;color:#64748B;margin-top:0.35rem;line-height:1.5;">${r.description}</div>
                 </div>
+                ${isRuleForm ? `<span style="font-size:0.72rem;color:#2563EB;white-space:nowrap;padding:0.2rem 0.5rem;background:rgba(37,99,235,0.1);border-radius:999px;">Utiliser →</span>` : ''}
             </div>
         `).join('')}
+        ${!isRuleForm ? `
         <button type="button" onclick="applySuggestedRules(${JSON.stringify(rules).replace(/"/g, '&quot;')})"
                 style="margin-top:0.5rem;background:var(--tech-blue,#2563EB);color:white;border:none;padding:0.6rem 1.25rem;border-radius:999px;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;">
             <i class="fa-solid fa-plus"></i> Ajouter les règles sélectionnées
-        </button>
+        </button>` : ''}
         <button type="button" onclick="document.getElementById('suggested-rules-panel').remove()"
                 style="margin-left:0.5rem;background:transparent;color:#475569;border:1px solid rgba(255,255,255,0.1);padding:0.6rem 1.25rem;border-radius:999px;font-size:0.85rem;cursor:pointer;font-family:inherit;">
-            Ignorer
+            Fermer
         </button>
     `;
 
-    // Insérer après le bouton suggest
+    // Insérer après la form-section (pas dans la barre d'outils flex)
     const suggestBtn = document.getElementById('btn-suggest-rules');
+    let inserted = false;
+
     if (suggestBtn) {
-        suggestBtn.parentNode.insertBefore(panel, suggestBtn.nextSibling);
-    } else {
-        document.querySelector('form')?.appendChild(panel);
+        // Remonter jusqu'à la form-section
+        let parent = suggestBtn.parentElement;
+        while (parent && !parent.classList.contains('form-section')) {
+            parent = parent.parentElement;
+        }
+        if (parent) {
+            // Insérer à la fin de la form-section
+            parent.appendChild(panel);
+            inserted = true;
+        }
     }
+
+    if (!inserted) {
+        const section = document.querySelector('.form-section');
+        if (section) section.appendChild(panel);
+        else document.querySelector('form')?.appendChild(panel);
+    }
+
+    // Scroll vers le panel
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+}
+
+/**
+ * Sur le formulaire de règle : remplit titre, type, description, valeur depuis une suggestion IA
+ */
+function fillRuleFormFromSuggestion(rule) {
+    const fields = {
+        titre:       rule.titre       || '',
+        type:        rule.type        || '',
+        description: rule.description || '',
+        valeur:      rule.valeur      || '',
+    };
+
+    Object.entries(fields).forEach(([id, value]) => {
+        if (!value) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.value = value;
+        el.style.borderColor = 'rgba(37,99,235,0.6)';
+        el.style.boxShadow   = '0 0 0 3px rgba(37,99,235,0.15)';
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 2000);
+    });
+
+    document.getElementById('suggested-rules-panel')?.remove();
+    showApiToast('Champs remplis depuis la suggestion IA ✓', 'success');
 }
 
 function applySuggestedRules(rules) {
