@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_index.php'); exit; }
 require_once __DIR__ . '/../../controllers/ruleController.php';
@@ -12,8 +12,8 @@ $activePage = 'rules';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace <?php echo $roleName; ?> — Mes Règles · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Espace <?php echo $roleName; ?> â€” Mes RÃ¨gles Â· FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
@@ -25,39 +25,37 @@ $activePage = 'rules';
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
 <div class="glow-orb" style="width:450px;height:450px;background:#A855F7;top:-100px;right:-100px;"></div>
 
-<main class="admin-main">
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <div class="admin-topbar animate-in">
         <div>
             <div class="admin-breadcrumb">
                 <i class="fa-solid fa-house"></i>
                 <span class="sep">/</span>
-                <a href="front_rules_index.php">Règles</a>
+                <a href="front_rules_index.php">RÃ¨gles</a>
                 <span class="sep">/</span>
                 <span class="current">Liste</span>
             </div>
-            <h1 class="admin-page-title">Liste des <span>Règles</span></h1>
+            <h1 class="admin-page-title">Liste des <span>RÃ¨gles</span></h1>
         </div>
         <div class="topbar-actions">
             <a href="front_rules_index.php" class="btn btn-secondary">
                 <i class="fa-solid fa-arrow-left"></i> Retour
             </a>
             <a href="front_rules_form.php" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Nouvelle règle
+                <i class="fa-solid fa-plus"></i> Nouvelle rÃ¨gle
             </a>
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
     <?php if (isset($_GET['success'])): ?>
         <div class="alert alert-success animate-in">
             <i class="fa-solid fa-circle-check"></i>
-            <?php $msgs = ['create'=>'Règle créée.','update'=>'Règle mise à jour.','delete'=>'Règle supprimée.']; echo $msgs[$_GET['success']] ?? 'Action réalisée.'; ?>
+            <?php $msgs = ['create'=>'RÃ¨gle crÃ©Ã©e.','update'=>'RÃ¨gle mise Ã  jour.','delete'=>'RÃ¨gle supprimÃ©e.']; echo $msgs[$_GET['success']] ?? 'Action rÃ©alisÃ©e.'; ?>
         </div>
     <?php endif; ?>
 
@@ -69,7 +67,7 @@ $activePage = 'rules';
     ?>
     <div class="stats-grid animate-in delay-1" style="grid-template-columns:repeat(3,1fr);margin-bottom:1.5rem;">
         <div class="stat-card" style="--accent-color:#A855F7;">
-            <div class="stat-info"><div class="stat-label">Total Règles</div><div class="stat-value"><?php echo $totalRules; ?></div></div>
+            <div class="stat-info"><div class="stat-label">Total RÃ¨gles</div><div class="stat-value"><?php echo $totalRules; ?></div></div>
             <div class="stat-icon" style="background:rgba(168,85,247,0.15);color:#A855F7;border-radius:50%;width:48px;height:48px;"><i class="fa-solid fa-gavel"></i></div>
         </div>
         <div class="stat-card" style="--accent-color:#34D399;">
@@ -87,8 +85,8 @@ $activePage = 'rules';
         <div class="admin-card-header">
             <div class="admin-card-title">
                 <i class="fa-solid fa-table-list"></i>
-                Toutes les règles
-                <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);">(<?php echo $totalRules; ?> règle<?php echo $totalRules > 1 ? 's' : ''; ?>)</span>
+                Toutes les rÃ¨gles
+                <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);">(<?php echo $totalRules; ?> rÃ¨gle<?php echo $totalRules > 1 ? 's' : ''; ?>)</span>
             </div>
             <a href="front_rules_form.php" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.82rem;">
                 <i class="fa-solid fa-plus"></i> Ajouter
@@ -101,9 +99,9 @@ $activePage = 'rules';
                     <th>Titre</th>
                     <th>Type</th>
                     <th>Valeur</th>
-                    <th>Contrat associé</th>
+                    <th>Contrat associÃ©</th>
                     <th>Statut</th>
-                    <th>Créé le</th>
+                    <th>CrÃ©Ã© le</th>
                     <th style="text-align:right;">Actions</th>
                 </tr>
             </thead>
@@ -111,7 +109,7 @@ $activePage = 'rules';
                 <?php if (empty($rules)): ?>
                     <tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:3rem;">
                         <i class="fa-solid fa-inbox" style="font-size:2rem;display:block;margin-bottom:0.75rem;opacity:0.4;"></i>
-                        Aucune règle trouvée.
+                        Aucune rÃ¨gle trouvÃ©e.
                     </td></tr>
                 <?php else: ?>
                     <?php foreach ($rules as $rule): ?>
@@ -122,8 +120,8 @@ $activePage = 'rules';
                                     <?php echo htmlspecialchars($rule['type'], ENT_QUOTES, 'UTF-8'); ?>
                                 </span>
                             </td>
-                            <td style="color:var(--text-muted);font-size:0.88rem;"><?php echo htmlspecialchars($rule['valeur'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
-                            <td style="color:var(--text-muted);font-size:0.88rem;"><?php echo htmlspecialchars($rule['titre_contrat'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td style="color:var(--text-muted);font-size:0.88rem;"><?php echo htmlspecialchars($rule['valeur'] ?? 'â€”', ENT_QUOTES, 'UTF-8'); ?></td>
+                            <td style="color:var(--text-muted);font-size:0.88rem;"><?php echo htmlspecialchars($rule['titre_contrat'] ?? 'â€”', ENT_QUOTES, 'UTF-8'); ?></td>
                             <td>
                                 <span class="badge <?php echo $rule['statut'] === 'actif' ? 'badge-actif-rule' : 'badge-inactif'; ?>">
                                     <?php echo ucfirst($rule['statut']); ?>
@@ -137,7 +135,7 @@ $activePage = 'rules';
                                     <form method="get" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo intval($rule['id_rule']); ?>">
-                                        <button type="submit" class="btn btn-danger btn-icon" onclick="return confirm('Supprimer cette règle ?');" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+                                        <button type="submit" class="btn btn-danger btn-icon" onclick="return confirm('Supprimer cette rÃ¨gle ?');" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
                                     </form>
                                 </div>
                             </td>
@@ -151,3 +149,4 @@ $activePage = 'rules';
 </main>
 </body>
 </html>
+

@@ -8,26 +8,49 @@ $inRules     = ($activePage === 'rules');
 ?>
 <aside class="admin-sidebar">
 
-    <!-- Logo -->
-    <div class="sidebar-logo">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-            <path d="M12 2L18 10H6L12 2Z" fill="#EF4444"/>
-            <circle cx="6" cy="18" r="4" fill="#EF4444"/>
-            <rect x="14" y="14" width="8" height="8" rx="1.5" fill="#EF4444"/>
-        </svg>
-        <div>
-            <div class="logo-text">Freela<span>Skill</span></div>
-            <div class="logo-badge">Espace Personnel</div>
-        </div>
-    </div>
+    <!-- Profile Card (sans logo — la navbar a déjà le logo) -->
+    <div style="
+        margin: 1rem 0.75rem 0.5rem;
+        background: linear-gradient(145deg, rgba(20,30,70,0.8) 0%, rgba(10,15,40,0.95) 100%);
+        border: 1px solid rgba(37,99,235,0.3);
+        border-radius: 20px;
+        padding: 1.75rem 1rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    ">
+        <div style="
+            position: absolute; top: -40px; left: 50%;
+            transform: translateX(-50%);
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(37,99,235,0.35) 0%, transparent 65%);
+            border-radius: 50%; pointer-events: none;
+        "></div>
 
-    <!-- Profile Card -->
-    <div class="sidebar-profile-card">
-        <div class="sidebar-avatar">
+        <div style="
+            width: 72px; height: 72px; border-radius: 50%;
+            background: linear-gradient(135deg, #3B6FE8 0%, #5B5FE8 50%, #4F46E5 100%);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.8rem; color: white;
+            box-shadow: 0 0 0 5px rgba(37,99,235,0.2), 0 0 30px rgba(37,99,235,0.4), 0 8px 20px rgba(0,0,0,0.4);
+            position: relative; z-index: 1; flex-shrink: 0;
+        ">
             <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
         </div>
-        <div class="sidebar-profile-name"><?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?></div>
-        <div class="sidebar-profile-sub">Espace Personnel</div>
+
+        <div style="
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem; font-weight: 700; color: #F1F5F9;
+            position: relative; z-index: 1; letter-spacing: -0.3px;
+        "><?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?></div>
+
+        <div style="font-size: 0.75rem; color: #64748B; position: relative; z-index: 1;">
+            Espace Personnel
+        </div>
     </div>
 
     <!-- Navigation -->

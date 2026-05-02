@@ -2,6 +2,10 @@
 require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Contrat.php';
 require_once __DIR__ . '/../Models/BadWordsService.php';
+require_once __DIR__ . '/../Models/Notification.php';
+require_once __DIR__ . '/../Models/NotificationRepository.php';
+require_once __DIR__ . '/../Models/ContratVersion.php';
+require_once __DIR__ . '/../Models/ContratVersionRepository.php';
 
 // createRule is defined in ruleController.php — include it if not already loaded
 if (!function_exists('createRule')) {
@@ -123,19 +127,49 @@ function createContrat(array $data) {
 
 function updateContrat(int $id, array $data) {
     $pdo = config::getConnexion();
+
+    // ── 1. Récupérer l'ancienne version avant modification ────────────
+    $old = getContratById($id);
+
+    if ($old) {
+        // Sauvegarder un snapshot (version historique)
+        $versionRepo  = new ContratVersionRepository($pdo);
+        $nextVersion  = $versionRepo->getNextVersionNumber($id);
+        $modifiePar   = $_SESSION['user_role'] ?? 'admin';
+        $snapshot     = ContratVersion::fromContrat($old, $nextVersion, $modifiePar);
+        $versionRepo->save($snapshot);
+
+        // ── 2. Créer une notification si le statut a changé ──────────
+        $newStatut = $data['statut'] ?? $old['statut'];
+        if (isset($data['statut']) && $data['statut'] !== $old['statut']) {
+            $notifRepo = new NotificationRepository($pdo);
+            $notif     = new Notification(
+                $id,
+                $old['titre'],
+                $old['statut'],
+                $newStatut
+            );
+            $notifRepo->create($notif);
+        }
+    }
+
+    // ── 3. Effectuer la mise à jour ───────────────────────────────────
     $stmt = $pdo->prepare(
-        'UPDATE contrat SET titre = :titre, description = :description, budget = :budget, delai = :delai, statut = :statut, freelance_info = :freelance_info, signature_client = :signature_client, signature_freelance = :signature_freelance WHERE id_contrat = :id'
+        'UPDATE contrat SET titre = :titre, description = :description, budget = :budget,
+         delai = :delai, statut = :statut, freelance_info = :freelance_info,
+         signature_client = :signature_client, signature_freelance = :signature_freelance
+         WHERE id_contrat = :id'
     );
     return $stmt->execute([
-        'titre' => $data['titre'],
-        'description' => $data['description'],
-        'budget' => $data['budget'],
-        'delai' => $data['delai'],
-        'statut' => $data['statut'],
-        'freelance_info' => $data['freelance_info'],
-        'signature_client' => $data['signature_client'],
+        'titre'               => $data['titre'],
+        'description'         => $data['description'],
+        'budget'              => $data['budget'],
+        'delai'               => $data['delai'],
+        'statut'              => $data['statut'],
+        'freelance_info'      => $data['freelance_info'],
+        'signature_client'    => $data['signature_client'],
         'signature_freelance' => $data['signature_freelance'],
-        'id' => $id
+        'id'                  => $id,
     ]);
 }
 
@@ -333,6 +367,23 @@ if ($action === 'delete' && $id !== null) {
     } else {
         $errors['general'] = 'Impossible de supprimer ce contrat.';
     }
+}
+
+// ── Changement rapide de statut (workflow) ────────────────────────────
+if ($action === 'change_status' && $id !== null) {
+    $newStatus      = $_POST['new_status'] ?? '';
+    $validStatuts   = ['brouillon', 'en_attente', 'actif', 'termine', 'annule', 'archive'];
+    $currentContrat = getContratById($id);
+
+    if ($currentContrat && in_array($newStatus, $validStatuts)) {
+        $data = array_merge($currentContrat, ['statut' => $newStatus]);
+        if (updateContrat($id, $data)) {
+            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=status_changed');
+            exit;
+        }
+    }
+    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?error=status_failed');
+    exit;
 }
 
 if ($action === 'archive' && $id !== null) {

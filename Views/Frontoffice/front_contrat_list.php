@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_role.php'); exit; }
 require_once __DIR__ . '/../../controllers/contratController.php';
@@ -29,8 +29,8 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace <?php echo $roleName; ?> — Mes Contrats · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Espace <?php echo $roleName; ?> – Mes Contrats · FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -43,9 +43,11 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
 <div class="glow-orb" style="width:500px;height:500px;background:#2563EB;top:-150px;right:-150px;"></div>
 
-<main class="admin-main">
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <!-- Topbar -->
     <div class="admin-topbar animate-in">
@@ -72,10 +74,6 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
             <a href="front_contrat_form.php" class="btn btn-primary">
                 <i class="fa-solid fa-plus"></i> Nouveau contrat
             </a>
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
@@ -191,6 +189,10 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
                                     <a href="front_contrat_details.php?id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-success btn-icon" title="Détails"><i class="fa-solid fa-eye"></i></a>
                                     <a href="../Backoffice/admin_export_pdf.php?id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-purple btn-icon" title="PDF" target="_blank"><i class="fa-solid fa-file-pdf"></i></a>
                                     <a href="front_contrat_form.php?action=edit&id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-secondary btn-icon" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+                                    <a href="../Backoffice/admin_contrat_versions.php?action=history&id_contrat=<?php echo intval($c['id_contrat']); ?>"
+                                       class="btn btn-secondary btn-icon" title="Historique" style="background:rgba(99,102,241,0.12);color:#818CF8;border-color:rgba(99,102,241,0.2);">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                    </a>
                                     <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
                                         <input type="hidden" name="action" value="delete">
                                         <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">

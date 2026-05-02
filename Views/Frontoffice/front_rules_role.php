@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 unset($_SESSION['user_role']);
 if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
@@ -12,8 +12,8 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Choisir votre profil · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Choisir votre profil Â· FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="css/front.js" defer></script>
     <style>
@@ -46,7 +46,7 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
             <div class="role-logo-text">Freela<span>Skill</span></div>
         </div>
         <h1 class="role-title">Bienvenue sur votre <span>Espace</span></h1>
-        <p class="role-subtitle">Pour vous proposer une expérience personnalisée, veuillez indiquer votre profil.</p>
+        <p class="role-subtitle">Pour vous proposer une expÃ©rience personnalisÃ©e, veuillez indiquer votre profil.</p>
     </div>
 
     <div class="role-cards animate-in delay-1">
@@ -57,7 +57,7 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
             </div>
             <div>
                 <div class="menu-card-title">Je suis Client</div>
-                <div class="menu-card-desc">Définissez vos règles, clauses de confidentialité et exigences pour vos futurs projets.</div>
+                <div class="menu-card-desc">DÃ©finissez vos rÃ¨gles, clauses de confidentialitÃ© et exigences pour vos futurs projets.</div>
             </div>
             <div class="menu-card-arrow" style="color:var(--tech-blue);justify-content:center;">
                 Continuer <i class="fa-solid fa-arrow-right"></i>
@@ -70,7 +70,7 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
             </div>
             <div>
                 <div class="menu-card-title">Je suis Freelancer</div>
-                <div class="menu-card-desc">Ajoutez vos propres règles de travail, conditions de livraison ou exigences techniques.</div>
+                <div class="menu-card-desc">Ajoutez vos propres rÃ¨gles de travail, conditions de livraison ou exigences techniques.</div>
             </div>
             <div class="menu-card-arrow" style="color:#A855F7;justify-content:center;">
                 Continuer <i class="fa-solid fa-arrow-right"></i>
@@ -82,3 +82,4 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
 </div>
 </body>
 </html>
+

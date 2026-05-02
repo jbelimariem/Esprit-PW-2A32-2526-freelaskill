@@ -9,7 +9,7 @@ $stats = getContratStatistics();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Liste des Contrats · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/admin.css?v=3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -70,7 +70,14 @@ $stats = getContratStatistics();
             <i class="fa-solid fa-circle-check"></i>
             <?php
             if (isset($_GET['success'])) {
-                $msgs = ['delete'=>'Contrat supprimé.','archive'=>'Contrat archivé.','verify_ok'=>'Contrat conforme.','create'=>'Contrat créé.','update'=>'Contrat mis à jour.'];
+                $msgs = [
+                    'delete'         => 'Contrat supprimé.',
+                    'archive'        => 'Contrat archivé.',
+                    'verify_ok'      => 'Contrat conforme.',
+                    'create'         => 'Contrat créé.',
+                    'update'         => 'Contrat mis à jour.',
+                    'status_changed' => 'Statut mis à jour avec succès. <i class="fa-solid fa-bell" style="color:#FBBF24;margin-left:0.3rem;"></i> Notification envoyée.',
+                ];
                 echo $msgs[$_GET['success']] ?? 'Action réalisée.';
             } else echo htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8');
             ?>
@@ -232,6 +239,39 @@ $stats = getContratStatistics();
                                        class="btn btn-secondary btn-icon" title="Modifier">
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
+                                    <a href="admin_contrat_versions.php?action=history&id_contrat=<?php echo intval($c['id_contrat']); ?>"
+                                       class="btn btn-secondary btn-icon" title="Historique des versions" style="background:rgba(99,102,241,0.12);color:#818CF8;border-color:rgba(99,102,241,0.2);">
+                                        <i class="fa-solid fa-clock-rotate-left"></i>
+                                    </a>
+                                    <!-- Workflow statut rapide -->
+                                    <?php if ($c['statut'] === 'brouillon'): ?>
+                                        <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
+                                            <input type="hidden" name="action" value="change_status">
+                                            <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
+                                            <input type="hidden" name="new_status" value="en_attente">
+                                            <button type="submit" class="btn btn-warning btn-icon" title="Passer en attente" style="font-size:0.72rem;">
+                                                <i class="fa-solid fa-clock"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif ($c['statut'] === 'en_attente'): ?>
+                                        <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
+                                            <input type="hidden" name="action" value="change_status">
+                                            <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
+                                            <input type="hidden" name="new_status" value="actif">
+                                            <button type="submit" class="btn btn-success btn-icon" title="Activer" style="font-size:0.72rem;">
+                                                <i class="fa-solid fa-play"></i>
+                                            </button>
+                                        </form>
+                                    <?php elseif ($c['statut'] === 'actif'): ?>
+                                        <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
+                                            <input type="hidden" name="action" value="change_status">
+                                            <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
+                                            <input type="hidden" name="new_status" value="termine">
+                                            <button type="submit" class="btn btn-success btn-icon" title="Terminer" style="background:rgba(52,211,153,0.12);color:#34D399;border-color:rgba(52,211,153,0.2);font-size:0.72rem;">
+                                                <i class="fa-solid fa-flag-checkered"></i>
+                                            </button>
+                                        </form>
+                                    <?php endif; ?>
                                     <a href="admin_contrat_list.php?action=verify&id=<?php echo intval($c['id_contrat']); ?>"
                                        class="btn btn-success btn-icon" title="Vérifier conformité">
                                         <i class="fa-solid fa-clipboard-check"></i>

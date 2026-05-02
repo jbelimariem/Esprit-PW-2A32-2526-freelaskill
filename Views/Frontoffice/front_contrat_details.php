@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_role.php'); exit; }
 require_once __DIR__ . '/../../controllers/contratController.php';
@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
     $sig = $_POST['signature_data'];
     if (strpos($sig, 'data:image/') === 0) {
         if (updateSignature($id, $role, $sig)) {
-            $successMessage = "Signature enregistrée avec succès.";
+            $successMessage = "Signature enregistrÃ©e avec succÃ¨s.";
             $contrat = getContratById($id);
         } else { $errors[] = "Erreur lors de l'enregistrement de la signature."; }
     } else { $errors[] = "Format de signature invalide."; }
@@ -31,8 +31,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails du Contrat · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>DÃ©tails du Contrat Â· FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
@@ -45,7 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-<main class="admin-main">
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <div class="admin-topbar animate-in">
         <div>
@@ -56,9 +58,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                 <span class="sep">/</span>
                 <a href="front_contrat_list.php">Liste</a>
                 <span class="sep">/</span>
-                <span class="current">Détails</span>
+                <span class="current">DÃ©tails</span>
             </div>
-            <h1 class="admin-page-title">Détails du <span>Contrat</span></h1>
+            <h1 class="admin-page-title">DÃ©tails du <span>Contrat</span></h1>
         </div>
         <div class="topbar-actions">
             <a href="front_contrat_list.php" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Retour</a>
@@ -69,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                 <select id="translate-from" style="padding:0.3rem 0.5rem;background:transparent;border:none;color:var(--text-muted);font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                     <option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option>
                 </select>
-                <span style="color:var(--text-muted);font-size:0.72rem;">→</span>
+                <span style="color:var(--text-muted);font-size:0.72rem;">â†’</span>
                 <select id="translate-to" style="padding:0.3rem 0.5rem;background:transparent;border:none;color:var(--text-muted);font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                     <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
                 </select>
@@ -83,10 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
             <a href="../Backoffice/admin_export_pdf.php?id=<?php echo $id; ?>" class="btn btn-purple" target="_blank">
                 <i class="fa-solid fa-file-pdf"></i> Exporter PDF
             </a>
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
@@ -102,10 +100,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
         </div>
     <?php endif; ?>
 
-    <!-- Infos générales -->
+    <!-- Infos gÃ©nÃ©rales -->
     <div class="admin-card animate-in delay-1">
         <div class="admin-card-header">
-            <div class="admin-card-title"><i class="fa-solid fa-circle-info"></i> Informations générales</div>
+            <div class="admin-card-title"><i class="fa-solid fa-circle-info"></i> Informations gÃ©nÃ©rales</div>
             <span class="badge badge-<?php echo htmlspecialchars($contrat['statut'], ENT_QUOTES, 'UTF-8'); ?>">
                 <?php echo ucfirst(str_replace('_', ' ', $contrat['statut'])); ?>
             </span>
@@ -119,27 +117,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                     <div style="font-size:1.1rem;font-weight:700;color:var(--tech-blue);"><?php echo htmlspecialchars($contrat['budget'], ENT_QUOTES, 'UTF-8'); ?> DT</div>
                 </div>
                 <div>
-                    <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">Délai</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">DÃ©lai</div>
                     <div style="font-size:1.1rem;font-weight:700;color:var(--text-light);"><?php echo htmlspecialchars($contrat['delai'], ENT_QUOTES, 'UTF-8'); ?> jours</div>
                 </div>
                 <div>
                     <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">Freelancer</div>
-                    <div style="font-size:0.9rem;font-weight:600;color:var(--text-light);"><?php echo htmlspecialchars($contrat['freelance_info'] ?? '—', ENT_QUOTES, 'UTF-8'); ?></div>
+                    <div style="font-size:0.9rem;font-weight:600;color:var(--text-light);"><?php echo htmlspecialchars($contrat['freelance_info'] ?? 'â€”', ENT_QUOTES, 'UTF-8'); ?></div>
                 </div>
                 <div>
-                    <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">Créé le</div>
+                    <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">CrÃ©Ã© le</div>
                     <div style="font-size:0.9rem;color:var(--text-light);"><?php echo date('d/m/Y', strtotime($contrat['date_creation'])); ?></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Règles associées -->
+    <!-- RÃ¨gles associÃ©es -->
     <?php if (!empty($rules)): ?>
     <div class="admin-card animate-in delay-2">
         <div class="admin-card-header">
-            <div class="admin-card-title"><i class="fa-solid fa-gavel"></i> Règles associées</div>
-            <span style="font-size:0.8rem;color:var(--text-muted);"><?php echo count($rules); ?> règle<?php echo count($rules) > 1 ? 's' : ''; ?></span>
+            <div class="admin-card-title"><i class="fa-solid fa-gavel"></i> RÃ¨gles associÃ©es</div>
+            <span style="font-size:0.8rem;color:var(--text-muted);"><?php echo count($rules); ?> rÃ¨gle<?php echo count($rules) > 1 ? 's' : ''; ?></span>
         </div>
         <div style="padding:0 1.5rem;">
             <?php foreach ($rules as $r): ?>
@@ -248,12 +246,12 @@ function saveSignature(pad, inputId, formId) {
     document.getElementById(formId).submit();
 }
 
-// ── Traduction de la page de détails ──────────────────────────────────
+// â”€â”€ Traduction de la page de dÃ©tails â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 async function translateDetails(btn) {
     const from = document.getElementById('translate-from')?.value || 'fr';
     const to   = document.getElementById('translate-to')?.value   || 'en';
 
-    if (from === to) { showApiToast('Choisissez deux langues différentes.', 'error'); return; }
+    if (from === to) { showApiToast('Choisissez deux langues diffÃ©rentes.', 'error'); return; }
 
     showApiLoader(btn, 'Traduction...');
 
@@ -261,20 +259,20 @@ async function translateDetails(btn) {
     const oldPanel = document.getElementById('translation-panel');
     if (oldPanel) oldPanel.remove();
 
-    const langNames = { fr: 'Français', en: 'English', ar: 'العربية' };
+    const langNames = { fr: 'FranÃ§ais', en: 'English', ar: 'Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©' };
 
-    // Collecter tous les éléments à traduire
+    // Collecter tous les Ã©lÃ©ments Ã  traduire
     const targets = [
         { el: document.getElementById('detail-titre'),       label: 'Titre' },
         { el: document.getElementById('detail-description'), label: 'Description' },
         ...Array.from(document.querySelectorAll('.rule-desc-text')).map((el, i) => ({
-            el, label: `Règle ${i + 1}`
+            el, label: `RÃ¨gle ${i + 1}`
         })),
     ].filter(t => t.el && t.el.innerText.trim().length > 2);
 
     if (targets.length === 0) {
         hideApiLoader(btn);
-        showApiToast('Aucun texte à traduire.', 'error');
+        showApiToast('Aucun texte Ã  traduire.', 'error');
         return;
     }
 
@@ -291,11 +289,11 @@ async function translateDetails(btn) {
     hideApiLoader(btn);
 
     if (results.length === 0) {
-        showApiToast('Traduction échouée. Vérifiez la langue source.', 'error');
+        showApiToast('Traduction Ã©chouÃ©e. VÃ©rifiez la langue source.', 'error');
         return;
     }
 
-    // Créer un panneau de traduction visible sous les infos générales
+    // CrÃ©er un panneau de traduction visible sous les infos gÃ©nÃ©rales
     const panel = document.createElement('div');
     panel.id = 'translation-panel';
     panel.style.cssText = `
@@ -307,13 +305,13 @@ async function translateDetails(btn) {
         animation: fadeIn 0.4s ease;
     `;
 
-    const langFlag = { fr: '🇫🇷', en: '🇬🇧', ar: '🇹🇳' };
+    const langFlag = { fr: 'ðŸ‡«ðŸ‡·', en: 'ðŸ‡¬ðŸ‡§', ar: 'ðŸ‡¹ðŸ‡³' };
 
     panel.innerHTML = `
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(37,99,235,0.2);">
             <div style="font-size:0.82rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.8px;">
                 <i class="fa-solid fa-language"></i>
-                Traduction ${langFlag[from] || ''} ${langNames[from] || from} → ${langFlag[to] || ''} ${langNames[to] || to}
+                Traduction ${langFlag[from] || ''} ${langNames[from] || from} â†’ ${langFlag[to] || ''} ${langNames[to] || to}
             </div>
             <button type="button" onclick="document.getElementById('translation-panel').remove()"
                     style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:1rem;padding:0.2rem 0.5rem;">
@@ -349,7 +347,7 @@ async function translateDetails(btn) {
         </div>
     `;
 
-    // Insérer après la première card (infos générales)
+    // InsÃ©rer aprÃ¨s la premiÃ¨re card (infos gÃ©nÃ©rales)
     const firstCard = document.querySelector('.admin-card');
     if (firstCard) {
         firstCard.parentNode.insertBefore(panel, firstCard.nextSibling);
@@ -358,9 +356,9 @@ async function translateDetails(btn) {
         document.querySelector('main')?.appendChild(panel);
     }
 
-    showApiToast(`${results.length} élément(s) traduit(s) en ${to.toUpperCase()} ✓`, 'success');
+    showApiToast(`${results.length} Ã©lÃ©ment(s) traduit(s) en ${to.toUpperCase()} âœ“`, 'success');
 
-    // Mettre à jour le badge de langue
+    // Mettre Ã  jour le badge de langue
     const badge = document.getElementById('lang-badge');
     if (badge) { badge.textContent = to.toUpperCase(); badge.style.display = 'inline-block'; }
 }
@@ -381,8 +379,9 @@ function applyAllTranslations(results) {
     });
 
     document.getElementById('translation-panel')?.remove();
-    showApiToast('Traduction appliquée sur la page ✓', 'success');
+    showApiToast('Traduction appliquÃ©e sur la page âœ“', 'success');
 }
 </script>
 </body>
 </html>
+

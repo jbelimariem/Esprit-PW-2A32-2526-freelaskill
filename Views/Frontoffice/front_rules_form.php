@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_index.php'); exit; }
 $role = $_SESSION['user_role'];
@@ -12,8 +12,8 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace <?php echo $roleName; ?> — <?php echo isset($currentRule) ? 'Modifier' : 'Nouvelle'; ?> Règle · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Espace <?php echo $roleName; ?> â€” <?php echo isset($currentRule) ? 'Modifier' : 'Nouvelle'; ?> RÃ¨gle Â· FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         // Chemin absolu vers l'API controller
@@ -26,31 +26,29 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
 <div class="glow-orb" style="width:400px;height:400px;background:#A855F7;top:-100px;right:-100px;"></div>
 
-<main class="admin-main">
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <div class="admin-topbar animate-in">
         <div>
             <div class="admin-breadcrumb">
                 <i class="fa-solid fa-house"></i>
                 <span class="sep">/</span>
-                <a href="front_rules_index.php">Règles</a>
+                <a href="front_rules_index.php">RÃ¨gles</a>
                 <span class="sep">/</span>
                 <a href="front_rules_list.php">Liste</a>
                 <span class="sep">/</span>
-                <span class="current"><?php echo isset($currentRule) ? 'Modifier' : 'Créer'; ?></span>
+                <span class="current"><?php echo isset($currentRule) ? 'Modifier' : 'CrÃ©er'; ?></span>
             </div>
-            <h1 class="admin-page-title"><?php echo isset($currentRule) ? 'Modifier la' : 'Nouvelle'; ?> <span>Règle</span></h1>
+            <h1 class="admin-page-title"><?php echo isset($currentRule) ? 'Modifier la' : 'Nouvelle'; ?> <span>RÃ¨gle</span></h1>
         </div>
         <div class="topbar-actions">
             <a href="front_rules_list.php" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+                <i class="fa-solid fa-arrow-left"></i> Retour Ã  la liste
             </a>
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
@@ -72,7 +70,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
         <input type="hidden" name="statut" value="<?php echo htmlspecialchars($currentRule['statut'] ?? 'actif', ENT_QUOTES, 'UTF-8'); ?>">
 
         <div class="form-section animate-in delay-1">
-            <div class="form-section-title"><i class="fa-solid fa-gavel"></i> Informations de la règle</div>
+            <div class="form-section-title"><i class="fa-solid fa-gavel"></i> Informations de la rÃ¨gle</div>
 
             <!-- Barre d'outils API -->
             <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;padding:0.85rem 1rem;background:rgba(168,85,247,0.05);border:1px solid rgba(168,85,247,0.15);border-radius:12px;align-items:center;">
@@ -80,19 +78,19 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Outils IA
                 </span>
                 <select id="lang-select" style="padding:0.4rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.8rem;font-family:inherit;cursor:pointer;outline:none;">
-                    <option value="fr">🇫🇷 FR</option>
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="ar">🇹🇳 AR</option>
+                    <option value="fr">ðŸ‡«ðŸ‡· FR</option>
+                    <option value="en">ðŸ‡¬ðŸ‡§ EN</option>
+                    <option value="ar">ðŸ‡¹ðŸ‡³ AR</option>
                 </select>
                 <button type="button" id="btn-suggest-rules" onclick="suggestRules(this)"
                         style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.9rem;background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
-                    <i class="fa-solid fa-lightbulb"></i> Suggérer des règles
+                    <i class="fa-solid fa-lightbulb"></i> SuggÃ©rer des rÃ¨gles
                 </button>
                 <div style="display:inline-flex;align-items:center;gap:0.3rem;">
                     <select id="translate-from" style="padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                         <option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option>
                     </select>
-                    <span style="color:#475569;font-size:0.75rem;">→</span>
+                    <span style="color:#475569;font-size:0.75rem;">â†’</span>
                     <select id="translate-to" style="padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                         <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
                     </select>
@@ -117,7 +115,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                     <label class="form-label">Titre <span style="color:#EF4444;">*</span></label>
                     <input type="text" id="titre" name="titre" class="form-input <?php echo isset($errors['titre']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentRule['titre'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                           placeholder="Ex: Clause de confidentialité">
+                           placeholder="Ex: Clause de confidentialitÃ©">
                     <?php if (isset($errors['titre'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['titre'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
@@ -125,19 +123,19 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                     <label class="form-label">Type de clause <span style="color:#EF4444;">*</span></label>
                     <input type="text" id="type" name="type" class="form-input <?php echo isset($errors['type']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentRule['type'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                           placeholder="Ex: NDA, Pénalité, Délai">
+                           placeholder="Ex: NDA, PÃ©nalitÃ©, DÃ©lai">
                     <?php if (isset($errors['type'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['type'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
                 <div class="form-group full">
-                    <label class="form-label">Description détaillée <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">Description dÃ©taillÃ©e <span style="color:#EF4444;">*</span></label>
                     <textarea id="description" name="description" rows="4" class="form-textarea <?php echo isset($errors['description']) ? 'has-error' : ''; ?>"
-                              placeholder="Décrivez précisément la règle et ses conditions..."><?php echo htmlspecialchars($currentRule['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                              placeholder="DÃ©crivez prÃ©cisÃ©ment la rÃ¨gle et ses conditions..."><?php echo htmlspecialchars($currentRule['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     <?php if (isset($errors['description'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['description'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Valeur <span style="font-weight:400;color:var(--text-muted);">(numérique)</span></label>
+                    <label class="form-label">Valeur <span style="font-weight:400;color:var(--text-muted);">(numÃ©rique)</span></label>
                     <input type="text" id="valeur" name="valeur" class="form-input <?php echo isset($errors['valeur']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentRule['valeur'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                            placeholder="Ex: 500">
@@ -145,7 +143,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Titre du contrat associé</label>
+                    <label class="form-label">Titre du contrat associÃ©</label>
                     <input type="text" id="titre_contrat" name="titre_contrat" class="form-input <?php echo isset($errors['titre_contrat']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentRule['titre_contrat'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                            placeholder="Ex: Contrat de prestation IT">
@@ -160,7 +158,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
             <button type="submit" class="btn-submit">
                 <?php echo isset($currentRule)
                     ? '<i class="fa-solid fa-save"></i> Enregistrer les modifications'
-                    : '<i class="fa-solid fa-plus"></i> Créer la règle'; ?>
+                    : '<i class="fa-solid fa-plus"></i> CrÃ©er la rÃ¨gle'; ?>
             </button>
         </div>
     </form>
@@ -173,3 +171,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+

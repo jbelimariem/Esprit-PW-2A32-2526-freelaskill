@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_role.php'); exit; }
 require_once __DIR__ . '/../../controllers/contratController.php';
@@ -44,8 +44,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace <?php echo $roleName; ?> — <?php echo $isEdit ? 'Modifier' : 'Nouveau'; ?> Contrat · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Espace <?php echo $roleName; ?> â€” <?php echo $isEdit ? 'Modifier' : 'Nouveau'; ?> Contrat Â· FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
@@ -59,9 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
 <div class="glow-orb" style="width:400px;height:400px;background:#2563EB;top:-100px;right:-100px;"></div>
 
-<main class="admin-main">
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <div class="admin-topbar animate-in">
         <div>
@@ -72,18 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                 <span class="sep">/</span>
                 <a href="front_contrat_list.php">Liste</a>
                 <span class="sep">/</span>
-                <span class="current"><?php echo $isEdit ? 'Modifier' : 'Créer'; ?></span>
+                <span class="current"><?php echo $isEdit ? 'Modifier' : 'CrÃ©er'; ?></span>
             </div>
             <h1 class="admin-page-title"><?php echo $isEdit ? 'Modifier le' : 'Nouveau'; ?> <span>Contrat</span></h1>
         </div>
         <div class="topbar-actions">
             <a href="front_contrat_list.php" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left"></i> Retour à la liste
+                <i class="fa-solid fa-arrow-left"></i> Retour Ã  la liste
             </a>
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
@@ -106,9 +104,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
             <input type="hidden" name="id_contrat" value="<?php echo intval($currentContrat['id_contrat']); ?>">
         <?php endif; ?>
 
-        <!-- Section 1 : Informations générales -->
+        <!-- Section 1 : Informations gÃ©nÃ©rales -->
         <div class="form-section animate-in delay-1">
-            <div class="form-section-title"><i class="fa-solid fa-circle-info"></i> Informations générales</div>
+            <div class="form-section-title"><i class="fa-solid fa-circle-info"></i> Informations gÃ©nÃ©rales</div>
 
             <!-- Barre d'outils API -->
             <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;padding:0.85rem 1rem;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:12px;align-items:center;">
@@ -116,25 +114,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Outils IA
                 </span>
 
-                <!-- Sélecteur de langue -->
+                <!-- SÃ©lecteur de langue -->
                 <select id="lang-select" style="padding:0.4rem 0.75rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.8rem;font-family:inherit;cursor:pointer;outline:none;">
-                    <option value="fr">🇫🇷 FR</option>
-                    <option value="en">🇬🇧 EN</option>
-                    <option value="ar">🇹🇳 AR</option>
+                    <option value="fr">ðŸ‡«ðŸ‡· FR</option>
+                    <option value="en">ðŸ‡¬ðŸ‡§ EN</option>
+                    <option value="ar">ðŸ‡¹ðŸ‡³ AR</option>
                 </select>
 
-                <!-- Générer description -->
+                <!-- GÃ©nÃ©rer description -->
                 <button type="button" id="btn-generate-desc"
                         onclick="generateDescription(this)"
                         style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.9rem;background:rgba(168,85,247,0.12);color:#A855F7;border:1px solid rgba(168,85,247,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
-                    <i class="fa-solid fa-robot"></i> Générer description
+                    <i class="fa-solid fa-robot"></i> GÃ©nÃ©rer description
                 </button>
 
-                <!-- Suggérer règles -->
+                <!-- SuggÃ©rer rÃ¨gles -->
                 <button type="button" id="btn-suggest-rules"
                         onclick="suggestRules(this)"
                         style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.4rem 0.9rem;background:rgba(245,158,11,0.12);color:#F59E0B;border:1px solid rgba(245,158,11,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
-                    <i class="fa-solid fa-lightbulb"></i> Suggérer règles
+                    <i class="fa-solid fa-lightbulb"></i> SuggÃ©rer rÃ¨gles
                 </button>
 
                 <!-- Traduire contrat -->
@@ -142,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                     <select id="translate-from" style="padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                         <option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option>
                     </select>
-                    <span style="color:#475569;font-size:0.75rem;">→</span>
+                    <span style="color:#475569;font-size:0.75rem;">â†’</span>
                     <select id="translate-to" style="padding:0.4rem 0.6rem;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:999px;color:#94A3B8;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
                         <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
                     </select>
@@ -175,9 +173,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                 </div>
 
                 <div class="form-group full">
-                    <label class="form-label">Description détaillée <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">Description dÃ©taillÃ©e <span style="color:#EF4444;">*</span></label>
                     <textarea id="description" name="description" rows="5" class="form-textarea <?php echo isset($errors['description']) ? 'has-error' : ''; ?>"
-                              placeholder="Détaillez les conditions, livrables et attentes..."><?php echo htmlspecialchars($currentContrat['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
+                              placeholder="DÃ©taillez les conditions, livrables et attentes..."><?php echo htmlspecialchars($currentContrat['description'] ?? '', ENT_QUOTES, 'UTF-8'); ?></textarea>
                     <?php if (isset($errors['description'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['description'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
@@ -190,7 +188,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Délai (jours) <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">DÃ©lai (jours) <span style="color:#EF4444;">*</span></label>
                     <input type="text" id="delai" name="delai" class="form-input <?php echo isset($errors['delai']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentContrat['delai'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                            placeholder="Ex: 45">
@@ -198,31 +196,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                 </div>
 
                 <div class="form-group full">
-                    <label class="form-label">Freelancer approuvé (Nom & Poste) <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">Freelancer approuvÃ© (Nom & Poste) <span style="color:#EF4444;">*</span></label>
                     <input type="text" id="freelance_info" name="freelance_info" class="form-input <?php echo isset($errors['freelance_info']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentContrat['freelance_info'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                           placeholder="Ex: John Doe - Développeur Web">
+                           placeholder="Ex: John Doe - DÃ©veloppeur Web">
                     <?php if (isset($errors['freelance_info'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['freelance_info'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
             </div>
         </div>
 
-        <!-- Section 2 : Règles avec pagination -->
+        <!-- Section 2 : RÃ¨gles avec pagination -->
         <div class="form-section animate-in delay-2">
-            <div class="form-section-title"><i class="fa-solid fa-gavel"></i> Règles associées <span style="font-weight:400;font-size:0.8rem;color:var(--text-muted);">(optionnel)</span></div>
+            <div class="form-section-title"><i class="fa-solid fa-gavel"></i> RÃ¨gles associÃ©es <span style="font-weight:400;font-size:0.8rem;color:var(--text-muted);">(optionnel)</span></div>
 
             <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;">
                 <div style="padding:0.7rem 1rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;">
                     <i class="fa-solid fa-magnifying-glass" style="color:var(--text-muted);font-size:0.82rem;"></i>
-                    <input type="text" id="ruleSearch" placeholder="Rechercher une règle..." oninput="filterRules()"
+                    <input type="text" id="ruleSearch" placeholder="Rechercher une rÃ¨gle..." oninput="filterRules()"
                            style="flex:1;background:transparent;border:none;outline:none;color:var(--text-light);font-size:0.88rem;font-family:inherit;">
                 </div>
                 <div id="rulesList">
                     <?php if (empty($availableRules)): ?>
                         <div style="padding:1.5rem;text-align:center;color:var(--text-muted);font-size:0.88rem;">
                             <i class="fa-solid fa-inbox" style="display:block;font-size:1.5rem;margin-bottom:0.5rem;opacity:0.4;"></i>
-                            Aucune règle disponible.
+                            Aucune rÃ¨gle disponible.
                         </div>
                     <?php else: ?>
                         <?php foreach ($availableRules as $rule): ?>
@@ -235,7 +233,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                                     <div class="rule-pick-title"><?php echo htmlspecialchars($rule['titre'], ENT_QUOTES, 'UTF-8'); ?></div>
                                     <div class="rule-pick-meta">
                                         <span style="background:rgba(37,99,235,0.1);color:var(--tech-blue);padding:0.1rem 0.5rem;border-radius:999px;font-size:0.72rem;font-weight:500;"><?php echo htmlspecialchars($rule['type'], ENT_QUOTES, 'UTF-8'); ?></span>
-                                        <?php if (!empty($rule['valeur'])): ?>&nbsp;· <?php echo htmlspecialchars($rule['valeur'], ENT_QUOTES, 'UTF-8'); ?><?php endif; ?>
+                                        <?php if (!empty($rule['valeur'])): ?>&nbsp;Â· <?php echo htmlspecialchars($rule['valeur'], ENT_QUOTES, 'UTF-8'); ?><?php endif; ?>
                                     </div>
                                 </div>
                             </label>
@@ -243,7 +241,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                     <?php endif; ?>
                 </div>
                 <div class="rules-picker-footer">
-                    <span><span id="selectedCount">0</span> sélectionnée(s) · <span id="visibleCount"><?php echo count($availableRules); ?></span> règle(s)</span>
+                    <span><span id="selectedCount">0</span> sÃ©lectionnÃ©e(s) Â· <span id="visibleCount"><?php echo count($availableRules); ?></span> rÃ¨gle(s)</span>
                     <div class="pagination" id="rulesPagination" style="margin-top:0;"></div>
                 </div>
             </div>
@@ -260,7 +258,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         <?php if ($isClient): ?>
                             <span style="color:#EF4444;">*</span>
                         <?php else: ?>
-                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le client signera après)</span>
+                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le client signera aprÃ¨s)</span>
                         <?php endif; ?>
                     </label>
                     <?php if ($isClient): ?>
@@ -273,7 +271,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         </div>
                         <input type="hidden" id="signature_client" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     <?php else: ?>
-                        <!-- Freelancer : la signature client sera ajoutée plus tard -->
+                        <!-- Freelancer : la signature client sera ajoutÃ©e plus tard -->
                         <input type="hidden" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                             <?php if (!empty($currentContrat['signature_client'])): ?>
@@ -281,7 +279,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                             <?php else: ?>
                                 <div style="text-align:center;color:var(--text-muted);">
                                     <i class="fa-solid fa-clock" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
-                                    <span style="font-style:italic;font-size:0.88rem;">Le client signera après création</span>
+                                    <span style="font-style:italic;font-size:0.88rem;">Le client signera aprÃ¨s crÃ©ation</span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -295,7 +293,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         <?php if (!$isClient): ?>
                             <span style="color:#EF4444;">*</span>
                         <?php else: ?>
-                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le freelancer signera après)</span>
+                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le freelancer signera aprÃ¨s)</span>
                         <?php endif; ?>
                     </label>
                     <?php if (!$isClient): ?>
@@ -308,7 +306,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         </div>
                         <input type="hidden" id="signature_freelance" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     <?php else: ?>
-                        <!-- Client : la signature freelancer sera ajoutée plus tard -->
+                        <!-- Client : la signature freelancer sera ajoutÃ©e plus tard -->
                         <input type="hidden" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                             <?php if (!empty($currentContrat['signature_freelance'])): ?>
@@ -316,7 +314,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                             <?php else: ?>
                                 <div style="text-align:center;color:var(--text-muted);">
                                     <i class="fa-solid fa-clock" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
-                                    <span style="font-style:italic;font-size:0.88rem;">Le freelancer signera après création</span>
+                                    <span style="font-style:italic;font-size:0.88rem;">Le freelancer signera aprÃ¨s crÃ©ation</span>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -332,7 +330,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
             <button type="submit" class="btn-submit">
                 <?php echo $isEdit
                     ? '<i class="fa-solid fa-save"></i> Enregistrer les modifications'
-                    : '<i class="fa-solid fa-paper-plane"></i> Créer le contrat'; ?>
+                    : '<i class="fa-solid fa-paper-plane"></i> CrÃ©er le contrat'; ?>
             </button>
         </div>
     </form>
@@ -365,7 +363,7 @@ document.getElementById('contratForm').addEventListener('submit', function () {
     if (padFreelance && !padFreelance.isEmpty()) document.getElementById('signature_freelance').value = padFreelance.toDataURL();
 });
 
-// ── RULES PAGINATION ──
+// â”€â”€ RULES PAGINATION â”€â”€
 const RULES_PER_PAGE = 5;
 let currentPage = 1, filteredItems = [];
 
@@ -392,7 +390,7 @@ function renderPagination() {
     if (total <= 1) { c.innerHTML = ''; return; }
     let h = `<button type="button" class="pag-btn ${currentPage===1?'disabled':''}" onclick="goToPage(${currentPage-1})"><i class="fa-solid fa-chevron-left"></i></button>`;
     for (let i=1;i<=total;i++) {
-        if (total>7&&i>2&&i<total-1&&Math.abs(i-currentPage)>1){if(i===3||i===total-2)h+=`<span class="pag-btn disabled">…</span>`;continue;}
+        if (total>7&&i>2&&i<total-1&&Math.abs(i-currentPage)>1){if(i===3||i===total-2)h+=`<span class="pag-btn disabled">â€¦</span>`;continue;}
         h+=`<button type="button" class="pag-btn ${i===currentPage?'active':''}" onclick="goToPage(${i})">${i}</button>`;
     }
     h+=`<button type="button" class="pag-btn ${currentPage===total?'disabled':''}" onclick="goToPage(${currentPage+1})"><i class="fa-solid fa-chevron-right"></i></button>`;
@@ -402,9 +400,10 @@ function renderPagination() {
 function goToPage(p) { const t=Math.ceil(filteredItems.length/RULES_PER_PAGE); if(p<1||p>t)return; currentPage=p; renderPage(); }
 function updateSelectedCount() { const n=document.querySelectorAll('#rulesList input:checked').length; const el=document.getElementById('selectedCount'); if(el)el.textContent=n; }
 document.addEventListener('DOMContentLoaded', () => {
-    // Vérification Bad Words avant soumission
+    // VÃ©rification Bad Words avant soumission
     setupContentCheck('contratForm', ['titre', 'description', 'freelance_info']);
 });
 </script>
 </body>
 </html>
+

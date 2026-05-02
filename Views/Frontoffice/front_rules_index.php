@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 session_start();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_role.php'); exit; }
 $role = $_SESSION['user_role'];
@@ -11,8 +11,8 @@ $activePage = 'rules';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Espace <?php echo $roleName; ?> — Règles · FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css">
+    <title>Espace <?php echo $roleName; ?> – Règles · FreelaSkill</title>
+    <link rel="stylesheet" href="css/front.css?v=4">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="css/front.js" defer></script>
 </head>
@@ -20,9 +20,11 @@ $activePage = 'rules';
 
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
+<?php include __DIR__ . '/partials/navbar.php'; ?>
+
 <div class="glow-orb" style="width:450px;height:450px;background:#A855F7;top:-100px;right:-100px;"></div>
 
-<main class="admin-main">
+<main class="admin-main" style="padding-top:1.5rem;">
 
     <div class="admin-topbar animate-in">
         <div>
@@ -34,10 +36,6 @@ $activePage = 'rules';
             <h1 class="admin-page-title">Gestion des <span>Règles</span></h1>
         </div>
         <div class="topbar-actions">
-            <div class="admin-badge">
-                <i class="fa-solid <?php echo $isClient ? 'fa-user-tie' : 'fa-laptop-code'; ?>"></i>
-                <?php echo htmlspecialchars($roleName, ENT_QUOTES, 'UTF-8'); ?>
-            </div>
         </div>
     </div>
 
