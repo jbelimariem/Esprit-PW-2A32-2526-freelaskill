@@ -547,83 +547,106 @@ function fillFieldsFromExtracted(extracted, targetFields) {
 }
 
 function fillFieldsFromOcr(text, targetFields) {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+    const lines    = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
     const fullText = lines.join('\n');
 
-    // ── Extraction intelligente des champs ──────────────────────────
+    // ── Extraction intelligente ──────────────────────────────────────
 
-    // 1. TITRE — première ligne non vide (souvent le titre du document)
+    // 1. TITRE — première ligne significative (pas un nombre, pas trop courte)
     let titre = '';
     for (const line of lines) {
-        if (line.length > 3 && line.length < 80) {
-            titre = line;
+        if (line.length >= 4 && line.length <= 100 && !/^\d+$/.test(line)) {
+            titre = line.replace(/[*_#]/g, '').trim();
             break;
         }
     }
 
-    // 2. BUDGET — chercher un nombre après "budget", "Budget", "€", "DT", "dt"
+    // 2. BUDGET — nombre après "budget", "Budget", ou suivi de DT/€/$
     let budget = '';
-    const budgetMatch = fullText.match(/budget\s*[:\-]?\s*(\d[\d\s,\.]*)\s*(dt|dinar|€|\$)?/i)
-                     || fullText.match(/(\d{2,6})\s*(dt|dinar|€|\$)/i);
-    if (budgetMatch) {
-        budget = budgetMatch[1].replace(/\s/g, '').replace(',', '.');
+    const budgetPatterns = [
+        /budget\s*[:\-=]?\s*(\d[\d\s,\.]*)\s*(dt|dinar|tnd|€|\$|eur)?/i,
+        /(\d{2,7}(?:[,\.]\d{1,2})?)\s*(dt|dinar|tnd|€|\$)/i,
+        /montant\s*[:\-=]?\s*(\d[\d\s,\.]*)/i,
+        /prix\s*[:\-=]?\s*(\d[\d\s,\.]*)/i,
+    ];
+    for (const p of budgetPatterns) {
+        const m = fullText.match(p);
+        if (m) { budget = m[1].replace(/\s/g, '').replace(',', '.'); break; }
     }
 
-    // 3. DÉLAI — chercher un nombre après "délai", "delai", "jours", "days"
+    // 3. DÉLAI — nombre de jours
     let delai = '';
-    const delaiMatch = fullText.match(/d[eé]lai\s*[:\-]?\s*(\d+)\s*(jours?|days?)?/i)
-                    || fullText.match(/(\d+)\s*(jours?|days?)/i);
-    if (delaiMatch) {
-        delai = delaiMatch[1];
+    const delaiPatterns = [
+        /d[eé]lai\s*[:\-=]?\s*(\d+)\s*(jours?|days?|semaines?|mois)?/i,
+        /(\d+)\s*(jours?|days?)/i,
+        /dur[eé]e\s*[:\-=]?\s*(\d+)/i,
+        /livraison\s*[:\-=]?\s*(\d+)/i,
+    ];
+    for (const p of delaiPatterns) {
+        const m = fullText.match(p);
+        if (m) { delai = m[1]; break; }
     }
 
-    // 4. FREELANCER — chercher après "freelancer", "développeur", "avec", "par"
+    // 4. FREELANCER — nom après mots-clés
     let freelancer = '';
-    const freelancerMatch = fullText.match(/(?:freelancer|développeur|developpeur|avec le|par)\s+([A-ZÀ-Ü][a-zà-ü]+(?:\s+[A-ZÀ-Ü][a-zà-ü]+)*)/i)
-                         || fullText.match(/(?:Mouhamed|Mohamed|Mohammed|Ahmed|Ali|Sami|Amine)\s*[A-Za-z]*/i);
-    if (freelancerMatch) {
-        freelancer = freelancerMatch[0].replace(/^(freelancer|développeur|developpeur|avec le|par)\s+/i, '').trim();
+    const freelancerPatterns = [
+        /(?:freelancer|prestataire|d[eé]veloppeur|designer|consultant|avec|par|réalisé par)\s*[:\-]?\s*([A-ZÀ-Ü][a-zà-ü]+(?:\s+[A-ZÀ-Ü][a-zà-ü]+){0,3})/i,
+        /(?:nom|name)\s*[:\-]?\s*([A-ZÀ-Ü][a-zà-ü]+(?:\s+[A-ZÀ-Ü][a-zà-ü]+){0,2})/i,
+    ];
+    for (const p of freelancerPatterns) {
+        const m = fullText.match(p);
+        if (m) { freelancer = m[1].trim(); break; }
     }
 
-    // 5. DESCRIPTION — tout le texte sauf la première ligne (titre)
-    const descLines = lines.slice(1).filter(l => {
-        // Exclure les lignes qui sont déjà extraites (budget, délai)
-        return !l.match(/budget\s*[:\-]/i) && !l.match(/d[eé]lai\s*[:\-]/i);
+    // 5. DESCRIPTION — lignes pertinentes (exclure titre, budget, délai, freelancer)
+    const skipPatterns = [
+        /budget|montant|prix/i,
+        /d[eé]lai|livraison|dur[eé]e/i,
+        /freelancer|prestataire|d[eé]veloppeur/i,
+        /^\d+[\.,]?\d*\s*(dt|€|\$|dinar)?$/i,  // lignes avec juste un nombre
+        /^[*#_\-=]+$/,  // séparateurs
+    ];
+
+    const descLines = lines.slice(1).filter(line => {
+        if (line === titre) return false;
+        if (line.length < 5) return false;
+        return !skipPatterns.some(p => p.test(line));
     });
-    const description = descLines.join('\n').trim();
 
-    // ── Remplir les champs ──────────────────────────────────────────
+    const description = descLines.slice(0, 10).join('\n').trim(); // max 10 lignes
 
-    if (targetFields.titre && titre) {
-        const titreEl = document.getElementById(targetFields.titre);
-        if (titreEl) titreEl.value = titre.substring(0, 255);
-    }
+    // ── Remplir les champs avec highlight ────────────────────────────
 
-    if (targetFields.description && description) {
-        const descEl = document.getElementById(targetFields.description);
-        if (descEl) descEl.value = description;
-    }
+    const fieldsToFill = [
+        { id: targetFields.titre || 'titre',               value: titre,       label: 'Titre' },
+        { id: targetFields.description || 'description',   value: description, label: 'Description' },
+        { id: 'budget',                                     value: budget,      label: 'Budget' },
+        { id: 'delai',                                      value: delai,       label: 'Délai' },
+        { id: 'freelance_info',                             value: freelancer,  label: 'Freelancer' },
+    ];
 
-    // Remplir budget si trouvé
-    if (budget) {
-        const budgetEl = document.getElementById('budget');
-        if (budgetEl && !budgetEl.value) budgetEl.value = budget;
-    }
+    const filled = [];
+    fieldsToFill.forEach(({ id, value, label }) => {
+        if (!value) return;
+        const el = document.getElementById(id);
+        if (!el) return;
+        // Ne pas écraser un champ déjà rempli (sauf titre et description)
+        if (el.value && id !== 'titre' && id !== 'description') return;
+        el.value = value.toString().trim().substring(0, id === 'titre' ? 255 : 2000);
+        el.style.borderColor = 'rgba(16,185,129,0.6)';
+        el.style.boxShadow   = '0 0 0 3px rgba(16,185,129,0.15)';
+        setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 3000);
+        filled.push(label);
+    });
 
-    // Remplir délai si trouvé
-    if (delai) {
-        const delaiEl = document.getElementById('delai');
-        if (delaiEl && !delaiEl.value) delaiEl.value = delai;
-    }
-
-    // Remplir freelancer si trouvé
-    if (freelancer) {
-        const freelancerEl = document.getElementById('freelance_info');
-        if (freelancerEl && !freelancerEl.value) freelancerEl.value = freelancer;
-    }
-
-    // Afficher le texte brut extrait pour référence
+    // Afficher le résumé
     showOcrPreview(text, { titre, budget, delai, freelancer });
+
+    if (filled.length > 0) {
+        showApiToast(`Champs remplis : ${filled.join(', ')} ✓`, 'success');
+    } else {
+        showApiToast('Texte extrait mais aucun champ reconnu. Vérifiez le texte brut.', 'info');
+    }
 }
 
 function showOcrPreview(text, extracted = {}) {

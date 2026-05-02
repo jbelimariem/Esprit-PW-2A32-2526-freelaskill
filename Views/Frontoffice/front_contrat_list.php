@@ -50,30 +50,30 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
 <main class="admin-main" style="padding-top:1.5rem;">
 
     <!-- Topbar -->
-    <div class="admin-topbar animate-in">
-        <div>
-            <div class="admin-breadcrumb">
-                <i class="fa-solid fa-house"></i>
-                <span class="sep">/</span>
-                <a href="front_contrat_index.php">Contrats</a>
-                <span class="sep">/</span>
-                <span class="current">Liste</span>
-            </div>
-            <h1 class="admin-page-title">Liste des <span>Contrats</span></h1>
+    <div class="animate-in" style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+        <div class="admin-breadcrumb">
+            <i class="fa-solid fa-house"></i>
+            <span class="sep">/</span>
+            <a href="front_contrat_index.php">Contrats</a>
+            <span class="sep">/</span>
+            <span class="current">Liste</span>
         </div>
-        <div class="topbar-actions">
-            <a href="front_contrat_index.php" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left"></i> Retour
-            </a>
-            <button id="statsToggleBtn" onclick="toggleStats()" class="btn btn-secondary">
-                <i class="fa-solid fa-chart-bar"></i> Statistiques
-            </button>
-            <a href="../Backoffice/admin_export_pdf.php?action=export_all" class="btn btn-purple" target="_blank">
-                <i class="fa-solid fa-file-pdf"></i> Exporter tout
-            </a>
-            <a href="front_contrat_form.php" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Nouveau contrat
-            </a>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-top:0.25rem;">
+            <h1 class="admin-page-title">Liste des <span>Contrats</span></h1>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                <a href="front_contrat_index.php" class="btn btn-secondary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+                <button id="statsToggleBtn" onclick="toggleStats()" class="btn btn-secondary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-chart-bar"></i> Statistiques
+                </button>
+                <a href="../Backoffice/admin_export_pdf.php?action=export_all" class="btn btn-purple" target="_blank" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-file-pdf"></i> Exporter tout
+                </a>
+                <a href="front_contrat_form.php" class="btn btn-primary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-plus"></i> Nouveau contrat
+                </a>
+            </div>
         </div>
     </div>
 
