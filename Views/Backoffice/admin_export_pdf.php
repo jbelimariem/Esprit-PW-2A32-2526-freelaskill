@@ -1,249 +1,414 @@
 <?php
 session_start();
 require_once __DIR__ . '/../../controllers/contratController.php';
+require_once __DIR__ . '/../../controllers/ruleController.php';
 require_once __DIR__ . '/../../controllers/fpdf/fpdf.php';
 
+// ── Helper : encode UTF-8 → windows-1252 pour FPDF ──────────────────────
+function enc($str) {
+    if (empty($str)) return '';
+    return iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $str) ?: $str;
+}
+
+// ── Helper : décode signature base64 → fichier PNG temporaire ────────────
+function sigToTemp($dataUrl) {
+    if (empty($dataUrl) || strpos($dataUrl, 'data:image/') !== 0) return null;
+    $parts = explode(',', $dataUrl, 2);
+    if (count($parts) < 2) return null;
+    $imgData = base64_decode($parts[1], true);
+    if (!$imgData || strlen($imgData) < 100) return null;
+    $isPng = (substr($imgData, 0, 8) === "\x89PNG\r\n\x1a\n");
+    $isJpg = (substr($imgData, 0, 2) === "\xFF\xD8");
+    if (!$isPng && !$isJpg) return null;
+    $tmpFile = tempnam(sys_get_temp_dir(), 'sig_') . ($isPng ? '.png' : '.jpg');
+    if (file_put_contents($tmpFile, $imgData) === false) return null;
+    $info = @getimagesize($tmpFile);
+    if (!$info || $info[0] < 2) { @unlink($tmpFile); return null; }
+    return $tmpFile;
+}
+
+// ── Classe PDF avec header/footer professionnels ─────────────────────────
 class PDF extends FPDF {
-    // En-tête
-    function Header() {
-        $this->SetFont('Arial', 'B', 15);
-        $this->SetTextColor(37, 99, 235); // Tech blue
-        $this->Cell(0, 10, 'FreelaSkill - Administration', 0, 1, 'C');
-        $this->SetFont('Arial', 'I', 10);
-        $this->SetTextColor(128, 128, 128);
-        $this->Cell(0, 5, 'Rapport de Contrat(s)', 0, 1, 'C');
-        $this->Ln(10);
+
+    public $docTitle = '';
+
+    function Error($msg) {
+        throw new Exception('FPDF: ' . $msg);
     }
 
-    // Pied de page
+    function Header() {
+        // Bande bleue en haut
+        $this->SetFillColor(37, 99, 235);
+        $this->Rect(0, 0, 210, 22, 'F');
+
+        // Logo texte
+        $this->SetFont('Arial', 'B', 14);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetXY(10, 5);
+        $this->Cell(80, 12, 'FreelaSkill', 0, 0, 'L');
+
+        // Sous-titre à droite
+        $this->SetFont('Arial', '', 9);
+        $this->SetTextColor(180, 210, 255);
+        $this->SetXY(100, 5);
+        $this->Cell(100, 6, enc('Plateforme de gestion de contrats'), 0, 1, 'R');
+        $this->SetXY(100, 11);
+        $this->Cell(100, 6, 'Genere le ' . date('d/m/Y a H:i'), 0, 0, 'R');
+
+        // Ligne de séparation sous le header
+        $this->SetDrawColor(37, 99, 235);
+        $this->SetLineWidth(0.5);
+        $this->Line(10, 25, 200, 25);
+
+        $this->Ln(10);
+        $this->SetTextColor(0, 0, 0);
+        $this->SetDrawColor(0, 0, 0);
+        $this->SetLineWidth(0.2);
+    }
+
     function Footer() {
-        $this->SetY(-15);
+        $this->SetY(-14);
+        // Ligne de séparation
+        $this->SetDrawColor(200, 200, 200);
+        $this->Line(10, $this->GetY(), 200, $this->GetY());
+        $this->Ln(2);
         $this->SetFont('Arial', 'I', 8);
-        $this->SetTextColor(128, 128, 128);
-        $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb} - Genere le ' . date('d/m/Y H:i'), 0, 0, 'C');
+        $this->SetTextColor(150, 150, 150);
+        $this->Cell(95, 6, 'FreelaSkill - Document confidentiel', 0, 0, 'L');
+        $this->Cell(95, 6, 'Page ' . $this->PageNo() . ' / {nb}', 0, 0, 'R');
+    }
+
+    // ── Section title bar ──────────────────────────────────────────────
+    function SectionTitle($icon, $title) {
+        $this->SetFillColor(37, 99, 235);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetFont('Arial', 'B', 10);
+        $this->SetX(10);
+        $this->Cell(190, 8, '  ' . enc($icon . '  ' . $title), 0, 1, 'L', true);
+        $this->SetTextColor(0, 0, 0);
+        $this->Ln(3);
+    }
+
+    // ── Ligne label / valeur ───────────────────────────────────────────
+    function Row($label, $value, $fill = false) {
+        if ($fill) $this->SetFillColor(245, 248, 255);
+        else       $this->SetFillColor(255, 255, 255);
+        $this->SetFont('Arial', 'B', 9);
+        $this->SetTextColor(100, 100, 100);
+        $this->SetX(10);
+        $this->Cell(45, 7, enc($label), 0, 0, 'L', $fill);
+        $this->SetFont('Arial', '', 9);
+        $this->SetTextColor(30, 30, 30);
+        $this->Cell(145, 7, enc($value), 0, 1, 'L', $fill);
+    }
+
+    // ── Badge statut coloré ────────────────────────────────────────────
+    function StatusBadge($statut) {
+        $colors = [
+            'brouillon'  => [148, 163, 184],
+            'en_attente' => [245, 158,  11],
+            'actif'      => [ 37,  99, 235],
+            'termine'    => [ 16, 185, 129],
+            'annule'     => [239,  68,  68],
+            'archive'    => [107, 114, 128],
+        ];
+        $c = $colors[$statut] ?? [100, 100, 100];
+        $label = strtoupper(str_replace('_', ' ', $statut));
+
+        $x = $this->GetX();
+        $y = $this->GetY();
+        $this->SetFillColor($c[0], $c[1], $c[2]);
+        $this->SetTextColor(255, 255, 255);
+        $this->SetFont('Arial', 'B', 8);
+        $this->SetXY($x, $y);
+        $this->Cell(30, 6, enc($label), 0, 0, 'C', true);
+        $this->SetTextColor(0, 0, 0);
     }
 }
 
-$pdf = new PDF();
+// ── Initialisation ────────────────────────────────────────────────────────
+$pdf = new PDF('P', 'mm', 'A4');
 $pdf->AliasNbPages();
-$pdf->AddPage();
-$pdf->SetFont('Arial', '', 12);
+$pdf->SetMargins(10, 30, 10);
+$pdf->SetAutoPageBreak(true, 20);
 
+try {
+
+// ════════════════════════════════════════════════════════════════════════════
+// EXPORT D'UN SEUL CONTRAT
+// ════════════════════════════════════════════════════════════════════════════
 if (isset($_GET['id'])) {
-    // Export d'un seul contrat
-    $id = intval($_GET['id']);
+
+    $id      = intval($_GET['id']);
     $contrat = getContratById($id);
-    
-    if (!$contrat) {
-        die("Contrat introuvable.");
-    }
-    
-    // Titre
-    $pdf->SetFont('Arial', 'B', 16);
-    $pdf->SetTextColor(0, 0, 0);
-    // Supprimer les accents pour éviter les problèmes d'encodage FPDF par défaut
-    $titre = iconv('UTF-8', 'windows-1252', $contrat['titre']);
-    $pdf->Cell(0, 10, $titre, 0, 1, 'C');
-    $pdf->Ln(5);
-    
-    // Informations de base
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->Cell(0, 8, ' Informations Generales', 0, 1, 'L', true);
-    
-    $pdf->SetFont('Arial', '', 11);
-    $pdf->Ln(2);
-    $pdf->Cell(50, 7, 'Statut:', 0, 0);
-    $pdf->Cell(0, 7, strtoupper($contrat['statut']), 0, 1);
-    
-    $pdf->Cell(50, 7, 'Budget:', 0, 0);
-    $pdf->Cell(0, 7, $contrat['budget'] . ' DT', 0, 1);
-    
-    $pdf->Cell(50, 7, 'Delai:', 0, 0);
-    $pdf->Cell(0, 7, $contrat['delai'] . ' jours', 0, 1);
-    
-    $pdf->Cell(50, 7, 'Cree le:', 0, 0);
-    $pdf->Cell(0, 7, date('d/m/Y', strtotime($contrat['date_creation'])), 0, 1);
-    
-    $pdf->Ln(5);
-    
-    // Description
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->Cell(0, 8, ' Description du Contrat', 0, 1, 'L', true);
-    $pdf->Ln(2);
-    $pdf->SetFont('Arial', '', 11);
-    $desc = iconv('UTF-8', 'windows-1252', $contrat['description']);
-    $pdf->MultiCell(0, 6, $desc);
-    
-    $pdf->Ln(10);
-    
-    // Règles associées
-    require_once __DIR__ . '/../../controllers/ruleController.php';
+    if (!$contrat) die("Contrat introuvable.");
     $rules = getRulesByContratId($id);
-    
-    if (!empty($rules)) {
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->SetFillColor(240, 240, 240);
-        $pdf->Cell(0, 8, ' Regles Associees', 0, 1, 'L', true);
-        $pdf->Ln(3);
 
-        foreach ($rules as $index => $r) {
-            // Numéro + titre de la règle
-            $pdf->SetFont('Arial', 'B', 11);
-            $pdf->SetFillColor(230, 238, 255);
-            $r_titre = iconv('UTF-8', 'windows-1252//TRANSLIT', ($index + 1) . '. ' . $r['titre']);
-            $pdf->Cell(0, 8, $r_titre, 0, 1, 'L', true);
+    $pdf->AddPage();
 
-            // Type et valeur sur une ligne
-            $pdf->SetFont('Arial', '', 10);
-            $pdf->SetFillColor(255, 255, 255);
-            if (!empty($r['type'])) {
-                $pdf->Cell(40, 6, 'Type :', 0, 0);
-                $pdf->Cell(0, 6, iconv('UTF-8', 'windows-1252//TRANSLIT', $r['type']), 0, 1);
-            }
-            if (!empty($r['valeur'])) {
-                $pdf->Cell(40, 6, 'Valeur :', 0, 0);
-                $pdf->Cell(0, 6, iconv('UTF-8', 'windows-1252//TRANSLIT', $r['valeur']), 0, 1);
-            }
+    // ── Titre du contrat ──────────────────────────────────────────────
+    $pdf->SetFont('Arial', 'B', 18);
+    $pdf->SetTextColor(37, 99, 235);
+    $pdf->SetX(10);
+    $pdf->Cell(190, 10, enc($contrat['titre']), 0, 1, 'C');
+    $pdf->Ln(1);
 
-            // Statut
-            $pdf->Cell(40, 6, 'Statut :', 0, 0);
-            $pdf->Cell(0, 6, ucfirst($r['statut']), 0, 1);
-
-            // Description détaillée
-            if (!empty($r['description'])) {
-                $pdf->SetFont('Arial', 'I', 10);
-                $pdf->SetTextColor(60, 60, 60);
-                $pdf->Cell(40, 6, 'Description :', 0, 1);
-                $r_desc = iconv('UTF-8', 'windows-1252//TRANSLIT', $r['description']);
-                $pdf->MultiCell(0, 5, $r_desc, 0, 'L');
-                $pdf->SetTextColor(0, 0, 0);
-            }
-
-            $pdf->Ln(4);
-        }
-
-        $pdf->Ln(4);
-        $pdf->SetFillColor(240, 240, 240);
-    } else {
-        $pdf->SetFont('Arial', 'B', 12);
-        $pdf->SetFillColor(240, 240, 240);
-        $pdf->Cell(0, 8, ' Regles Associees', 0, 1, 'L', true);
-        $pdf->Ln(2);
-        $pdf->SetFont('Arial', 'I', 10);
-        $pdf->SetTextColor(128, 128, 128);
-        $pdf->Cell(0, 7, 'Aucune regle associee a ce contrat.', 0, 1);
-        $pdf->SetTextColor(0, 0, 0);
-        $pdf->Ln(5);
-        $pdf->SetFillColor(240, 240, 240);
-    }
-
-    // Intervenants et signatures
-    $pdf->SetFont('Arial', 'B', 12);
-    $pdf->SetFillColor(240, 240, 240);
-    $pdf->Cell(0, 8, ' Intervenants & Signatures', 0, 1, 'L', true);
-    $pdf->Ln(2);
-    $pdf->SetFont('Arial', '', 11);
-    $pdf->SetTextColor(0, 0, 0);
-
-    $pdf->Cell(50, 7, 'Freelancer:', 0, 0);
-    $pdf->Cell(0, 7, iconv('UTF-8', 'windows-1252//TRANSLIT', $contrat['freelance_info'] ?? ''), 0, 1);
-
+    // Statut badge + date sur la même ligne
+    $pdf->SetX(10);
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetTextColor(120, 120, 120);
+    $pdf->Cell(130, 6, enc('Contrat #' . $id . '  |  Cree le ' . date('d/m/Y', strtotime($contrat['date_creation']))), 0, 0, 'L');
+    $pdf->StatusBadge($contrat['statut']);
     $pdf->Ln(8);
 
-    // Fonction helper pour décoder et sauvegarder une signature base64 en fichier temp
-    $saveSigToTemp = function($dataUrl) {
-        if (empty($dataUrl) || strpos($dataUrl, 'data:image/') !== 0) return null;
-        $parts = explode(',', $dataUrl, 2);
-        if (count($parts) < 2) return null;
-        $imgData = base64_decode($parts[1]);
-        if (!$imgData) return null;
-        $tmpFile = tempnam(sys_get_temp_dir(), 'sig_') . '.png';
-        file_put_contents($tmpFile, $imgData);
-        return $tmpFile;
-    };
+    // Ligne séparatrice
+    $pdf->SetDrawColor(220, 230, 255);
+    $pdf->SetLineWidth(0.4);
+    $pdf->Line(10, $pdf->GetY(), 200, $pdf->GetY());
+    $pdf->Ln(5);
 
-    // Titres des colonnes signatures
-    $pdf->SetFont('Arial', 'B', 11);
-    $pdf->Cell(95, 7, 'Signature Client', 0, 0, 'C');
-    $pdf->Cell(95, 7, 'Signature Freelancer', 0, 1, 'C');
-    $pdf->Ln(2);
+    // ── Section 1 : Informations générales ───────────────────────────
+    $pdf->SectionTitle('>', 'Informations generales');
 
-    $sigClientFile    = $saveSigToTemp($contrat['signature_client'] ?? '');
-    $sigFreelanceFile = $saveSigToTemp($contrat['signature_freelance'] ?? '');
+    $fill = false;
+    $pdf->Row('Statut',    strtoupper(str_replace('_', ' ', $contrat['statut'])), $fill); $fill = !$fill;
+    $pdf->Row('Budget',    number_format($contrat['budget'], 2, ',', ' ') . ' DT', $fill); $fill = !$fill;
+    $pdf->Row('Delai',     $contrat['delai'] . ' jours', $fill); $fill = !$fill;
+    $pdf->Row('Freelancer', $contrat['freelance_info'] ?? '-', $fill); $fill = !$fill;
+    $pdf->Row('Cree le',   date('d/m/Y', strtotime($contrat['date_creation'])), $fill);
+    $pdf->Ln(5);
+
+    // ── Section 2 : Description ───────────────────────────────────────
+    $pdf->SectionTitle('>', 'Description du contrat');
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetTextColor(50, 50, 50);
+    $pdf->SetFillColor(250, 251, 255);
+    $pdf->SetX(10);
+    $desc = enc($contrat['description'] ?: 'Aucune description.');
+    $pdf->MultiCell(190, 5.5, $desc, 0, 'L', true);
+    $pdf->Ln(5);
+
+    // ── Section 3 : Règles associées ─────────────────────────────────
+    $pdf->SectionTitle('>', 'Regles associees (' . count($rules) . ')');
+
+    if (empty($rules)) {
+        $pdf->SetFont('Arial', 'I', 9);
+        $pdf->SetTextColor(150, 150, 150);
+        $pdf->SetX(10);
+        $pdf->Cell(190, 7, 'Aucune regle associee a ce contrat.', 0, 1, 'C');
+        $pdf->SetTextColor(0, 0, 0);
+    } else {
+        // En-tête du tableau des règles
+        $pdf->SetFillColor(230, 238, 255);
+        $pdf->SetTextColor(37, 99, 235);
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetX(10);
+        $pdf->Cell(6,   7, '#',       1, 0, 'C', true);
+        $pdf->Cell(65,  7, 'Titre',   1, 0, 'L', true);
+        $pdf->Cell(28,  7, 'Type',    1, 0, 'C', true);
+        $pdf->Cell(28,  7, 'Valeur',  1, 0, 'C', true);
+        $pdf->Cell(20,  7, 'Statut',  1, 0, 'C', true);
+        $pdf->Cell(43,  7, 'Description', 1, 1, 'L', true);
+
+        $pdf->SetTextColor(30, 30, 30);
+        $pdf->SetFont('Arial', '', 8);
+        $rowFill = false;
+
+        foreach ($rules as $i => $r) {
+            $fillColor = $rowFill ? [248, 250, 255] : [255, 255, 255];
+            $pdf->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
+
+            // Calculer la hauteur de ligne selon la description
+            $descText = enc(mb_substr($r['description'] ?? '', 0, 80));
+            $lineH = 6;
+
+            $pdf->SetX(10);
+            $pdf->Cell(6,  $lineH, ($i + 1),                                          1, 0, 'C', $rowFill);
+            $pdf->Cell(65, $lineH, enc(mb_substr($r['titre'], 0, 35)),                1, 0, 'L', $rowFill);
+            $pdf->Cell(28, $lineH, enc($r['type'] ?? '-'),                            1, 0, 'C', $rowFill);
+            $pdf->Cell(28, $lineH, enc(mb_substr($r['valeur'] ?? '-', 0, 15)),        1, 0, 'C', $rowFill);
+            $pdf->Cell(20, $lineH, enc(ucfirst($r['statut'])),                        1, 0, 'C', $rowFill);
+            $pdf->Cell(43, $lineH, enc(mb_substr($r['description'] ?? '-', 0, 30)),   1, 1, 'L', $rowFill);
+
+            $rowFill = !$rowFill;
+        }
+    }
+    $pdf->Ln(5);
+
+    // ── Section 4 : Signatures ────────────────────────────────────────
+    $pdf->SectionTitle('>', 'Signatures');
+
+    $sigClientFile    = sigToTemp($contrat['signature_client']    ?? '');
+    $sigFreelanceFile = sigToTemp($contrat['signature_freelance'] ?? '');
 
     $sigY = $pdf->GetY();
-    $sigH = 35; // hauteur de la zone signature
+    $sigW = 88;
+    $sigH = 38;
+    $gap  = 14;
 
-    // Cadre client
-    $pdf->Rect(10, $sigY, 90, $sigH);
+    // ── Cadre Client ──
+    $pdf->SetDrawColor(200, 210, 240);
+    $pdf->SetFillColor(248, 250, 255);
+    $pdf->SetLineWidth(0.3);
+    $pdf->Rect(10, $sigY, $sigW, $sigH, 'DF');
+
+    $pdf->SetFont('Arial', 'B', 8);
+    $pdf->SetTextColor(37, 99, 235);
+    $pdf->SetXY(10, $sigY + 2);
+    $pdf->Cell($sigW, 5, 'SIGNATURE CLIENT', 0, 1, 'C');
+
     if ($sigClientFile) {
-        $pdf->Image($sigClientFile, 12, $sigY + 2, 86, $sigH - 4);
+        try { $pdf->Image($sigClientFile, 14, $sigY + 8, $sigW - 8, $sigH - 12); }
+        catch (Exception $e) { /* ignore */ }
         @unlink($sigClientFile);
     } else {
-        $pdf->SetFont('Arial', 'I', 9);
-        $pdf->SetTextColor(150, 150, 150);
-        $pdf->SetXY(10, $sigY + ($sigH / 2) - 3);
-        $pdf->Cell(90, 6, 'Non signe', 0, 0, 'C');
-        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->SetTextColor(180, 180, 180);
+        $pdf->SetXY(10, $sigY + ($sigH / 2) - 2);
+        $pdf->Cell($sigW, 5, 'Non signe', 0, 0, 'C');
     }
 
-    // Cadre freelancer
-    $pdf->Rect(105, $sigY, 90, $sigH);
+    // ── Cadre Freelancer ──
+    $xF = 10 + $sigW + $gap;
+    $pdf->SetFillColor(248, 250, 255);
+    $pdf->Rect($xF, $sigY, $sigW, $sigH, 'DF');
+
+    $pdf->SetFont('Arial', 'B', 8);
+    $pdf->SetTextColor(37, 99, 235);
+    $pdf->SetXY($xF, $sigY + 2);
+    $pdf->Cell($sigW, 5, 'SIGNATURE FREELANCER', 0, 1, 'C');
+
     if ($sigFreelanceFile) {
-        $pdf->Image($sigFreelanceFile, 107, $sigY + 2, 86, $sigH - 4);
+        try { $pdf->Image($sigFreelanceFile, $xF + 4, $sigY + 8, $sigW - 8, $sigH - 12); }
+        catch (Exception $e) { /* ignore */ }
         @unlink($sigFreelanceFile);
     } else {
-        $pdf->SetFont('Arial', 'I', 9);
-        $pdf->SetTextColor(150, 150, 150);
-        $pdf->SetXY(105, $sigY + ($sigH / 2) - 3);
-        $pdf->Cell(90, 6, 'Non signe', 0, 0, 'C');
-        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->SetTextColor(180, 180, 180);
+        $pdf->SetXY($xF, $sigY + ($sigH / 2) - 2);
+        $pdf->Cell($sigW, 5, 'Non signe', 0, 0, 'C');
     }
 
-    $pdf->SetY($sigY + $sigH + 5);
-    $pdf->Ln(5);
-    
+    $pdf->SetY($sigY + $sigH + 8);
+    $pdf->SetTextColor(0, 0, 0);
+    $pdf->SetDrawColor(0, 0, 0);
+
+    // ── Note de bas de contrat ────────────────────────────────────────
+    $pdf->SetFont('Arial', 'I', 7.5);
+    $pdf->SetTextColor(150, 150, 150);
+    $pdf->SetX(10);
+    $pdf->MultiCell(190, 4.5, enc(
+        'Ce document est genere automatiquement par la plateforme FreelaSkill. ' .
+        'Il constitue un contrat de prestation entre les parties signataires. ' .
+        'Toute modification apres signature est invalide sans accord mutuel.'
+    ), 0, 'C');
+
     $pdf->Output('I', 'Contrat_' . $id . '.pdf');
 
+// ════════════════════════════════════════════════════════════════════════════
+// EXPORT LISTE DE TOUS LES CONTRATS
+// ════════════════════════════════════════════════════════════════════════════
 } elseif (isset($_GET['action']) && $_GET['action'] === 'export_all') {
-    // Export de la liste de tous les contrats
+
     $contrats = getAllContrats();
-    
-    $pdf->SetFont('Arial', 'B', 14);
-    $pdf->SetTextColor(0, 0, 0);
-    $pdf->Cell(0, 10, 'Liste Complete des Contrats', 0, 1, 'C');
-    $pdf->Ln(5);
-    
-    // En-têtes du tableau
+    $pdf->AddPage();
+
+    // ── Titre ─────────────────────────────────────────────────────────
+    $pdf->SetFont('Arial', 'B', 16);
+    $pdf->SetTextColor(37, 99, 235);
+    $pdf->SetX(10);
+    $pdf->Cell(190, 10, 'Liste complete des contrats', 0, 1, 'C');
+    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetTextColor(150, 150, 150);
+    $pdf->SetX(10);
+    $pdf->Cell(190, 5, enc(count($contrats) . ' contrat(s) au ' . date('d/m/Y')), 0, 1, 'C');
+    $pdf->Ln(4);
+
+    // ── En-tête tableau ───────────────────────────────────────────────
     $pdf->SetFillColor(37, 99, 235);
     $pdf->SetTextColor(255, 255, 255);
-    $pdf->SetFont('Arial', 'B', 10);
-    
-    $pdf->Cell(80, 8, 'Titre', 1, 0, 'C', true);
-    $pdf->Cell(30, 8, 'Budget', 1, 0, 'C', true);
-    $pdf->Cell(30, 8, 'Statut', 1, 0, 'C', true);
-    $pdf->Cell(50, 8, 'Creation', 1, 1, 'C', true);
-    
-    // Données
-    $pdf->SetTextColor(0, 0, 0);
-    $pdf->SetFont('Arial', '', 10);
-    
-    $fill = false;
-    foreach ($contrats as $c) {
-        $pdf->SetFillColor(245, 245, 245);
-        $titre = substr(iconv('UTF-8', 'windows-1252//TRANSLIT', $c['titre']), 0, 40);
-        
-        $pdf->Cell(80, 8, $titre, 1, 0, 'L', $fill);
-        $pdf->Cell(30, 8, $c['budget'] . ' DT', 1, 0, 'C', $fill);
-        $pdf->Cell(30, 8, ucfirst($c['statut']), 1, 0, 'C', $fill);
-        $pdf->Cell(50, 8, date('d/m/Y', strtotime($c['date_creation'])), 1, 1, 'C', $fill);
-        
-        $fill = !$fill;
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->SetX(10);
+    $pdf->Cell(7,   8, '#',         1, 0, 'C', true);
+    $pdf->Cell(68,  8, 'Titre',     1, 0, 'L', true);
+    $pdf->Cell(30,  8, 'Budget',    1, 0, 'C', true);
+    $pdf->Cell(20,  8, 'Delai',     1, 0, 'C', true);
+    $pdf->Cell(30,  8, 'Statut',    1, 0, 'C', true);
+    $pdf->Cell(35,  8, 'Cree le',   1, 1, 'C', true);
+
+    // ── Lignes ────────────────────────────────────────────────────────
+    $pdf->SetTextColor(30, 30, 30);
+    $pdf->SetFont('Arial', '', 8.5);
+
+    $statusColors = [
+        'brouillon'  => [148, 163, 184],
+        'en_attente' => [245, 158,  11],
+        'actif'      => [ 37,  99, 235],
+        'termine'    => [ 16, 185, 129],
+        'annule'     => [239,  68,  68],
+        'archive'    => [107, 114, 128],
+    ];
+
+    $rowFill = false;
+    foreach ($contrats as $i => $c) {
+        $bg = $rowFill ? [245, 248, 255] : [255, 255, 255];
+        $pdf->SetFillColor($bg[0], $bg[1], $bg[2]);
+
+        $statut = $c['statut'];
+        $sc = $statusColors[$statut] ?? [100, 100, 100];
+
+        $pdf->SetX(10);
+        $pdf->Cell(7,  7, ($i + 1),                                                    1, 0, 'C', $rowFill);
+        $pdf->Cell(68, 7, enc(mb_substr($c['titre'], 0, 38)),                          1, 0, 'L', $rowFill);
+        $pdf->Cell(30, 7, number_format($c['budget'], 2, ',', ' ') . ' DT',           1, 0, 'R', $rowFill);
+        $pdf->Cell(20, 7, $c['delai'] . ' j',                                         1, 0, 'C', $rowFill);
+
+        // Cellule statut colorée
+        $pdf->SetFillColor($sc[0], $sc[1], $sc[2]);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetFont('Arial', 'B', 7.5);
+        $pdf->Cell(30, 7, enc(strtoupper(str_replace('_', ' ', $statut))),             1, 0, 'C', true);
+
+        // Retour couleur normale
+        $pdf->SetFillColor($bg[0], $bg[1], $bg[2]);
+        $pdf->SetTextColor(30, 30, 30);
+        $pdf->SetFont('Arial', '', 8.5);
+        $pdf->Cell(35, 7, date('d/m/Y', strtotime($c['date_creation'])),               1, 1, 'C', $rowFill);
+
+        $rowFill = !$rowFill;
     }
-    
-    $pdf->Output('I', 'Liste_Contrats.pdf');
+
+    // ── Totaux ────────────────────────────────────────────────────────
+    $pdf->Ln(4);
+    $totalBudget = array_sum(array_column($contrats, 'budget'));
+    $pdf->SetFont('Arial', 'B', 9);
+    $pdf->SetTextColor(37, 99, 235);
+    $pdf->SetX(10);
+    $pdf->Cell(125, 7, enc('Budget total : ' . number_format($totalBudget, 2, ',', ' ') . ' DT'), 0, 0, 'R');
+    $pdf->Cell(65,  7, enc('Total : ' . count($contrats) . ' contrat(s)'), 0, 1, 'R');
+
+    $pdf->Output('I', 'Liste_Contrats_' . date('Ymd') . '.pdf');
+
 } else {
     die("Action invalide.");
+}
+
+} catch (Exception $e) {
+    http_response_code(500);
+    echo '<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">
+    <title>Erreur Export PDF</title>
+    <style>
+        body{font-family:Arial,sans-serif;background:#0f172a;color:#cbd5e1;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0}
+        .box{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:16px;padding:2rem 2.5rem;max-width:560px;text-align:center}
+        h2{color:#f87171;margin-bottom:1rem}p{color:#94a3b8;font-size:.9rem;line-height:1.6}
+        .btn{display:inline-block;margin-top:1.5rem;padding:.6rem 1.5rem;background:#2563eb;color:#fff;border-radius:999px;text-decoration:none;font-size:.88rem}
+        code{background:rgba(255,255,255,.05);padding:.2rem .5rem;border-radius:4px;font-size:.82rem;color:#f87171}
+    </style></head><body>
+    <div class="box">
+        <h2>&#9888; Erreur lors de la generation du PDF</h2>
+        <p>Une erreur s\'est produite pendant la creation du PDF.</p>
+        <p><code>' . htmlspecialchars($e->getMessage(), ENT_QUOTES, 'UTF-8') . '</code></p>
+        <a href="javascript:history.back()" class="btn">&#8592; Retour</a>
+    </div></body></html>';
 }
 ?>
