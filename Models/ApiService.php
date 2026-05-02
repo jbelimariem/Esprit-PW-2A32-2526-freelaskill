@@ -40,6 +40,7 @@ abstract class ApiService
             return ['success' => false, 'error' => 'Invalid JSON response', 'raw' => $response];
         }
 
+        // Always return data even on error codes so callers can read error messages
         return ['success' => $httpCode >= 200 && $httpCode < 300, 'data' => $data, 'code' => $httpCode];
     }
 
@@ -73,6 +74,7 @@ abstract class ApiService
             return ['success' => false, 'error' => 'Invalid JSON response', 'raw' => $response];
         }
 
+        // Always return data even on error codes so callers can read Gemini error messages
         return ['success' => $httpCode >= 200 && $httpCode < 300, 'data' => $data, 'code' => $httpCode];
     }
 

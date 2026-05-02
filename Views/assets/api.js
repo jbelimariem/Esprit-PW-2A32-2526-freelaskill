@@ -4,25 +4,21 @@
  * Utilisé dans les formulaires contrat et règle (front + back).
  */
 
-// Détecte automatiquement le chemin vers apiController selon la profondeur de l'URL
-(function() {
-    const path = window.location.pathname;
-    // Views/Frontoffice/ ou Views/Backoffice/ → remonter 2 niveaux
-    if (path.includes('/Frontoffice/') || path.includes('/Backoffice/')) {
-        window.API_BASE = '../../controllers/apiController.php';
-    } else {
-        // Fallback absolu basé sur l'origine
+// Chemin vers apiController — défini par PHP dans chaque page, sinon auto-détection
+if (typeof window.API_BASE === 'undefined') {
+    (function() {
+        const path = window.location.pathname;
         const parts = path.split('/');
-        // Trouver la racine du projet (dossier contenant Views/)
         const viewsIdx = parts.findIndex(p => p === 'Views');
         if (viewsIdx > 0) {
-            const root = parts.slice(0, viewsIdx).join('/');
-            window.API_BASE = root + '/controllers/apiController.php';
+            window.API_BASE = parts.slice(0, viewsIdx).join('/') + '/controllers/apiController.php';
+        } else if (path.includes('/Frontoffice/') || path.includes('/Backoffice/')) {
+            window.API_BASE = '../../controllers/apiController.php';
         } else {
             window.API_BASE = '../controllers/apiController.php';
         }
-    }
-})();
+    })();
+}
 
 const API_BASE = window.API_BASE;
 
@@ -228,7 +224,8 @@ async function generateDescription(btn) {
             descEl.style.borderColor = 'rgba(37,99,235,0.5)';
             setTimeout(() => { descEl.style.borderColor = ''; }, 2000);
         }
-        showApiToast('Description générée par IA ✓', 'success');
+        const source = result.source === 'local' ? 'Description générée (modèle local) ✓' : 'Description générée par IA ✓';
+        showApiToast(source, 'success');
     } else {
         showApiToast(result.error || 'Erreur Gemini.', 'error');
     }
@@ -250,7 +247,8 @@ async function suggestRules(btn) {
 
     if (result.success && result.rules) {
         displaySuggestedRules(result.rules);
-        showApiToast(`${result.rules.length} règles suggérées ✓`, 'success');
+        const source = result.source === 'local' ? `${result.rules.length} règles suggérées (modèle local) ✓` : `${result.rules.length} règles suggérées ✓`;
+        showApiToast(source, 'success');
     } else {
         showApiToast(result.error || 'Erreur Gemini.', 'error');
     }
@@ -450,15 +448,33 @@ function setupContentCheck(formId, fieldIds) {
 async function processOcrImage(file, targetFields, btn) {
     if (!file) { showApiToast('Sélectionnez une image.', 'error'); return; }
 
-    if (!window.Tesseract) {
-        showApiToast('Tesseract.js non chargé.', 'error');
-        return;
-    }
-
     showApiLoader(btn, 'Lecture OCR...');
 
     try {
-        const result = await Tesseract.recognize(file, 'fra+eng+ara', {
+        // Convertir le fichier en base64
+        const base64 = await fileToBase64(file);
+        const lang   = document.getElementById('lang-select')?.value || 'fr';
+
+        // Essayer d'abord Gemini Vision (plus précis pour l'écriture manuscrite)
+        const geminiResult = await apiPost('ocr_smart', { image: base64, lang });
+
+        if (geminiResult.success && geminiResult.extracted) {
+            hideApiLoader(btn);
+            fillFieldsFromExtracted(geminiResult.extracted, targetFields);
+            showApiToast('OCR intelligent ✓ (Gemini Vision)', 'success');
+            return;
+        }
+
+        // Fallback : Tesseract.js
+        if (!window.Tesseract) {
+            hideApiLoader(btn);
+            showApiToast('OCR non disponible. Installez Tesseract.js.', 'error');
+            return;
+        }
+
+        btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> OCR Tesseract...`;
+
+        const result = await Tesseract.recognize(file, 'fra+eng', {
             logger: m => {
                 if (m.status === 'recognizing text' && btn) {
                     const pct = Math.round(m.progress * 100);
@@ -470,14 +486,13 @@ async function processOcrImage(file, targetFields, btn) {
         const text = result.data.text.trim();
         hideApiLoader(btn);
 
-        if (!text) {
-            showApiToast('Aucun texte détecté dans l\'image.', 'error');
+        if (!text || text.length < 5) {
+            showApiToast('Aucun texte détecté. Essayez une image plus nette.', 'error');
             return;
         }
 
-        // Remplir les champs cibles
         fillFieldsFromOcr(text, targetFields);
-        showApiToast('Texte extrait avec succès ✓', 'success');
+        showApiToast('Texte extrait (Tesseract) ✓', 'success');
 
     } catch (err) {
         hideApiLoader(btn);
@@ -485,25 +500,133 @@ async function processOcrImage(file, targetFields, btn) {
     }
 }
 
-function fillFieldsFromOcr(text, targetFields) {
-    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 2);
-
-    // Stratégie simple : première ligne → titre, reste → description
-    if (targetFields.titre && lines.length > 0) {
-        const titreEl = document.getElementById(targetFields.titre);
-        if (titreEl) titreEl.value = lines[0].substring(0, 255);
-    }
-
-    if (targetFields.description && lines.length > 1) {
-        const descEl = document.getElementById(targetFields.description);
-        if (descEl) descEl.value = lines.slice(1).join('\n');
-    }
-
-    // Afficher le texte brut dans un panneau
-    showOcrPreview(text);
+/**
+ * Convertit un File en base64 data URL.
+ */
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload  = e => resolve(e.target.result);
+        reader.onerror = e => reject(e);
+        reader.readAsDataURL(file);
+    });
 }
 
-function showOcrPreview(text) {
+/**
+ * Remplit les champs depuis les données extraites par Gemini Vision.
+ */
+function fillFieldsFromExtracted(extracted, targetFields) {
+    const map = {
+        titre:          targetFields.titre          || 'titre',
+        description:    targetFields.description    || 'description',
+        budget:         'budget',
+        delai:          'delai',
+        freelance_info: 'freelance_info',
+    };
+
+    const filled = [];
+
+    Object.entries(map).forEach(([key, fieldId]) => {
+        const value = extracted[key];
+        if (value && value.toString().trim()) {
+            const el = document.getElementById(fieldId);
+            if (el) {
+                el.value = value.toString().trim();
+                el.style.borderColor = 'rgba(16,185,129,0.5)';
+                setTimeout(() => { el.style.borderColor = ''; }, 2000);
+                filled.push(key);
+            }
+        }
+    });
+
+    // Afficher un résumé des champs remplis
+    showOcrPreview(
+        JSON.stringify(extracted, null, 2),
+        extracted
+    );
+}
+
+function fillFieldsFromOcr(text, targetFields) {
+    const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+    const fullText = lines.join('\n');
+
+    // ── Extraction intelligente des champs ──────────────────────────
+
+    // 1. TITRE — première ligne non vide (souvent le titre du document)
+    let titre = '';
+    for (const line of lines) {
+        if (line.length > 3 && line.length < 80) {
+            titre = line;
+            break;
+        }
+    }
+
+    // 2. BUDGET — chercher un nombre après "budget", "Budget", "€", "DT", "dt"
+    let budget = '';
+    const budgetMatch = fullText.match(/budget\s*[:\-]?\s*(\d[\d\s,\.]*)\s*(dt|dinar|€|\$)?/i)
+                     || fullText.match(/(\d{2,6})\s*(dt|dinar|€|\$)/i);
+    if (budgetMatch) {
+        budget = budgetMatch[1].replace(/\s/g, '').replace(',', '.');
+    }
+
+    // 3. DÉLAI — chercher un nombre après "délai", "delai", "jours", "days"
+    let delai = '';
+    const delaiMatch = fullText.match(/d[eé]lai\s*[:\-]?\s*(\d+)\s*(jours?|days?)?/i)
+                    || fullText.match(/(\d+)\s*(jours?|days?)/i);
+    if (delaiMatch) {
+        delai = delaiMatch[1];
+    }
+
+    // 4. FREELANCER — chercher après "freelancer", "développeur", "avec", "par"
+    let freelancer = '';
+    const freelancerMatch = fullText.match(/(?:freelancer|développeur|developpeur|avec le|par)\s+([A-ZÀ-Ü][a-zà-ü]+(?:\s+[A-ZÀ-Ü][a-zà-ü]+)*)/i)
+                         || fullText.match(/(?:Mouhamed|Mohamed|Mohammed|Ahmed|Ali|Sami|Amine)\s*[A-Za-z]*/i);
+    if (freelancerMatch) {
+        freelancer = freelancerMatch[0].replace(/^(freelancer|développeur|developpeur|avec le|par)\s+/i, '').trim();
+    }
+
+    // 5. DESCRIPTION — tout le texte sauf la première ligne (titre)
+    const descLines = lines.slice(1).filter(l => {
+        // Exclure les lignes qui sont déjà extraites (budget, délai)
+        return !l.match(/budget\s*[:\-]/i) && !l.match(/d[eé]lai\s*[:\-]/i);
+    });
+    const description = descLines.join('\n').trim();
+
+    // ── Remplir les champs ──────────────────────────────────────────
+
+    if (targetFields.titre && titre) {
+        const titreEl = document.getElementById(targetFields.titre);
+        if (titreEl) titreEl.value = titre.substring(0, 255);
+    }
+
+    if (targetFields.description && description) {
+        const descEl = document.getElementById(targetFields.description);
+        if (descEl) descEl.value = description;
+    }
+
+    // Remplir budget si trouvé
+    if (budget) {
+        const budgetEl = document.getElementById('budget');
+        if (budgetEl && !budgetEl.value) budgetEl.value = budget;
+    }
+
+    // Remplir délai si trouvé
+    if (delai) {
+        const delaiEl = document.getElementById('delai');
+        if (delaiEl && !delaiEl.value) delaiEl.value = delai;
+    }
+
+    // Remplir freelancer si trouvé
+    if (freelancer) {
+        const freelancerEl = document.getElementById('freelance_info');
+        if (freelancerEl && !freelancerEl.value) freelancerEl.value = freelancer;
+    }
+
+    // Afficher le texte brut extrait pour référence
+    showOcrPreview(text, { titre, budget, delai, freelancer });
+}
+
+function showOcrPreview(text, extracted = {}) {
     const existing = document.getElementById('ocr-preview');
     if (existing) existing.remove();
 
@@ -517,14 +640,22 @@ function showOcrPreview(text) {
         margin-top: 0.75rem;
         font-size: 0.82rem;
         color: #94A3B8;
-        max-height: 150px;
-        overflow-y: auto;
     `;
+
+    const extractedHtml = Object.entries(extracted)
+        .filter(([, v]) => v)
+        .map(([k, v]) => `<span style="background:rgba(16,185,129,0.1);color:#34D399;padding:0.15rem 0.5rem;border-radius:4px;margin-right:0.4rem;font-size:0.75rem;"><b>${k}</b>: ${v.substring(0,40)}</span>`)
+        .join('');
+
     panel.innerHTML = `
         <div style="font-size:0.72rem;font-weight:700;color:#34D399;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">
-            <i class="fa-solid fa-file-image"></i> Texte extrait (OCR)
+            <i class="fa-solid fa-file-image"></i> OCR — Champs extraits
         </div>
-        <pre style="white-space:pre-wrap;font-family:inherit;color:#CBD5E1;line-height:1.5;">${text}</pre>
+        ${extractedHtml ? `<div style="margin-bottom:0.6rem;flex-wrap:wrap;display:flex;gap:0.3rem;">${extractedHtml}</div>` : ''}
+        <details style="cursor:pointer;">
+            <summary style="font-size:0.75rem;color:#64748B;margin-bottom:0.4rem;">Voir le texte brut</summary>
+            <pre style="white-space:pre-wrap;font-family:inherit;color:#CBD5E1;line-height:1.5;font-size:0.78rem;max-height:120px;overflow-y:auto;">${text}</pre>
+        </details>
         <button type="button" onclick="document.getElementById('ocr-preview').remove()"
                 style="margin-top:0.5rem;background:transparent;color:#475569;border:1px solid rgba(255,255,255,0.1);padding:0.3rem 0.75rem;border-radius:999px;font-size:0.75rem;cursor:pointer;font-family:inherit;">
             Fermer

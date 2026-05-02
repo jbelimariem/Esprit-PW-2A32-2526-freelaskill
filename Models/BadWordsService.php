@@ -14,13 +14,13 @@ class BadWordsService extends ApiService
 
     // Liste locale de mots interdits (FR + AR communs)
     private array $localBadWords = [
-        // Français
+        // Français — mots complets uniquement
         'merde', 'putain', 'connard', 'salaud', 'idiot', 'imbécile',
-        'crétin', 'abruti', 'enculé', 'bâtard', 'con', 'conne',
+        'crétin', 'abruti', 'enculé', 'bâtard',
         // Arabe (translittération)
-        'kess', 'zebi', 'wled', 'hmar', 'kalb',
+        'kess', 'zebi', 'hmar', 'kalb',
         // Anglais basique
-        'fuck', 'shit', 'asshole', 'bitch', 'bastard', 'crap',
+        'fuck', 'shit', 'asshole', 'bitch', 'bastard',
     ];
 
     /**
@@ -94,11 +94,13 @@ class BadWordsService extends ApiService
 
     private function checkLocal(string $text): array
     {
-        $textLower   = mb_strtolower($text);
-        $flagged     = [];
+        $flagged = [];
 
         foreach ($this->localBadWords as $word) {
-            if (mb_strpos($textLower, mb_strtolower($word)) !== false) {
+            // Chercher le mot entier uniquement (pas dans un mot plus long)
+            // Ex: "con" ne doit pas matcher "conclu", "selon", "contrat"
+            $pattern = '/\b' . preg_quote($word, '/') . '\b/iu';
+            if (preg_match($pattern, $text)) {
                 $flagged[] = $word;
             }
         }
@@ -108,18 +110,31 @@ class BadWordsService extends ApiService
 
     private function checkViaApi(string $text): array
     {
-        // PurgoMalum ne traite que l'anglais — on l'utilise en complément
-        $result = $this->httpGet($this->baseUrl, ['text' => $text]);
+        // PurgoMalum ne traite que l'anglais
+        // On ne l'appelle que si le texte semble être en anglais (contient peu de mots français communs)
+        $frenchIndicators = ['le', 'la', 'les', 'de', 'du', 'des', 'est', 'sont', 'dans', 'pour', 'avec', 'sur', 'par', 'une', 'un', 'ce', 'qui', 'que', 'pas', 'ne'];
+        $textLower = mb_strtolower($text);
+        $frenchWordCount = 0;
+        foreach ($frenchIndicators as $word) {
+            if (preg_match('/\b' . $word . '\b/', $textLower)) {
+                $frenchWordCount++;
+            }
+        }
 
-        if (!$result['success']) {
-            // Si l'API échoue, on ne bloque pas — on retourne propre
+        // Si le texte contient 3+ mots français, on ne passe pas par l'API anglaise
+        if ($frenchWordCount >= 3) {
             return ['is_clean' => true, 'flagged_words' => [], 'censored' => $text];
         }
 
-        $data    = $result['data'];
+        $result = $this->httpGet($this->baseUrl, ['text' => $text]);
+
+        if (!$result['success']) {
+            return ['is_clean' => true, 'flagged_words' => [], 'censored' => $text];
+        }
+
+        $data        = $result['data'];
         $result_text = $data['result'] ?? $text;
 
-        // PurgoMalum remplace les mots par des astérisques
         $hasBadWords = ($result_text !== $text) && (strpos($result_text, '*') !== false);
 
         return [

@@ -12,7 +12,7 @@ require_once __DIR__ . '/ApiService.php';
  */
 class GeminiService extends ApiService
 {
-    protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+    protected string $baseUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
     private string   $apiKey;
 
     public function __construct(string $apiKey = '')
@@ -52,7 +52,12 @@ class GeminiService extends ApiService
         $result = $this->httpPost($url, $payload);
 
         if (!$result['success']) {
-            return ['success' => false, 'error' => $result['error'] ?? 'Erreur API Gemini.'];
+            // Inclure le message d'erreur Gemini si disponible
+            $errMsg = $result['error'] ?? 'Erreur API Gemini.';
+            if (isset($result['data']['error']['message'])) {
+                $errMsg = $result['data']['error']['message'];
+            }
+            return ['success' => false, 'error' => $errMsg];
         }
 
         $data = $result['data'];
@@ -61,7 +66,9 @@ class GeminiService extends ApiService
         $text = $data['candidates'][0]['content']['parts'][0]['text'] ?? '';
 
         if (empty($text)) {
-            return ['success' => false, 'error' => 'Réponse vide de Gemini.'];
+            // Retourner le détail de l'erreur Gemini si disponible
+            $geminiError = $data['error']['message'] ?? $data['error']['status'] ?? 'Réponse vide de Gemini.';
+            return ['success' => false, 'error' => $geminiError];
         }
 
         return ['success' => true, 'text' => trim($text)];

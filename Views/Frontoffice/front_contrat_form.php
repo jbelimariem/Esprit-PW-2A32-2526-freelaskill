@@ -48,14 +48,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
     <link rel="stylesheet" href="css/front.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
-    <!-- Tesseract.js pour OCR -->
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-        // Chemin absolu vers l'API controller — défini côté serveur pour éviter les erreurs de chemin relatif
-        window.API_BASE = '<?php echo htmlspecialchars(
-            str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(dirname(__DIR__))) . '/controllers/apiController.php',
-            ENT_QUOTES, 'UTF-8'
-        ); ?>';
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>
@@ -260,7 +255,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
             <div class="form-grid">
 
                 <div class="form-group">
-                    <label class="form-label">Signature Client <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">
+                        Signature Client
+                        <?php if ($isClient): ?>
+                            <span style="color:#EF4444;">*</span>
+                        <?php else: ?>
+                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le client signera après)</span>
+                        <?php endif; ?>
+                    </label>
                     <?php if ($isClient): ?>
                         <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:0.5rem;background:white;position:relative;">
                             <canvas id="sig-client" style="width:100%;height:140px;display:block;border-radius:6px;"></canvas>
@@ -271,12 +273,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         </div>
                         <input type="hidden" id="signature_client" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     <?php else: ?>
+                        <!-- Freelancer : la signature client sera ajoutée plus tard -->
+                        <input type="hidden" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                             <?php if (!empty($currentContrat['signature_client'])): ?>
                                 <img src="<?php echo htmlspecialchars($currentContrat['signature_client']); ?>" style="max-height:100%;max-width:100%;">
-                                <input type="hidden" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client']); ?>">
                             <?php else: ?>
-                                <span style="color:var(--text-muted);font-style:italic;font-size:0.9rem;">Non signé</span>
+                                <div style="text-align:center;color:var(--text-muted);">
+                                    <i class="fa-solid fa-clock" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
+                                    <span style="font-style:italic;font-size:0.88rem;">Le client signera après création</span>
+                                </div>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>
@@ -284,7 +290,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Signature Freelancer <span style="color:#EF4444;">*</span></label>
+                    <label class="form-label">
+                        Signature Freelancer
+                        <?php if (!$isClient): ?>
+                            <span style="color:#EF4444;">*</span>
+                        <?php else: ?>
+                            <span style="font-weight:400;color:var(--text-muted);font-size:0.78rem;">(le freelancer signera après)</span>
+                        <?php endif; ?>
+                    </label>
                     <?php if (!$isClient): ?>
                         <div style="border:1px dashed var(--border);border-radius:var(--radius-md);padding:0.5rem;background:white;position:relative;">
                             <canvas id="sig-freelance" style="width:100%;height:140px;display:block;border-radius:6px;"></canvas>
@@ -295,12 +308,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                         </div>
                         <input type="hidden" id="signature_freelance" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                     <?php else: ?>
+                        <!-- Client : la signature freelancer sera ajoutée plus tard -->
+                        <input type="hidden" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
                             <?php if (!empty($currentContrat['signature_freelance'])): ?>
                                 <img src="<?php echo htmlspecialchars($currentContrat['signature_freelance']); ?>" style="max-height:100%;max-width:100%;">
-                                <input type="hidden" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance']); ?>">
                             <?php else: ?>
-                                <span style="color:var(--text-muted);font-style:italic;font-size:0.9rem;">En attente du freelancer</span>
+                                <div style="text-align:center;color:var(--text-muted);">
+                                    <i class="fa-solid fa-clock" style="font-size:1.5rem;display:block;margin-bottom:0.5rem;opacity:0.4;"></i>
+                                    <span style="font-style:italic;font-size:0.88rem;">Le freelancer signera après création</span>
+                                </div>
                             <?php endif; ?>
                         </div>
                     <?php endif; ?>

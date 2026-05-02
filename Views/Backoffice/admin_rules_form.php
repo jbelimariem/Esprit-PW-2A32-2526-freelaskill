@@ -12,10 +12,7 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="css/admin.js" defer></script>
     <script>
-        window.API_BASE = '<?php echo htmlspecialchars(
-            str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(dirname(__DIR__))) . '/controllers/apiController.php',
-            ENT_QUOTES, 'UTF-8'
-        ); ?>';
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
     </script>
     <script src="../assets/api.js" defer></script>
 </head>

@@ -38,19 +38,21 @@ function getRulesByContratId(int $id_contrat) {
     return getRulesByContratTitre($row['titre']);
 }
 
-function createRule(array $data) {
-    $pdo = config::getConnexion();
-    $stmt = $pdo->prepare(
-        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat) VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
-    );
-    return $stmt->execute([
-        'titre'         => $data['titre'],
-        'description'   => $data['description'],
-        'type'          => $data['type'],
-        'valeur'        => $data['valeur'],
-        'statut'        => $data['statut'],
-        'titre_contrat' => $data['titre_contrat'] ?? null,
-    ]);
+if (!function_exists('createRule')) {
+    function createRule(array $data) {
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare(
+            'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat) VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
+        );
+        return $stmt->execute([
+            'titre'         => $data['titre'],
+            'description'   => $data['description'],
+            'type'          => $data['type'],
+            'valeur'        => $data['valeur'],
+            'statut'        => $data['statut'],
+            'titre_contrat' => $data['titre_contrat'] ?? null,
+        ]);
+    }
 }
 
 function updateRule(int $id, array $data) {

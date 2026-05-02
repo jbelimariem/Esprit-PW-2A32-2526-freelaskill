@@ -3,21 +3,24 @@ require_once __DIR__ . '/../config.php';
 require_once __DIR__ . '/../Models/Contrat.php';
 require_once __DIR__ . '/../Models/BadWordsService.php';
 
-// Need createRule for AI-suggested rules
-function createRule(array $data) {
-    $pdo = config::getConnexion();
-    $stmt = $pdo->prepare(
-        'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat)
-         VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
-    );
-    return $stmt->execute([
-        'titre'         => $data['titre'],
-        'description'   => $data['description'],
-        'type'          => $data['type']          ?? 'Général',
-        'valeur'        => $data['valeur']         ?? '',
-        'statut'        => $data['statut']         ?? 'actif',
-        'titre_contrat' => $data['titre_contrat']  ?? null,
-    ]);
+// createRule is defined in ruleController.php — include it if not already loaded
+if (!function_exists('createRule')) {
+    require_once __DIR__ . '/../Models/Rule.php';
+    function createRule(array $data) {
+        $pdo = config::getConnexion();
+        $stmt = $pdo->prepare(
+            'INSERT INTO rules (titre, description, type, valeur, date_creation, statut, titre_contrat)
+             VALUES (:titre, :description, :type, :valeur, NOW(), :statut, :titre_contrat)'
+        );
+        return $stmt->execute([
+            'titre'         => $data['titre'],
+            'description'   => $data['description'],
+            'type'          => $data['type']          ?? 'Général',
+            'valeur'        => $data['valeur']         ?? '',
+            'statut'        => $data['statut']         ?? 'actif',
+            'titre_contrat' => $data['titre_contrat']  ?? null,
+        ]);
+    }
 }
 
 // --- Fonctions de base de données ---
@@ -213,15 +216,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors['freelance_info'] = 'Les informations du freelancer sont obligatoires.';
     }
 
-    if (empty($signature_client)) {
-        $errors['signature_client'] = 'La signature du client est obligatoire.';
+    // Signature : seule la signature du rôle actuel est obligatoire à la création
+    // L'autre partie signera via la page de détails
+    $userRole = $_SESSION['user_role'] ?? 'client';
+    if ($userRole === 'client') {
+        if (empty($signature_client)) {
+            $errors['signature_client'] = 'Votre signature est obligatoire.';
+        }
+        // La signature freelancer est optionnelle à la création (sera ajoutée plus tard)
+    } else {
+        if (empty($signature_freelance)) {
+            $errors['signature_freelance'] = 'Votre signature est obligatoire.';
+        }
+        // La signature client est optionnelle à la création
     }
 
-    if (empty($signature_freelance)) {
-        $errors['signature_freelance'] = 'La signature du freelancer est obligatoire.';
+    // Pour le backoffice (admin), les deux sont requises
+    if (!isset($_SESSION['user_role'])) {
+        if (empty($signature_client)) {
+            $errors['signature_client'] = 'La signature du client est obligatoire.';
+        }
+        if (empty($signature_freelance)) {
+            $errors['signature_freelance'] = 'La signature du freelancer est obligatoire.';
+        }
     }
-
-    // ── Vérification Bad Words (API) ──────────────────────────────────
     if (empty($errors)) {
         $badWords = new BadWordsService();
         $bwResult = $badWords->checkFields([

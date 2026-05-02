@@ -15,7 +15,11 @@ $activePage = 'rules';
     <title>Espace <?php echo $roleName; ?> — Mes Règles · FreelaSkill</title>
     <link rel="stylesheet" href="css/front.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
+    </script>
     <script src="css/front.js" defer></script>
+    <script src="../assets/api.js" defer></script>
 </head>
 <body>
 

@@ -35,7 +35,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
     <link rel="stylesheet" href="css/front.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+    <script>
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
+    </script>
     <script src="css/front.js" defer></script>
+    <script src="../assets/api.js" defer></script>
 </head>
 <body>
 
@@ -58,6 +62,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
         </div>
         <div class="topbar-actions">
             <a href="front_contrat_list.php" class="btn btn-secondary"><i class="fa-solid fa-arrow-left"></i> Retour</a>
+
+            <!-- Traduction du contrat -->
+            <div style="display:inline-flex;align-items:center;gap:0.3rem;background:var(--bg-card);border:1px solid var(--border);border-radius:999px;padding:0.3rem 0.5rem;">
+                <i class="fa-solid fa-language" style="color:#10B981;font-size:0.85rem;margin-left:0.3rem;"></i>
+                <select id="translate-from" style="padding:0.3rem 0.5rem;background:transparent;border:none;color:var(--text-muted);font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
+                    <option value="fr">FR</option><option value="en">EN</option><option value="ar">AR</option>
+                </select>
+                <span style="color:var(--text-muted);font-size:0.72rem;">→</span>
+                <select id="translate-to" style="padding:0.3rem 0.5rem;background:transparent;border:none;color:var(--text-muted);font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
+                    <option value="en">EN</option><option value="fr">FR</option><option value="ar">AR</option>
+                </select>
+                <button type="button" id="btn-translate-details" onclick="translateDetails(this)"
+                        style="display:inline-flex;align-items:center;gap:0.35rem;padding:0.35rem 0.85rem;background:rgba(16,185,129,0.15);color:#10B981;border:1px solid rgba(16,185,129,0.3);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                    Traduire
+                </button>
+                <span id="lang-badge" style="display:none;background:rgba(16,185,129,0.2);color:#10B981;padding:0.2rem 0.5rem;border-radius:999px;font-size:0.72rem;font-weight:700;"></span>
+            </div>
+
             <a href="../Backoffice/admin_export_pdf.php?id=<?php echo $id; ?>" class="btn btn-purple" target="_blank">
                 <i class="fa-solid fa-file-pdf"></i> Exporter PDF
             </a>
@@ -89,8 +111,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
             </span>
         </div>
         <div style="padding:1.5rem;">
-            <h2 style="font-size:1.3rem;font-weight:700;color:var(--text-light);margin-bottom:0.75rem;"><?php echo htmlspecialchars($contrat['titre'], ENT_QUOTES, 'UTF-8'); ?></h2>
-            <p style="color:var(--text-muted);line-height:1.7;margin-bottom:1.5rem;"><?php echo nl2br(htmlspecialchars($contrat['description'], ENT_QUOTES, 'UTF-8')); ?></p>
+            <h2 style="font-size:1.3rem;font-weight:700;color:var(--text-light);margin-bottom:0.75rem;" id="detail-titre"><?php echo htmlspecialchars($contrat['titre'], ENT_QUOTES, 'UTF-8'); ?></h2>
+            <p style="color:var(--text-muted);line-height:1.7;margin-bottom:1.5rem;" id="detail-description"><?php echo nl2br(htmlspecialchars($contrat['description'], ENT_QUOTES, 'UTF-8')); ?></p>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;padding-top:1.25rem;border-top:1px solid var(--border);">
                 <div>
                     <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.3rem;font-weight:600;">Budget</div>
@@ -130,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                         <?php endif; ?>
                     </div>
                     <?php if (!empty($r['description'])): ?>
-                        <p style="color:var(--text-muted);font-size:0.88rem;line-height:1.6;"><?php echo htmlspecialchars($r['description'], ENT_QUOTES, 'UTF-8'); ?></p>
+                        <p class="rule-desc-text" style="color:var(--text-muted);font-size:0.88rem;line-height:1.6;"><?php echo htmlspecialchars($r['description'], ENT_QUOTES, 'UTF-8'); ?></p>
                     <?php endif; ?>
                 </div>
             <?php endforeach; ?>
@@ -224,6 +246,142 @@ function saveSignature(pad, inputId, formId) {
     if (!pad || pad.isEmpty()) { alert('Veuillez dessiner votre signature.'); return; }
     document.getElementById(inputId).value = pad.toDataURL();
     document.getElementById(formId).submit();
+}
+
+// ── Traduction de la page de détails ──────────────────────────────────
+async function translateDetails(btn) {
+    const from = document.getElementById('translate-from')?.value || 'fr';
+    const to   = document.getElementById('translate-to')?.value   || 'en';
+
+    if (from === to) { showApiToast('Choisissez deux langues différentes.', 'error'); return; }
+
+    showApiLoader(btn, 'Traduction...');
+
+    // Supprimer l'ancien panneau de traduction s'il existe
+    const oldPanel = document.getElementById('translation-panel');
+    if (oldPanel) oldPanel.remove();
+
+    const langNames = { fr: 'Français', en: 'English', ar: 'العربية' };
+
+    // Collecter tous les éléments à traduire
+    const targets = [
+        { el: document.getElementById('detail-titre'),       label: 'Titre' },
+        { el: document.getElementById('detail-description'), label: 'Description' },
+        ...Array.from(document.querySelectorAll('.rule-desc-text')).map((el, i) => ({
+            el, label: `Règle ${i + 1}`
+        })),
+    ].filter(t => t.el && t.el.innerText.trim().length > 2);
+
+    if (targets.length === 0) {
+        hideApiLoader(btn);
+        showApiToast('Aucun texte à traduire.', 'error');
+        return;
+    }
+
+    const results = [];
+
+    for (const target of targets) {
+        const text = target.el.innerText.trim();
+        const result = await apiPost('translate', { text, from, to });
+        if (result.success && result.translated) {
+            results.push({ label: target.label, original: text, translated: result.translated });
+        }
+    }
+
+    hideApiLoader(btn);
+
+    if (results.length === 0) {
+        showApiToast('Traduction échouée. Vérifiez la langue source.', 'error');
+        return;
+    }
+
+    // Créer un panneau de traduction visible sous les infos générales
+    const panel = document.createElement('div');
+    panel.id = 'translation-panel';
+    panel.style.cssText = `
+        background: rgba(37,99,235,0.06);
+        border: 1px solid rgba(37,99,235,0.25);
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-top: 1.25rem;
+        animation: fadeIn 0.4s ease;
+    `;
+
+    const langFlag = { fr: '🇫🇷', en: '🇬🇧', ar: '🇹🇳' };
+
+    panel.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding-bottom:0.75rem;border-bottom:1px solid rgba(37,99,235,0.2);">
+            <div style="font-size:0.82rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.8px;">
+                <i class="fa-solid fa-language"></i>
+                Traduction ${langFlag[from] || ''} ${langNames[from] || from} → ${langFlag[to] || ''} ${langNames[to] || to}
+            </div>
+            <button type="button" onclick="document.getElementById('translation-panel').remove()"
+                    style="background:transparent;border:none;color:#475569;cursor:pointer;font-size:1rem;padding:0.2rem 0.5rem;">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        ${results.map(r => `
+            <div style="margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div style="font-size:0.72rem;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.5rem;">
+                    ${r.label}
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+                    <div style="background:rgba(255,255,255,0.02);border-radius:8px;padding:0.75rem;font-size:0.88rem;color:#64748B;line-height:1.6;">
+                        <div style="font-size:0.68rem;color:#475569;margin-bottom:0.3rem;font-weight:600;">${langNames[from] || from}</div>
+                        ${r.original.substring(0, 300)}${r.original.length > 300 ? '...' : ''}
+                    </div>
+                    <div style="background:rgba(37,99,235,0.06);border:1px solid rgba(37,99,235,0.15);border-radius:8px;padding:0.75rem;font-size:0.88rem;color:#CBD5E1;line-height:1.6;">
+                        <div style="font-size:0.68rem;color:#60A5FA;margin-bottom:0.3rem;font-weight:600;">${langNames[to] || to}</div>
+                        ${r.translated}
+                    </div>
+                </div>
+            </div>
+        `).join('')}
+        <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+            <button type="button" onclick="applyAllTranslations(${JSON.stringify(results).replace(/"/g, '&quot;')})"
+                    style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1.1rem;background:rgba(37,99,235,0.15);color:#60A5FA;border:1px solid rgba(37,99,235,0.3);border-radius:999px;font-size:0.82rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                <i class="fa-solid fa-check"></i> Appliquer sur la page
+            </button>
+            <button type="button" onclick="document.getElementById('translation-panel').remove()"
+                    style="display:inline-flex;align-items:center;gap:0.4rem;padding:0.5rem 1.1rem;background:transparent;color:#475569;border:1px solid rgba(255,255,255,0.1);border-radius:999px;font-size:0.82rem;cursor:pointer;font-family:inherit;">
+                Fermer
+            </button>
+        </div>
+    `;
+
+    // Insérer après la première card (infos générales)
+    const firstCard = document.querySelector('.admin-card');
+    if (firstCard) {
+        firstCard.parentNode.insertBefore(panel, firstCard.nextSibling);
+        panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+        document.querySelector('main')?.appendChild(panel);
+    }
+
+    showApiToast(`${results.length} élément(s) traduit(s) en ${to.toUpperCase()} ✓`, 'success');
+
+    // Mettre à jour le badge de langue
+    const badge = document.getElementById('lang-badge');
+    if (badge) { badge.textContent = to.toUpperCase(); badge.style.display = 'inline-block'; }
+}
+
+function applyAllTranslations(results) {
+    const targets = [
+        document.getElementById('detail-titre'),
+        document.getElementById('detail-description'),
+        ...Array.from(document.querySelectorAll('.rule-desc-text')),
+    ].filter(Boolean);
+
+    results.forEach((r, i) => {
+        if (targets[i]) {
+            targets[i].innerText = r.translated;
+            targets[i].style.borderLeft = '3px solid rgba(37,99,235,0.5)';
+            targets[i].style.paddingLeft = '0.5rem';
+        }
+    });
+
+    document.getElementById('translation-panel')?.remove();
+    showApiToast('Traduction appliquée sur la page ✓', 'success');
 }
 </script>
 </body>

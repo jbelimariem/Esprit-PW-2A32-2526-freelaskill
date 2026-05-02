@@ -49,10 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-        window.API_BASE = '<?php echo htmlspecialchars(
-            str_replace($_SERVER['DOCUMENT_ROOT'], '', dirname(dirname(__DIR__))) . '/controllers/apiController.php',
-            ENT_QUOTES, 'UTF-8'
-        ); ?>';
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
     </script>
     <script src="css/admin.js" defer></script>
     <script src="../assets/api.js" defer></script>
