@@ -1,6 +1,6 @@
 <?php
 /**
- * services/badwords_api.php
+ * views/frontoffice/badwords_api.php
  * AJAX POST endpoint — détecteur de contenu inapproprié via Groq.
  *
  * Body JSON attendu : { "text": "texte à analyser", "field": "bio" }
@@ -15,7 +15,7 @@ header('X-Content-Type-Options: nosniff');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 if ($_SERVER['REQUEST_METHOD'] !== 'POST')    { http_response_code(405); echo json_encode(['error' => 'Méthode non autorisée.']); exit; }
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/GroqService.php';
 
 // --- Lire le body ---

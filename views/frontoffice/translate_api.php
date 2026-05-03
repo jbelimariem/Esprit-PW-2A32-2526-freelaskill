@@ -30,7 +30,7 @@ if ($_SESSION['translate_bucket']['count'] > 30) {
 
 // Load config / Groq service
 require_once __DIR__ . '/../../config.php';
-require_once __DIR__ . '/../../services/GroqService.php';
+require_once __DIR__ . '/GroqService.php';
 
 $body = file_get_contents('php://input');
 $data = json_decode($body, true);

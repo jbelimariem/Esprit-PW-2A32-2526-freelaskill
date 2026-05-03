@@ -205,7 +205,7 @@ $nextPage = $result['nextPage'];
 
 <script>
 // ── AI Password Suggester ─────────────────────────────────────────────────────────────────
-const AI_PWD_API = '../../services/password_suggest_api.php';
+const AI_PWD_API = 'password_suggest_api.php';
 
 function openAiPwdModal() {
     document.getElementById('ai-pwd-modal').classList.add('open');

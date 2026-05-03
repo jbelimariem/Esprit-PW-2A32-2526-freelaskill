@@ -1,6 +1,6 @@
 <?php
 /**
- * services/password_suggest_api.php
+ * views/frontoffice/password_suggest_api.php
  * AJAX endpoint — génère 3 mots de passe forts via l'IA Groq.
  * Méthode : POST  (aucun paramètre requis)
  * Réponse : { "passwords": ["Abc!1234", "Xy#8Zzqw", "P@ss9Mno"] }
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/GroqService.php';
 
 try {

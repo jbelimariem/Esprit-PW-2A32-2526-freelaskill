@@ -1,13 +1,7 @@
 <?php
 require_once __DIR__ . '/../config.php';
-require_once __DIR__ . '/../lib/PHPMailer/PHPMailer.php';
-require_once __DIR__ . '/../lib/PHPMailer/SMTP.php';
-require_once __DIR__ . '/../lib/PHPMailer/Exception.php';
+require_once __DIR__ . '/../views/frontoffice/EmailApiService.php';
 require_once __DIR__ . '/UserController.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
 
 class PasswordResetController {
 
@@ -68,7 +62,7 @@ class PasswordResetController {
                     );
                     $stmt->execute([$email, $code, $expires]);
 
-                    // Send real email via PHPMailer
+                    // Send real email via the configured email API
                     $sent = $this->sendResetEmail($email, $user->getPrenom(), $code);
                     if (!$sent['ok']) {
                         $mailErr = $sent['error'];
@@ -194,113 +188,10 @@ class PasswordResetController {
     }
 
     // ──────────────────────────────────────────
-    // Send email via PHPMailer + Gmail SMTP
+    // Send email via configured HTTP email API
     // ──────────────────────────────────────────
     private function sendResetEmail($email, $prenom, $code) {
-        $cfg = $this->mailConfig;
-
-        try {
-            $mail = new PHPMailer(true);
-
-            // SMTP config
-            $mail->isSMTP();
-            $mail->Host       = $cfg['host'];
-            $mail->SMTPAuth   = true;
-            $mail->Username   = $cfg['username'];
-            $mail->Password   = $cfg['password'];
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = $cfg['port'];
-            $mail->CharSet    = 'UTF-8';
-
-            // From / To
-            $mail->setFrom($cfg['from_email'], $cfg['from_name']);
-            $mail->addAddress($email, $prenom);
-
-            // Content
-            $mail->isHTML(true);
-            $mail->Subject = 'FreelaSkill – Code de réinitialisation';
-            $mail->Body    = $this->buildEmailHTML($prenom, $code);
-            $mail->AltBody = "Bonjour $prenom,\n\nVotre code de vérification FreelaSkill : $code\n\nValable 15 minutes.";
-
-            $mail->send();
-            return ['ok' => true, 'error' => ''];
-
-        } catch (Exception $e) {
-            return ['ok' => false, 'error' => $mail->ErrorInfo];
-        }
-    }
-
-    // ──────────────────────────────────────────
-    // Beautiful HTML email template
-    // ──────────────────────────────────────────
-    private function buildEmailHTML($prenom, $code) {
-        $digits = implode('', array_map(fn($c) => "
-            <td style=\"width:48px;height:56px;text-align:center;vertical-align:middle;
-                        background:#1e293b;border:2px solid #334155;border-radius:10px;
-                        font-size:28px;font-weight:700;font-family:monospace;color:#ffffff;\">
-                $c
-            </td>
-            <td style=\"width:8px;\"></td>
-        ", str_split($code)));
-
-        return "
-        <!DOCTYPE html>
-        <html>
-        <body style=\"margin:0;padding:0;background:#0f172a;font-family:'Segoe UI',Arial,sans-serif;\">
-        <table width=\"100%\" cellpadding=\"0\" cellspacing=\"0\">
-          <tr>
-            <td align=\"center\" style=\"padding:40px 20px;\">
-              <table width=\"520\" cellpadding=\"0\" cellspacing=\"0\" style=\"background:#1e293b;border-radius:20px;border:1px solid #334155;\">
-
-                <!-- Header -->
-                <tr>
-                  <td align=\"center\" style=\"padding:36px 40px 24px;\">
-                    <div style=\"font-size:22px;font-weight:700;color:#ffffff;\">
-                      <span style=\"color:#ef4444;\">■</span> Freela<span style=\"color:#3b82f6;\">Skill</span>
-                    </div>
-                  </td>
-                </tr>
-
-                <!-- Body -->
-                <tr>
-                  <td style=\"padding:0 40px 32px;\">
-                    <p style=\"font-size:16px;color:#94a3b8;margin:0 0 8px;\">Bonjour <strong style=\"color:#ffffff;\">$prenom</strong>,</p>
-                    <p style=\"font-size:15px;color:#94a3b8;margin:0 0 28px;line-height:1.6;\">
-                      Vous avez demandé la réinitialisation de votre mot de passe.<br>
-                      Utilisez ce code pour confirmer votre identité :
-                    </p>
-
-                    <!-- Code -->
-                    <table cellpadding=\"0\" cellspacing=\"0\" style=\"margin:0 auto 28px;\">
-                      <tr>$digits</tr>
-                    </table>
-
-                    <div style=\"background:#0f172a;border:1px solid #334155;border-radius:12px;padding:14px 20px;text-align:center;\">
-                      <span style=\"font-size:13px;color:#64748b;\">
-                        ⏱ Ce code expire dans <strong style=\"color:#f59e0b;\">15 minutes</strong>
-                      </span>
-                    </div>
-
-                    <p style=\"font-size:13px;color:#475569;margin:24px 0 0;line-height:1.6;\">
-                      Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.<br>
-                      Votre mot de passe ne sera pas modifié.
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                  <td style=\"border-top:1px solid #1e3a5f;padding:20px 40px;text-align:center;\">
-                    <p style=\"font-size:12px;color:#334155;margin:0;\">© 2025 FreelaSkill — Tous droits réservés</p>
-                  </td>
-                </tr>
-
-              </table>
-            </td>
-          </tr>
-        </table>
-        </body>
-        </html>
-        ";
+        $emailApi = new EmailApiService($this->mailConfig);
+        return $emailApi->sendPasswordReset($email, $prenom, $code);
     }
 }

@@ -3,7 +3,7 @@
  * Réutilisable — Détecteur de contenu inapproprié via Groq.
  *
  * Usage :
- *   BadWordsGuard.watch('bio', '../../services/badwords_api.php', { delay: 900 });
+ *   BadWordsGuard.watch('bio', 'badwords_api.php', { delay: 900 });
  *
  * Le widget affiche un badge sous le textarea avec le statut de modération
  * en temps réel (debounced). Il bloque aussi la soumission du formulaire

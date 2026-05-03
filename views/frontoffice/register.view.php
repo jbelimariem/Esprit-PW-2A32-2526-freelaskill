@@ -571,7 +571,7 @@
 
 <script>
 // ── AI Password Suggester ──────────────────────────────────────────────────
-const AI_PWD_API = '../../services/password_suggest_api.php';
+const AI_PWD_API = 'password_suggest_api.php';
 
 function openAiPwdModal() {
     document.getElementById('ai-pwd-modal').classList.add('open');
@@ -741,7 +741,7 @@ document.getElementById('register-form').addEventListener('submit', function(e) 
 <script src="../assets/badwords.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    BadWordsGuard.watch('bio', '../../services/badwords_api.php', { delay: 900 });
+    BadWordsGuard.watch('bio', 'badwords_api.php', { delay: 900 });
 });
 </script>
 </body>

@@ -1,7 +1,7 @@
 <?php
 // controllers/ChatbotController.php
 
-require_once __DIR__ . '/../services/GroqService.php';
+require_once __DIR__ . '/../views/frontoffice/GroqService.php';
 
 class ChatbotController {
     private $maxMessageLength = 1200;

@@ -68,8 +68,8 @@ $mailErr = $result['mailErr'];
                 <?php if (!empty($mailErr)): ?>
                 <div style="margin-top:1rem;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:10px;padding:.85rem 1rem;font-size:.82rem;color:#fca5a5;">
                     <i class="fa-solid fa-triangle-exclamation" style="margin-right:.4rem;"></i>
-                    <strong>Erreur SMTP :</strong> <?php echo htmlspecialchars($mailErr); ?><br>
-                    <span style="color:#94a3b8;margin-top:.3rem;display:block;">Vérifiez les paramètres dans <code>email_config.php</code> (Gmail + App Password).</span>
+                    <strong>Erreur API email :</strong> <?php echo htmlspecialchars($mailErr); ?><br>
+                    <span style="color:#94a3b8;margin-top:.3rem;display:block;">Vérifiez <code>email_config.local.php</code> (provider, API key, sender vérifié).</span>
                 </div>
                 <?php endif; ?>
 

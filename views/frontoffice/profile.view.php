@@ -1087,7 +1087,7 @@ function stopFaceRegistration() {
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Watch bio field for inappropriate content
-    BadWordsGuard.watch('bio', '../../services/badwords_api.php', { delay: 900 });
+    BadWordsGuard.watch('bio', 'badwords_api.php', { delay: 900 });
 
     // Guard the profile save form
     const profileForms = document.querySelectorAll('form[action="profile.php"]');

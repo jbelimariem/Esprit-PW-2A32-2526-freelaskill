@@ -2,7 +2,7 @@
 // controllers/ProfileController.php
 
 require_once __DIR__ . '/UserController.php';
-require_once __DIR__ . '/../services/GroqService.php';
+require_once __DIR__ . '/../views/frontoffice/GroqService.php';
 
 class ProfileController extends UserController {
 
