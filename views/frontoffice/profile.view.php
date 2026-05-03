@@ -1083,6 +1083,27 @@ function stopFaceRegistration() {
 
 <?php include __DIR__ . '/chatbot_widget.php'; ?>
 <?php include __DIR__ . '/translate_widget.php'; ?>
+<script src="../assets/badwords.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Watch bio field for inappropriate content
+    BadWordsGuard.watch('bio', '../../services/badwords_api.php', { delay: 900 });
+
+    // Guard the profile save form
+    const profileForms = document.querySelectorAll('form[action="profile.php"]');
+    profileForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const action = form.querySelector('[name="action"]');
+            if (action && action.value === 'update') {
+                if (BadWordsGuard.isBlocked('bio')) {
+                    e.preventDefault();
+                    alert('Votre bio contient du contenu inapproprié. Merci de la modifier avant de sauvegarder.');
+                }
+            }
+        });
+    });
+});
+</script>
 </body>
 </html>
 

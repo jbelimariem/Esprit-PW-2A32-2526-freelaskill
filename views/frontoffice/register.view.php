@@ -724,7 +724,12 @@ if (document.readyState === 'loading') {
     initRegisterPasswordRules();
 }
 // Loading state
-document.getElementById('register-form').addEventListener('submit', function() {
+document.getElementById('register-form').addEventListener('submit', function(e) {
+    if (typeof BadWordsGuard !== 'undefined' && BadWordsGuard.isBlocked('bio')) {
+        e.preventDefault();
+        alert('Votre bio contient du contenu inapproprié. Merci de la modifier avant de continuer.');
+        return;
+    }
     const btn = document.getElementById('submit-btn');
     btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Création en cours…';
     btn.disabled  = true;
@@ -733,5 +738,11 @@ document.getElementById('register-form').addEventListener('submit', function() {
 
 <?php include __DIR__ . '/chatbot_widget.php'; ?>
 <?php include __DIR__ . '/translate_widget.php'; ?>
+<script src="../assets/badwords.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    BadWordsGuard.watch('bio', '../../services/badwords_api.php', { delay: 900 });
+});
+</script>
 </body>
 </html>
