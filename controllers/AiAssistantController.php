@@ -7,7 +7,7 @@ class AiAssistantController {
     private $pdo;
     
     // ⚠️ IMPORTANT: Remplacez par votre vraie clé API Gemini (Google AI Studio)
-    private const GEMINI_API_KEY = 'AIzaSyBftex6sbwz_strh-YRUq8xh5vIcFCfR-A';
+    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
 
     public function __construct() {
         $this->pdo = config::getConnexion();

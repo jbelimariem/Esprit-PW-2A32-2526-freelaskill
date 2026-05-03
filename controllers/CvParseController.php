@@ -4,7 +4,7 @@ require_once __DIR__ . '/AiAssistantController.php'; // Pour récupérer la clé
 
 class CvParseController {
     // Utiliser la même clé API
-    private const GEMINI_API_KEY = 'AIzaSyBftex6sbwz_strh-YRUq8xh5vIcFCfR-A';
+    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
 
     public function parsePdfCv($tmpFilePath) {
         // 1. Lire le fichier et l'encoder en Base64

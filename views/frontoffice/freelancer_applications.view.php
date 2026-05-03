@@ -20,45 +20,175 @@ function getStatusLabel($s) {
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <style>
-        .statut-pending  { color:#F59E0B; border:1px solid rgba(245,158,11,0.3); }
-        .statut-approved { color:#10b981; border:1px solid rgba(16,185,129,0.3); }
-        .statut-rejected { color:#ef4444; border:1px solid rgba(239,68,68,0.3); }
+        /* ── Job Grid & Cards Styling ── */
+        .job-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        .job-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .job-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.3);
+            background: rgba(255, 255, 255, 0.05);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+        }
+        .job-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+        }
+        .job-icon {
+            width: 38px;
+            height: 38px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+        .job-titre {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 0.4rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 2.5rem;
+        }
+        .job-card-body {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .job-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .job-budget {
+            color: #10b981;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .job-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 1.2rem;
+        }
 
-        /* ── Edit Modal ── */
-        .modal-overlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.75); backdrop-filter:blur(6px); align-items:center; justify-content:center; }
-        .modal-overlay.active { display:flex; }
-        .modal-box { background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); border:1px solid rgba(255,255,255,0.1); border-radius:28px; width:min(680px,95vw); max-height:90vh; overflow-y:auto; padding:2.5rem; box-shadow:0 40px 80px -20px rgba(0,0,0,0.8); animation:modalIn .35s cubic-bezier(.34,1.56,.64,1); }
-        @keyframes modalIn { from{opacity:0;transform:translateY(40px) scale(.96)} to{opacity:1;transform:none} }
-        .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); }
-        .modal-title  { font-size:1.4rem; font-weight:700; color:white; }
-        .modal-sub    { font-size:0.85rem; color:var(--text-muted); margin-top:4px; }
-        .modal-close  { width:38px; height:38px; border-radius:50%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:var(--text-muted); cursor:pointer; font-size:1.1rem; display:flex; align-items:center; justify-content:center; transition:all .2s; }
-        .modal-close:hover { background:rgba(239,68,68,0.15); color:#ef4444; border-color:rgba(239,68,68,0.3); }
-        .form-grid  { display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; }
-        .form-group { display:flex; flex-direction:column; gap:.5rem; }
-        .form-group.full { grid-column:1/-1; }
-        .form-label { font-size:.8rem; font-weight:600; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; }
-        .form-label .req { color:#f87171; margin-left:3px; }
-        .form-input, .form-textarea { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:.95rem; font-family:'Space Grotesk',sans-serif; padding:.85rem 1.1rem; transition:border-color .25s,box-shadow .25s; outline:none; width:100%; box-sizing:border-box; }
-        .form-input:focus, .form-textarea:focus { border-color:rgba(96,165,250,.6); box-shadow:0 0 0 3px rgba(59,130,246,.12); }
-        .form-textarea { resize:vertical; min-height:130px; }
-        .cv-zone { border:2px dashed rgba(255,255,255,0.15); border-radius:16px; padding:1.5rem; text-align:center; cursor:pointer; transition:all .3s; position:relative; background:rgba(255,255,255,0.02); }
-        .cv-zone:hover { border-color:rgba(96,165,250,.5); background:rgba(59,130,246,.06); }
-        .cv-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
-        .cv-fname { display:none; margin-top:.6rem; font-size:.85rem; color:#10b981; font-weight:600; }
-        .form-errors { background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.3); border-radius:12px; padding:1rem 1.25rem; margin-bottom:1.5rem; }
-        .form-errors li { color:#f87171; font-size:.88rem; margin:4px 0; }
-        .btn-submit-modal { width:100%; padding:1.1rem; border-radius:14px; background:linear-gradient(135deg,#f59e0b,#d97706); color:white; font-size:1rem; font-weight:700; border:none; cursor:pointer; box-shadow:0 10px 25px -5px rgba(245,158,11,.4); transition:transform .2s,box-shadow .2s; display:flex; align-items:center; justify-content:center; gap:10px; margin-top:1.5rem; }
-        .btn-submit-modal:hover { transform:translateY(-2px); box-shadow:0 16px 35px -8px rgba(245,158,11,.55); }
+        /* ── Status Badges Premium ── */
+        .statut-pending {
+            background: rgba(245, 158, 11, 0.1) !important;
+            color: #f59e0b !important;
+            border: 1px solid rgba(245, 158, 11, 0.2) !important;
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.1);
+        }
+        .statut-approved {
+            background: rgba(16, 185, 129, 0.1) !important;
+            color: #10b981 !important;
+            border: 1px solid rgba(16, 185, 129, 0.2) !important;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+        }
+        .statut-rejected {
+            background: rgba(239, 68, 68, 0.1) !important;
+            color: #ef4444 !important;
+            border: 1px solid rgba(239, 68, 68, 0.2) !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.1);
+        }
+        .job-badge {
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .job-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            display: inline-block;
+        }
 
-        /* Edit button */
-        .btn-edit { background:rgba(245,158,11,.12); border:1px solid rgba(245,158,11,.35); color:#f59e0b; border-radius:8px; cursor:pointer; padding:0 15px; height:100%; display:flex; align-items:center; justify-content:center; transition:all .2s; }
-        .btn-edit:hover { background:rgba(245,158,11,.22); }
-
-        /* Success toast */
-        .toast { position:fixed; bottom:2rem; right:2rem; z-index:10000; padding:1rem 1.5rem; border-radius:14px; font-weight:600; font-size:.95rem; display:flex; align-items:center; gap:10px; animation:toastIn .4s ease; }
-        .toast-success { background:rgba(16,185,129,.15); border:1px solid rgba(16,185,129,.4); color:#10b981; }
-        @keyframes toastIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+        /* ── Buttons Jolie ── */
+        .btn-action {
+            padding: 0.8rem 1rem;
+            border-radius: 14px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid transparent; /* Enlever le cadre par défaut */
+            background: transparent; /* Enlever le fond par défaut */
+            backdrop-filter: blur(5px);
+        }
+        .btn-view {
+            background: rgba(59, 130, 246, 0.05);
+            color: #60a5fa;
+            flex: 1;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+        }
+        .btn-view:hover {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+            transform: translateY(-2px);
+        }
+        .btn-edit {
+            color: #f59e0b !important;
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 1.1rem !important;
+        }
+        .btn-edit:hover {
+            background: rgba(245, 158, 11, 0.1) !important;
+            border: 1px solid rgba(245, 158, 11, 0.3) !important;
+            box-shadow: 0 8px 15px rgba(245, 158, 11, 0.2);
+            transform: translateY(-2px);
+        }
+        .btn-cancel {
+            color: #ff3333 !important; /* Rouge intense */
+            width: 48px !important;
+            height: 48px !important;
+            font-size: 1.1rem !important;
+        }
+        .btn-cancel:hover {
+            background: #ff3333 !important; /* Fond rouge intense au hover */
+            color: white !important;
+            box-shadow: 0 10px 20px -5px rgba(255, 51, 51, 0.4);
+            transform: translateY(-2px);
+            border: 1px solid #ff3333 !important;
+        }
     </style>
 </head>
 <body class="page-anim">
@@ -144,7 +274,7 @@ function getStatusLabel($s) {
                     <div class="job-card">
                         <div class="job-card-header">
                             <div class="job-icon">💼</div>
-                            <div class="job-badge <?= $status['class'] ?>" style="padding:4px 10px; border-radius:var(--radius-full); font-size:.65rem; font-weight:700; text-transform:uppercase; background:rgba(255,255,255,0.05);">
+                            <div class="job-badge <?= $status['class'] ?>">
                                 <?= $status['label'] ?>
                             </div>
                         </div>
@@ -170,32 +300,32 @@ function getStatusLabel($s) {
                                 <span><i class="fa-solid fa-calendar-check"></i> Postulé le <?= date('d/m/Y', strtotime($app['created_at'])) ?></span>
                             </div>
                         </div>
-                        <div class="job-actions" style="display:flex; gap:8px;">
-                            <a href="freelancer_detail.php?id=<?= $app['job_id'] ?>" class="btn-action btn-view" style="flex:1; text-align:center;"><i class="fa-solid fa-eye"></i> Voir la mission</a>
+                        <div class="job-actions" style="display:flex; gap:10px;">
+                            <a href="freelancer_detail.php?id=<?= $app['job_id'] ?>" class="btn-action btn-view">
+                                <i class="fa-solid fa-eye"></i> Voir la mission
+                            </a>
 
-                            <?php if ($app['status'] === 'pending'): ?>
-                                <!-- Bouton Modifier -->
-                                <button type="button" class="btn-edit js-open-edit"
-                                    data-id="<?= $app['id'] ?>"
-                                    data-name="<?= htmlspecialchars($app['name'], ENT_QUOTES) ?>"
-                                    data-email="<?= htmlspecialchars($app['email'], ENT_QUOTES) ?>"
-                                    data-phone="<?= htmlspecialchars($app['phone'] ?? '', ENT_QUOTES) ?>"
-                                    data-title="<?= htmlspecialchars($app['job_title'], ENT_QUOTES) ?>"
-                                    data-cover="<?= htmlspecialchars($app['cover_letter'] ?? $app['message'] ?? '', ENT_QUOTES) ?>"
-                                    data-cv="<?= htmlspecialchars($app['cv_path'] ?? $app['cv_link'] ?? '', ENT_QUOTES) ?>"
-                                    title="Modifier ma candidature">
-                                    <i class="fa-solid fa-pen"></i>
+                            <!-- Bouton Modifier (Visible pour tous) -->
+                            <button type="button" class="btn-edit js-open-edit"
+                                data-id="<?= $app['id'] ?>"
+                                data-name="<?= htmlspecialchars($app['name'], ENT_QUOTES) ?>"
+                                data-email="<?= htmlspecialchars($app['email'], ENT_QUOTES) ?>"
+                                data-phone="<?= htmlspecialchars($app['phone'] ?? '', ENT_QUOTES) ?>"
+                                data-title="<?= htmlspecialchars($app['job_title'], ENT_QUOTES) ?>"
+                                data-cover="<?= htmlspecialchars($app['cover_letter'] ?? $app['message'] ?? '', ENT_QUOTES) ?>"
+                                data-cv="<?= htmlspecialchars($app['cv_path'] ?? $app['cv_link'] ?? '', ENT_QUOTES) ?>"
+                                title="Modifier ma candidature">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+
+                            <!-- Bouton Annuler (Visible pour tous - Rouge) -->
+                            <form method="POST" action="freelancer_applications.php" class="form-cancel" data-title="<?= htmlspecialchars($app['job_title']) ?>" style="margin:0;">
+                                <input type="hidden" name="action" value="cancel">
+                                <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
+                                <button type="button" class="btn-action btn-cancel js-cancel" title="Annuler la candidature">
+                                    <i class="fa-solid fa-trash-can"></i>
                                 </button>
-
-                                <!-- Bouton Annuler -->
-                                <form method="POST" action="freelancer_applications.php" class="form-cancel" data-title="<?= htmlspecialchars($app['job_title']) ?>" style="margin:0;">
-                                    <input type="hidden" name="action" value="cancel">
-                                    <input type="hidden" name="app_id" value="<?= $app['id'] ?>">
-                                    <button type="button" class="btn-action js-cancel" style="background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); color:#ef4444; border-radius:8px; cursor:pointer; height:100%; padding:0 15px;" title="Annuler la candidature">
-                                        <i class="fa-solid fa-xmark"></i>
-                                    </button>
-                                </form>
-                            <?php endif; ?>
+                            </form>
                         </div>
                     </div>
                     <?php endforeach; ?>

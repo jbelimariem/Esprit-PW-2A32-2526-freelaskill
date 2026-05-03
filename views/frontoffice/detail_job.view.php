@@ -386,7 +386,134 @@ document.querySelectorAll('.js-open-cand').forEach(btn => {
 closeCandM.addEventListener('click', () => candModal.classList.remove('active'));
 candModal.addEventListener('click', e => { if (e.target === candModal) candModal.classList.remove('active'); });
 </script>
+<!-- ═══════════════════════════════════
+     AI CANDIDATE ASSISTANT WIDGET
+═══════════════════════════════════ -->
+<div class="ai-fab" id="ai-fab-cand" title="Assistant Recrutement IA" style="background: linear-gradient(135deg, #10b981, #3b82f6); bottom: 2rem; right: 2rem; position: fixed; width: 55px; height: 55px; border-radius: 50%; color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4); z-index: 9999; transition: all 0.3s;">
+    <i class="fa-solid fa-user-check"></i>
+</div>
+
+<div class="ai-chat-panel" id="ai-chat-panel-cand" style="position: fixed; bottom: 6rem; right: 2rem; width: 350px; height: 500px; max-height: 80vh; background: #0f172a; border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; display: flex; flex-direction: column; box-shadow: 0 30px 60px rgba(0,0,0,0.8); z-index: 9998; opacity: 0; pointer-events: none; transform: translateY(20px); transition: all 0.4s cubic-bezier(0.34,1.56,0.64,1); overflow: hidden;">
+    <div class="ai-chat-header" style="display: flex; align-items: center; padding: 1rem; background: rgba(255,255,255,0.03); border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div class="ai-avatar" style="width: 35px; height: 35px; border-radius: 50%; background: linear-gradient(135deg, #10b981, #3b82f6); display: flex; align-items: center; justify-content: center; font-size: 1rem; color: white; margin-right: 12px;"><i class="fa-solid fa-robot"></i></div>
+        <div style="flex: 1;">
+            <div style="font-weight: 700; color: white; font-size: 0.9rem;">Expert Recrutement IA</div>
+            <div style="font-size: 0.7rem; color: #10b981;">Analyse en cours...</div>
+        </div>
+        <button id="ai-close-cand" style="background: none; border: none; color: var(--text-muted); font-size: 1.1rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="ai-chat-body-cand" style="flex: 1; padding: 1.2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 0.8rem;">
+        <div class="ai-msg bot">
+            <div style="background: rgba(255,255,255,0.05); padding: 0.8rem; border-radius: 15px; border-bottom-left-radius: 4px; color: #e2e8f0; font-size: 0.85rem; line-height: 1.4;">
+                Bonjour ! J'ai analysé les candidatures pour votre offre. <br><br>
+                Je peux vous aider à comparer les profils ou vous dire quel candidat correspond le mieux. Que souhaitez-vous savoir ?
+            </div>
+        </div>
+    </div>
+    <div style="padding: 0.8rem; border-top: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.2);">
+        <form id="ai-form-cand" style="display: flex; gap: 6px;">
+            <input type="text" id="ai-input-cand" placeholder="Votre question..." style="flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 18px; padding: 8px 12px; color: white; outline: none; font-size: 0.85rem;" autocomplete="off">
+            <button type="submit" style="background: #3b82f6; border: none; width: 35px; height: 35px; border-radius: 50%; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-paper-plane"></i></button>
+        </form>
     </div>
 </div>
+
+<style>
+    #ai-chat-panel-cand.active { opacity: 1 !important; pointer-events: auto !important; transform: none !important; }
+    .ai-msg { display: flex; max-width: 85%; }
+    .ai-msg.user { align-self: flex-end; }
+    .ai-msg.bot { align-self: flex-start; }
+    .ai-bubble-cand { padding: 0.8rem; border-radius: 15px; font-size: 0.85rem; line-height: 1.4; }
+    .ai-msg.user .ai-bubble-cand { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border-bottom-right-radius: 4px; }
+    .ai-msg.bot .ai-bubble-cand { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #e2e8f0; border-bottom-left-radius: 4px; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const fabCand = document.getElementById('ai-fab-cand');
+    const panelCand = document.getElementById('ai-chat-panel-cand');
+    const closeBtnCand = document.getElementById('ai-close-cand');
+    const formCand = document.getElementById('ai-form-cand');
+    const inputCand = document.getElementById('ai-input-cand');
+    const bodyCand = document.getElementById('ai-chat-body-cand');
+
+    if(!fabCand || !panelCand) return;
+
+    // Utilisation de json_encode pour éviter les erreurs de syntaxe JS
+    const jobInfo = <?= json_encode([
+        'titre' => $offre->getTitre(),
+        'description' => $offre->getDescription(),
+        'competences' => $offre->getCompetences()
+    ]) ?>;
+
+    const candidates = <?= json_encode(array_map(function($can) {
+        return [
+            'name' => $can->getName(),
+            'job_title' => $can->getJobTitle(),
+            'cover_letter' => $can->getCoverLetter() ?: $can->getMessage() ?: ''
+        ];
+    }, $candidats)) ?>;
+
+    let chatHistoryCand = [];
+
+    fabCand.onclick = (e) => {
+        e.preventDefault();
+        panelCand.classList.toggle('active');
+        if(panelCand.classList.contains('active')) inputCand.focus();
+    };
+
+    closeBtnCand.onclick = () => panelCand.classList.remove('active');
+
+    function appendMsgCand(text, type) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = `ai-msg ${type}`;
+        let html = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+        msgDiv.innerHTML = `<div class="ai-bubble-cand">${html}</div>`;
+        bodyCand.appendChild(msgDiv);
+        bodyCand.scrollTop = bodyCand.scrollHeight;
+    }
+
+    formCand.onsubmit = async (e) => {
+        e.preventDefault();
+        const msg = inputCand.value.trim();
+        if(!msg) return;
+
+        appendMsgCand(msg, 'user');
+        inputCand.value = '';
+
+        const typing = document.createElement('div');
+        typing.className = 'ai-msg bot';
+        typing.innerHTML = '<div class="ai-bubble-cand">...</div>';
+        bodyCand.appendChild(typing);
+        bodyCand.scrollTop = bodyCand.scrollHeight;
+
+        try {
+            const res = await fetch('api_candidate_assistant.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    message: msg,
+                    history: chatHistoryCand,
+                    jobInfo: jobInfo,
+                    candidates: candidates
+                })
+            });
+            const data = await res.json();
+            typing.remove();
+
+            if(data.status === 'success') {
+                appendMsgCand(data.reply, 'bot');
+                chatHistoryCand.push({role: 'user', text: msg});
+                chatHistoryCand.push({role: 'bot', text: data.reply});
+            } else {
+                appendMsgCand("Erreur: " + data.message, 'bot');
+            }
+        } catch(err) {
+            typing.remove();
+            appendMsgCand("Erreur de connexion.", 'bot');
+        }
+    };
+});
+</script>
 </body>
 </html>
