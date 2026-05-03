@@ -6,7 +6,7 @@ class EmailApiService
 
     public function __construct(array $config = [])
     {
-        $this->config = $config ?: require __DIR__ . '/../../email_config.php';
+        $this->config = $config ?: require __DIR__ . '/../../controllers/email_config.php';
     }
 
     public function sendPasswordReset($email, $prenom, $code)
@@ -46,7 +46,7 @@ class EmailApiService
         $apiKey = trim((string) ($this->config['api_key'] ?? ''));
 
         if ($apiKey === '') {
-            return ['ok' => false, 'error' => 'Cle API email manquante. Configurez MAIL_API_KEY ou email_config.local.php.'];
+            return ['ok' => false, 'error' => 'Cle API email manquante. Configurez MAIL_API_KEY ou controllers/email_config.local.php.'];
         }
 
         $payload = [
@@ -79,7 +79,7 @@ class EmailApiService
         $apiKey = trim((string) ($this->config['api_key'] ?? ''));
 
         if ($apiKey === '') {
-            return ['ok' => false, 'error' => 'Cle API email manquante. Configurez MAIL_API_KEY ou email_config.local.php.'];
+            return ['ok' => false, 'error' => 'Cle API email manquante. Configurez MAIL_API_KEY ou controllers/email_config.local.php.'];
         }
 
         $payload = [

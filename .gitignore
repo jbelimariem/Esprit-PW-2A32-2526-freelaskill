@@ -1,2 +1,2 @@
-config.local.php
-email_config.local.php
+controllers/config.local.php
+controllers/email_config.local.php

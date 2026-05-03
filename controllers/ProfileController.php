@@ -198,7 +198,7 @@ class ProfileController extends UserController {
             $groq = new GroqService();
 
             if (!$groq->isConfigured()) {
-                $errors['_global'] = 'Groq n est pas configure. Ajoutez votre cle API dans config.local.php.';
+                $errors['_global'] = 'Groq n est pas configure. Ajoutez votre cle API dans controllers/config.local.php.';
             } else {
                 try {
                     $generatedBio = $groq->generateProfileBio($draftUser, $_POST['bio'] ?? $user->getBio());

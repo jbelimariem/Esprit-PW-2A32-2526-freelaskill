@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-require_once __DIR__ . '/../../config.php';
+require_once __DIR__ . '/../../controllers/config.php';
 require_once __DIR__ . '/GroqService.php';
 
 try {

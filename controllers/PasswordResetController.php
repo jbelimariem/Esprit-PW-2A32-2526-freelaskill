@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/../views/frontoffice/EmailApiService.php';
 require_once __DIR__ . '/UserController.php';
 
@@ -13,7 +13,7 @@ class PasswordResetController {
             session_start();
         }
         $this->pdo        = config::getConnexion();
-        $this->mailConfig = require __DIR__ . '/../email_config.php';
+        $this->mailConfig = require __DIR__ . '/email_config.php';
         $this->ensureTable();
     }
 
