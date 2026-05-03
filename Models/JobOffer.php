@@ -16,6 +16,7 @@ class JobOffer {
 
     private $pdo;
 
+    // Initialise les attributs à partir d'un tableau $data venant de la BDD (fetchAll/fetch)
     public function __construct($data = []) {
         $this->pdo = config::getConnexion();
         if (!empty($data)) {
@@ -31,7 +32,7 @@ class JobOffer {
         }
     }
 
-    // --- GETTERS ---
+    // --- GETTERS : permettent de lire les attributs privés depuis l'extérieur de la classe ---
     public function getId()            { return $this->id; }
     public function getTitre()         { return $this->titre; }
     public function getDescription()   { return $this->description; }
@@ -42,7 +43,7 @@ class JobOffer {
     public function getDateCreation()  { return $this->date_creation; }
     public function getClientId()      { return $this->client_id; }
 
-    // --- SETTERS ---
+    // --- SETTERS : permettent de modifier les attributs privés depuis l'extérieur de la classe ---
     public function setTitre($t)       { $this->titre = $t; }
     public function setDescription($d) { $this->description = $d; }
     public function setCompetences($c) { $this->competences = $c; }

@@ -9,6 +9,8 @@ class AdminFreelancersController {
         $q = trim($_GET['q'] ?? '');
 
         $stats = $model->getGlobalStats();
+        $statusCounts = $model->getFreelancersStatusCounts();
+        $growthData = $model->getFreelancersGrowth();
         $freelancers = $model->getFreelancersWithApplications($q);
 
         include __DIR__ . '/../views/backoffice/admin_freelancers.view.php';

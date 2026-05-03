@@ -57,31 +57,40 @@ $badge = $statutConfig[$offre->getStatut()] ?? $statutConfig['pending'];
                         </div>
 
                         <div class="glass-card" style="margin-top:2rem;">
-                            <h3>Candidatures reçues (<?= count($candidats ?? []) ?>)</h3>
-                            <div style="margin-top:1rem;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                                <h3 style="margin:0;">Candidatures reçues (<?= count($candidats ?? []) ?>)</h3>
+                            </div>
+                            
+                            <div style="margin-top:1rem;" id="candidates-container">
                                 <?php if (empty($candidats)): ?>
                                     <p style="color:var(--text-muted);">Aucune candidature pour le moment.</p>
                                 <?php else: ?>
                                     <?php foreach ($candidats as $can): ?>
-                                     <div style="display:flex; align-items:center; gap:1rem; padding:1rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; margin-bottom:1rem;">
-                                        <div style="width:40px; height:40px; background:var(--tech-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;"><?= strtoupper(substr($can->getName(), 0, 1)) ?></div>
-                                        <div style="flex:1;">
-                                            <div style="font-weight:700;"><?= htmlspecialchars($can->getName()) ?></div>
-                                            <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can->getJobTitle()) ?></div>
-                                            <div style="font-size:0.75rem; margin-top:4px;">Statut : <strong><?= htmlspecialchars($can->getStatus()) ?></strong></div>
+                                     <div style="display:flex; flex-direction:column; gap:10px; padding:1rem; background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:12px; margin-bottom:1rem;">
+                                        <div style="display:flex; align-items:center; gap:1rem;">
+                                            <div style="width:40px; height:40px; background:var(--tech-blue); border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700;"><?= strtoupper(substr($can->getName(), 0, 1)) ?></div>
+                                            <div style="flex:1;">
+                                                <div style="font-weight:700;"><?= htmlspecialchars($can->getName()) ?></div>
+                                                <div style="font-size:0.85rem; color:var(--text-muted);"><?= htmlspecialchars($can->getJobTitle()) ?></div>
+                                                <div style="font-size:0.75rem; margin-top:4px;">Statut : <strong><?= htmlspecialchars($can->getStatus()) ?></strong></div>
+                                            </div>
+
+
+                                            <div style="display:flex; gap:0.5rem;">
+                                                <form method="POST" style="margin:0;">
+                                                    <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
+                                                    <input type="hidden" name="action_app" value="approved">
+                                                    <button type="submit" class="btn" style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer;">Valider</button>
+                                                </form>
+                                                <form method="POST" style="margin:0;">
+                                                    <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
+                                                    <input type="hidden" name="action_app" value="rejected">
+                                                    <button type="submit" class="btn" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer;">Refuser</button>
+                                                </form>
+                                            </div>
                                         </div>
-                                        <div style="display:flex; gap:0.5rem;">
-                                            <form method="POST" style="margin:0;">
-                                                <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
-                                                <input type="hidden" name="action_app" value="approved">
-                                                <button type="submit" class="btn" style="background:#10b981; color:white; border:none; padding:5px 10px; cursor:pointer;">Valider</button>
-                                            </form>
-                                            <form method="POST" style="margin:0;">
-                                                <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
-                                                <input type="hidden" name="action_app" value="rejected">
-                                                <button type="submit" class="btn" style="background:#ef4444; color:white; border:none; padding:5px 10px; cursor:pointer;">Refuser</button>
-                                            </form>
-                                        </div>
+
+
                                     </div>
                                     <?php endforeach; ?>
                                 <?php endif; ?>
@@ -102,5 +111,6 @@ $badge = $statutConfig[$offre->getStatut()] ?? $statutConfig['pending'];
             </div>
         </main>
     </div>
+
 </body>
 </html>

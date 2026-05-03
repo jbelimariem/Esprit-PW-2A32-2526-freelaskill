@@ -99,11 +99,11 @@
             </div>
             <div class="mkt-profile-stats">
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">3</div>
+                    <div class="mkt-stat-val"><?= config::getConnexion()->query("SELECT COUNT(*) FROM offres_emploi")->fetchColumn() ?></div>
                     <div class="mkt-stat-label">OFFRES</div>
                 </div>
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">8</div>
+                    <div class="mkt-stat-val"><?= config::getConnexion()->query("SELECT COUNT(*) FROM job_applications")->fetchColumn() ?></div>
                     <div class="mkt-stat-label">CANDIDATS</div>
                 </div>
             </div>

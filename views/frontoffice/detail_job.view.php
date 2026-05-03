@@ -40,6 +40,22 @@ $appStatutConfig = [
         .meta-row { display: flex; justify-content: space-between; padding: 0.5rem 0; }
         .candidate-item { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 1rem; }
         .candidate-avatar { width: 40px; height: 40px; background: var(--tech-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+        /* ── Candidate Detail Modal ── */
+        .cand-modal-overlay { display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.78); backdrop-filter:blur(7px); align-items:center; justify-content:center; }
+        .cand-modal-overlay.active { display:flex; }
+        .cand-modal-box { background:linear-gradient(160deg,#0f172a 0%,#1e293b 100%); border:1px solid rgba(255,255,255,0.1); border-radius:28px; width:min(640px,95vw); max-height:88vh; overflow-y:auto; padding:2.5rem; box-shadow:0 40px 80px -20px rgba(0,0,0,0.85); animation:cmSlide .35s cubic-bezier(.34,1.56,.64,1); }
+        @keyframes cmSlide { from{opacity:0;transform:translateY(40px) scale(.96)} to{opacity:1;transform:none} }
+        .cand-modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:2rem; padding-bottom:1.5rem; border-bottom:1px solid rgba(255,255,255,0.07); }
+        .cand-modal-title { font-size:1.3rem; font-weight:700; color:white; }
+        .cand-modal-close { width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--text-muted);cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;transition:all .2s; }
+        .cand-modal-close:hover { background:rgba(239,68,68,.15);color:#ef4444;border-color:rgba(239,68,68,.3); }
+        .info-block { margin-bottom:1.4rem; }
+        .info-label { font-size:.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:.8px; margin-bottom:.4rem; }
+        .info-value { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:12px; padding:.85rem 1.1rem; color:white; font-size:.95rem; line-height:1.6; word-break:break-word; white-space:pre-wrap; }
+        .info-grid { display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem; }
+        .btn-dl-cv { display:inline-flex; align-items:center; gap:8px; background:linear-gradient(135deg,#3b82f6,#2563eb); color:white; padding:.75rem 1.4rem; border-radius:12px; text-decoration:none; font-weight:700; font-size:.9rem; margin-top:1rem; transition:transform .2s; }
+        .btn-dl-cv:hover { transform:translateY(-2px); }
     </style>
 </head>
 <body class="page-anim">
@@ -69,11 +85,11 @@ $appStatutConfig = [
             </div>
             <div class="mkt-profile-stats">
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">3</div>
+                    <div class="mkt-stat-val"><?= config::getConnexion()->query("SELECT COUNT(*) FROM offres_emploi")->fetchColumn() ?></div>
                     <div class="mkt-stat-label">OFFRES</div>
                 </div>
                 <div class="mkt-stat">
-                    <div class="mkt-stat-val">8</div>
+                    <div class="mkt-stat-val"><?= config::getConnexion()->query("SELECT COUNT(*) FROM job_applications")->fetchColumn() ?></div>
                     <div class="mkt-stat-label">CANDIDATS</div>
                 </div>
             </div>
@@ -161,50 +177,64 @@ $appStatutConfig = [
                 <div style="display: flex; flex-direction: column; gap: 1rem;">
                     <?php foreach ($candidats as $can): 
                         $appBadge = $appStatutConfig[$can->getStatus() ?? 'pending'] ?? $appStatutConfig['pending'];
+                        $canCover = $can->getCoverLetter() ?: $can->getMessage() ?: '';
+                        $canCv    = $can->getCvPath() ?: $can->getCvLink() ?: '';
+                        $canPhone = $can->getPhone() ?: '';
                     ?>
-                    <div class="candidate-item" style="display: flex; align-items: center; gap: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; transition: transform 0.3s ease, background 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-                        <div class="candidate-avatar" style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--tech-blue), #2563eb); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: white; box-shadow: 0 4px 15px rgba(59,130,246,0.3);">
+                    <div class="candidate-item" style="display:flex; align-items:center; gap:1.5rem; padding:1.5rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:20px; transition:transform .3s,background .3s; box-shadow:0 4px 15px rgba(0,0,0,0.2);">
+                        <div class="candidate-avatar" style="width:50px;height:50px;background:linear-gradient(135deg,var(--tech-blue),#2563eb);border-radius:16px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.2rem;color:white;box-shadow:0 4px 15px rgba(59,130,246,0.3);">
                             <?= strtoupper(substr($can->getName(), 0, 1)) ?>
                         </div>
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-                                <div style="font-weight: 700; font-size: 1.1rem; color: white;"><?= htmlspecialchars($can->getName()) ?></div>
-                                <span style="font-size: 0.75rem; color: <?= $appBadge['color'] ?>; background: <?= $appBadge['bg'] ?>; padding: 4px 10px; border-radius: 12px; font-weight: 600;"><?= $appBadge['label'] ?></span>
+                        <div style="flex:1;">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
+                                <div style="font-weight:700; font-size:1.1rem; color:white;"><?= htmlspecialchars($can->getName()) ?></div>
+                                <span style="font-size:.75rem; color:<?= $appBadge['color'] ?>; background:<?= $appBadge['bg'] ?>; padding:4px 10px; border-radius:12px; font-weight:600;"><?= $appBadge['label'] ?></span>
                             </div>
-                            <div style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-user-tie" style="margin-right: 5px; opacity: 0.7;"></i> <?= htmlspecialchars($can->getJobTitle()) ?></div>
+                            <div style="font-size:.9rem; color:var(--text-muted);">
+                                <i class="fa-solid fa-user-tie" style="margin-right:5px; opacity:.7;"></i> <?= htmlspecialchars($can->getJobTitle()) ?>
+                                <?php if ($canPhone): ?>
+                                    &nbsp;·&nbsp;<i class="fa-solid fa-phone"></i> <?= htmlspecialchars($canPhone) ?>
+                                <?php endif; ?>
+                            </div>
                         </div>
+
+                        <!-- Bouton Voir Détails -->   
+                        <button type="button" class="btn-action js-open-cand"
+                            data-name="<?= htmlspecialchars($can->getName(), ENT_QUOTES) ?>"
+                            data-email="<?= htmlspecialchars($can->getEmail() ?? '', ENT_QUOTES) ?>"
+                            data-phone="<?= htmlspecialchars($canPhone, ENT_QUOTES) ?>"
+                            data-title="<?= htmlspecialchars($can->getJobTitle(), ENT_QUOTES) ?>"
+                            data-cover="<?= htmlspecialchars($canCover, ENT_QUOTES) ?>"
+                            data-cv="<?= htmlspecialchars($canCv, ENT_QUOTES) ?>"
+                            style="background:rgba(139,92,246,.12); color:#a78bfa; border:1px solid rgba(139,92,246,.35); padding:10px 16px; border-radius:12px; font-weight:600; font-size:.9rem; cursor:pointer; transition:all .2s; display:inline-flex; align-items:center; gap:6px; white-space:nowrap;">
+                            <i class="fa-solid fa-id-card"></i> Voir détails
+                        </button>
+
                         <?php if ($can->getFreelancerId()): ?>
-                            <a href="cv.php?id=<?= $can->getFreelancerId() ?>" target="_blank" class="btn-action" style="background: rgba(59,130,246,0.1); color: var(--tech-blue); border: 1px solid rgba(59,130,246,0.3); padding: 10px 16px; border-radius: 12px; font-weight: 600; font-size: 0.9rem; text-decoration: none; transition: all 0.3s ease; display: inline-flex; align-items: center;">
-                                <i class="fa-solid fa-file-pdf" style="margin-right: 6px;"></i> Voir CV
+                            <a href="cv.php?id=<?= $can->getFreelancerId() ?>" target="_blank" class="btn-action" style="background:rgba(59,130,246,.1);color:var(--tech-blue);border:1px solid rgba(59,130,246,.3);padding:10px 16px;border-radius:12px;font-weight:600;font-size:.9rem;text-decoration:none;transition:all .3s;display:inline-flex;align-items:center;gap:6px;">
+                                <i class="fa-solid fa-file-pdf"></i> Voir CV
                             </a>
                         <?php endif; ?>
 
-                        <form method="POST" novalidate style="margin: 0; display: flex; gap: 8px; align-items: center;">
+                        <form method="POST" novalidate style="margin:0; display:flex; gap:8px; align-items:center;">
                             <input type="hidden" name="app_id" value="<?= $can->getId() ?>">
                             <?php $currentStatus = $can->getStatus() ?? 'pending'; ?>
-                            
                             <?php if ($currentStatus === 'pending'): ?>
-                                <button type="submit" name="action_app" value="approved" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(16,185,129,0.3); display: inline-flex; align-items: center;">
-                                    <i class="fa-solid fa-check" style="margin-right: 6px;"></i> Approuver
+                                <button type="submit" name="action_app" value="approved" class="btn-action" style="background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:600;font-size:.9rem;box-shadow:0 4px 15px rgba(16,185,129,.3);display:inline-flex;align-items:center;gap:6px;">
+                                    <i class="fa-solid fa-check"></i> Approuver
                                 </button>
-                                <button type="submit" name="action_app" value="rejected" class="btn-action" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; border: none; padding: 10px 16px; border-radius: 12px; cursor: pointer; font-weight: 600; font-size: 0.9rem; transition: transform 0.3s ease, box-shadow 0.3s ease; box-shadow: 0 4px 15px rgba(239,68,68,0.3); display: inline-flex; align-items: center;">
-                                    <i class="fa-solid fa-xmark" style="margin-right: 6px;"></i> Refuser
+                                <button type="submit" name="action_app" value="rejected" class="btn-action" style="background:linear-gradient(135deg,#ef4444,#dc2626);color:white;border:none;padding:10px 16px;border-radius:12px;cursor:pointer;font-weight:600;font-size:.9rem;box-shadow:0 4px 15px rgba(239,68,68,.3);display:inline-flex;align-items:center;gap:6px;">
+                                    <i class="fa-solid fa-xmark"></i> Refuser
                                 </button>
-                                
                             <?php elseif ($currentStatus === 'approved'): ?>
-                                <span style="font-weight: 700; color: #10b981; font-size: 0.95rem; margin-right: 8px;">
-                                    <i class="fa-solid fa-check-circle" style="margin-right: 4px;"></i> Accepté
-                                </span>
-                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.3s ease; display: inline-flex; align-items: center;">
-                                    <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Annuler
+                                <span style="font-weight:700;color:#10b981;font-size:.95rem;"><i class="fa-solid fa-check-circle"></i> Accepté</span>
+                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background:rgba(255,255,255,.05);color:white;border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:12px;cursor:pointer;font-weight:500;font-size:.85rem;display:inline-flex;align-items:center;gap:4px;">
+                                    <i class="fa-solid fa-rotate-left"></i> Annuler
                                 </button>
-                                
                             <?php elseif ($currentStatus === 'rejected'): ?>
-                                <span style="font-weight: 700; color: #ef4444; font-size: 0.95rem; margin-right: 8px;">
-                                    <i class="fa-solid fa-ban" style="margin-right: 4px;"></i> Refusé
-                                </span>
-                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background: rgba(255,255,255,0.05); color: white; border: 1px solid rgba(255,255,255,0.1); padding: 8px 14px; border-radius: 12px; cursor: pointer; font-weight: 500; font-size: 0.85rem; transition: all 0.3s ease; display: inline-flex; align-items: center;">
-                                    <i class="fa-solid fa-rotate-left" style="margin-right: 4px;"></i> Annuler
+                                <span style="font-weight:700;color:#ef4444;font-size:.95rem;"><i class="fa-solid fa-ban"></i> Refusé</span>
+                                <button type="submit" name="action_app" value="pending" class="btn-action" style="background:rgba(255,255,255,.05);color:white;border:1px solid rgba(255,255,255,.1);padding:8px 14px;border-radius:12px;cursor:pointer;font-weight:500;font-size:.85rem;display:inline-flex;align-items:center;gap:4px;">
+                                    <i class="fa-solid fa-rotate-left"></i> Annuler
                                 </button>
                             <?php endif; ?>
                         </form>
@@ -268,6 +298,47 @@ $appStatutConfig = [
     </aside>
 </div>
 
+<!-- ════════ MODAL DÉTAILS CANDIDAT ════════ -->
+<div class="cand-modal-overlay" id="cand-modal">
+    <div class="cand-modal-box">
+        <div class="cand-modal-head">
+            <div>
+                <div class="cand-modal-title"><i class="fa-solid fa-id-card" style="color:#a78bfa;margin-right:8px;"></i>Détails du candidat</div>
+                <div id="cm-subtitle" style="font-size:.85rem;color:var(--text-muted);margin-top:4px;"></div>
+            </div>
+            <button class="cand-modal-close" id="close-cand-modal" title="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="info-grid">
+            <div class="info-block">
+                <div class="info-label"><i class="fa-solid fa-user"></i> Nom complet</div>
+                <div class="info-value" id="cm-name">—</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label"><i class="fa-solid fa-envelope"></i> E-mail</div>
+                <div class="info-value" id="cm-email">—</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label"><i class="fa-solid fa-phone"></i> Téléphone</div>
+                <div class="info-value" id="cm-phone">Non renseigné</div>
+            </div>
+            <div class="info-block">
+                <div class="info-label"><i class="fa-solid fa-briefcase"></i> Titre / Poste</div>
+                <div class="info-value" id="cm-title">—</div>
+            </div>
+        </div>
+        <div class="info-block">
+            <div class="info-label"><i class="fa-solid fa-quote-left"></i> Lettre de motivation</div>
+            <div class="info-value" id="cm-cover" style="min-height:100px;">Aucune lettre de motivation fournie.</div>
+        </div>
+        <div id="cm-cv-block">
+            <div class="info-label" style="margin-bottom:.4rem;"><i class="fa-solid fa-paperclip"></i> CV joint</div>
+            <a id="cm-cv-link" class="btn-dl-cv" href="#" target="_blank">
+                <i class="fa-solid fa-file-arrow-down"></i> Télécharger / Voir le CV
+            </a>
+        </div>
+    </div>
+</div>
+
 <script>
 document.getElementById('download-pdf')?.addEventListener('click', function() {
     const { jsPDF } = window.jspdf;
@@ -285,6 +356,35 @@ document.getElementById('download-pdf')?.addEventListener('click', function() {
     });
     saveAs(doc.output('blob'), 'mission_<?= $safeTitre ?>.pdf');
 });
+
+// ── Candidate Detail Modal ──
+const candModal  = document.getElementById('cand-modal');
+const closeCandM = document.getElementById('close-cand-modal');
+
+document.querySelectorAll('.js-open-cand').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('cm-name').textContent  = btn.dataset.name  || '—';
+        document.getElementById('cm-email').textContent = btn.dataset.email || '—';
+        document.getElementById('cm-phone').textContent = btn.dataset.phone || 'Non renseigné';
+        document.getElementById('cm-title').textContent = btn.dataset.title || '—';
+        document.getElementById('cm-cover').textContent = btn.dataset.cover || 'Aucune lettre de motivation fournie.';
+        document.getElementById('cm-subtitle').textContent = btn.dataset.title;
+
+        const cvBlock = document.getElementById('cm-cv-block');
+        const cvLink  = document.getElementById('cm-cv-link');
+        if (btn.dataset.cv) {
+            cvBlock.style.display = 'block';
+            cvLink.href = '../../' + btn.dataset.cv;
+            cvLink.querySelector('i').className = 'fa-solid fa-file-arrow-down';
+        } else {
+            cvBlock.style.display = 'none';
+        }
+
+        candModal.classList.add('active');
+    });
+});
+closeCandM.addEventListener('click', () => candModal.classList.remove('active'));
+candModal.addEventListener('click', e => { if (e.target === candModal) candModal.classList.remove('active'); });
 </script>
     </div>
 </div>

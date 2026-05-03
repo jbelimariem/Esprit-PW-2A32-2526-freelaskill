@@ -19,6 +19,8 @@ function statutBadge($s) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="admin.css?v=<?= time() ?>">
+    <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
+    <script src="../assets/theme.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -53,6 +55,7 @@ function statutBadge($s) {
                     <input type="text" name="date" placeholder="Date..." value="<?= htmlspecialchars($searchDate ?? '') ?>">
                     <button type="submit" style="display:none;"></button>
                 </form>
+                <button class="theme-toggle-btn" id="theme-btn" title="Mode clair"><i class="fa-solid fa-sun"></i></button>
             </header>
 
             <div class="admin-content">
