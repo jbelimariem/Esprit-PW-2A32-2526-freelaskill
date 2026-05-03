@@ -6,7 +6,7 @@
   'use strict';
 
   /* ── CONFIG ─────────────────────────────────────────────── */
-  const BATCH_SIZE   = 60;   // texts per API call
+  const BATCH_SIZE   = 20;   // texts per API call
   const ENDPOINT     = 'translate_api.php';   // relative; overridden via data-attr
   const SKIP_TAGS    = new Set([
     'SCRIPT', 'STYLE', 'NOSCRIPT', 'IFRAME', 'OBJECT',
@@ -140,7 +140,7 @@
       }
     } catch (err) {
       console.error('[Translator]', err);
-      showToast('Translation failed: ' + err.message, 'error');
+      showToast(err.message || 'Translation failed. Please try again later.', 'error');
       setUIState('idle');
       busy = false;
       return;
@@ -197,11 +197,13 @@
     toast.style.cssText = `
       position:fixed; bottom:5rem; left:50%; transform:translateX(-50%) translateY(20px);
       background:${c.bg}; border:1px solid ${c.border}; color:${c.text};
-      padding:0.65rem 1.25rem; border-radius:9999px; font-size:0.85rem;
+      padding:0.65rem 1.25rem; border-radius:14px; font-size:0.85rem;
       font-family:'Space Grotesk',sans-serif; font-weight:600;
       backdrop-filter:blur(16px); z-index:9999;
       opacity:0; transition:all 0.35s cubic-bezier(0.4,0,0.2,1);
-      white-space:nowrap; box-shadow:0 8px 32px rgba(0,0,0,0.25);
+      width:max-content; max-width:min(520px, calc(100vw - 2rem));
+      white-space:normal; text-align:center; line-height:1.45;
+      box-shadow:0 8px 32px rgba(0,0,0,0.25);
       pointer-events:none;
     `;
     toast.textContent = msg;

@@ -43,9 +43,13 @@ if (!is_array($data) || empty($data['texts']) || !is_array($data['texts'])) {
 
 $texts = array_values($data['texts']);
 
-// Sanitize: skip empty strings, limit to 120 items per request
+// Sanitize: skip empty strings, limit each request to a small batch.
 $texts = array_filter($texts, fn($t) => is_string($t) && trim($t) !== '');
-$texts = array_values(array_slice($texts, 0, 120));
+$texts = array_values(array_slice($texts, 0, 30));
+$texts = array_map(function ($text) {
+    $text = trim(preg_replace('/\s+/', ' ', (string) $text));
+    return mb_substr($text, 0, 300);
+}, $texts);
 
 if (empty($texts)) {
     echo json_encode(['translations' => []]);
@@ -81,7 +85,7 @@ try {
     $groq   = new GroqService();
     $reply  = $groq->chat($messages, [
         'temperature'          => 0.2,
-        'max_completion_tokens' => 4096,
+        'max_completion_tokens' => min(1200, 120 + (count($texts) * 35)),
     ]);
 
     // Extract JSON array from reply
@@ -105,6 +109,14 @@ try {
     echo json_encode(['translations' => array_values($translations)], JSON_UNESCAPED_UNICODE);
 
 } catch (Exception $e) {
+    $message = $e->getMessage();
+
+    if (preg_match('/rate|limit|tokens per minute|try again/i', $message)) {
+        http_response_code(429);
+        echo json_encode(['error' => 'La traduction est temporairement limitee. Reessayez dans quelques secondes.']);
+        exit;
+    }
+
     http_response_code(500);
-    echo json_encode(['error' => $e->getMessage()]);
+    echo json_encode(['error' => 'La traduction est indisponible pour le moment.']);
 }

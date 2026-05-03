@@ -50,7 +50,7 @@ class GroqService
 
         if ($status < 200 || $status >= 300) {
             $message = $data['error']['message'] ?? 'Erreur API Groq.';
-            throw new RuntimeException($message);
+            throw new RuntimeException($this->sanitizeApiError($message, $status));
         }
 
         $reply = trim((string) ($data['choices'][0]['message']['content'] ?? ''));
@@ -60,6 +60,21 @@ class GroqService
         }
 
         return $reply;
+    }
+
+    private function sanitizeApiError($message, $status)
+    {
+        $message = (string) $message;
+
+        if (preg_match('/rate|limit|tokens per minute|try again/i', $message)) {
+            return 'Limite temporaire Groq atteinte. Reessayez dans quelques secondes.';
+        }
+
+        if ($status === 401 || $status === 403) {
+            return 'Cle API Groq invalide ou non autorisee.';
+        }
+
+        return 'Erreur API Groq.';
     }
 
     public function generateProfileBio(User $user, $existingBio = '')
