@@ -76,6 +76,11 @@ $inRules    = ($activePage === 'rules');
     <div class="sidebar-divider"></div>
     <div class="sidebar-section-label">Gestion</div>
 
+    <a href="admin_escrow.php" class="nav-item <?php echo $activePage === 'escrow' ? 'active' : ''; ?>" style="<?php echo $activePage === 'escrow' ? '' : ''; ?>">
+        <i class="fa-solid fa-lock" style="color:#10B981;"></i> Escrow
+        <span style="margin-left:auto;background:rgba(16,185,129,0.15);color:#34D399;font-size:0.65rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:999px;">NEW</span>
+    </a>
+
     <a href="admin_approbations.html" class="nav-item <?php echo $activePage === 'approbations' ? 'active' : ''; ?>">
         <i class="fa-solid fa-check-double"></i> Validations
     </a>

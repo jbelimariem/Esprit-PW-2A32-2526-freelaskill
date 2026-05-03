@@ -80,4 +80,33 @@ try {
     echo "Migration 4 (déjà créée) : " . $e->getMessage() . "<br>";
 }
 
+// ── Migration 5 : Escrow — statut_paiement dans contrat ──────────────
+try {
+    $pdo->exec("ALTER TABLE contrat ADD COLUMN statut_paiement ENUM('en_attente','bloque','libere','rembourse') NOT NULL DEFAULT 'en_attente' AFTER statut;");
+    echo "Migration 5a : Colonne statut_paiement ajoutée.<br>";
+} catch (PDOException $e) {
+    echo "Migration 5a (déjà appliquée) : " . $e->getMessage() . "<br>";
+}
+
+// ── Migration 6 : Table escrow_transactions ───────────────────────────
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS escrow_transactions (
+            id_transaction  INT AUTO_INCREMENT PRIMARY KEY,
+            id_contrat      INT            NOT NULL,
+            montant         DECIMAL(10,2)  NOT NULL,
+            type_action     ENUM('depot','blocage','liberation','remboursement') NOT NULL,
+            statut_avant    VARCHAR(50)    NOT NULL,
+            statut_apres    VARCHAR(50)    NOT NULL,
+            commentaire     TEXT           DEFAULT NULL,
+            effectue_par    VARCHAR(100)   DEFAULT 'client',
+            date_action     DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_contrat (id_contrat)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+    echo "Migration 6 : Table escrow_transactions créée.<br>";
+} catch (PDOException $e) {
+    echo "Migration 6 (déjà créée) : " . $e->getMessage() . "<br>";
+}
+
 echo "<br><strong>✅ Toutes les migrations terminées.</strong>";
