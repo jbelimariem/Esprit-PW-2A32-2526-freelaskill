@@ -1,6 +1,7 @@
 <?php
 // views/frontoffice/translate_widget.php
-// Drop-in floating "Translate to English" button powered by Groq AI.
+// Drop-in floating multi-language translate button powered by Groq AI.
+// Cycles: Original → English → Français → العربية → Original
 // Usage: include __DIR__ . '/translate_widget.php';
 
 if (!defined('FREELASKILL_TRANSLATE_WIDGET')) {
@@ -18,7 +19,7 @@ if (!defined('FREELASKILL_TRANSLATE_WIDGET')) {
             class="fs-trl-btn"
             type="button"
             data-translate-btn
-            aria-label="Translate page to English">
+            aria-label="Translate page">
 
         <!-- Animated halo ring -->
         <span class="fs-trl-halo"></span>
@@ -33,8 +34,14 @@ if (!defined('FREELASKILL_TRANSLATE_WIDGET')) {
         <i class="fa-solid fa-earth-americas" data-translate-icon></i>
 
         <!-- Label -->
-        <span class="fs-trl-label" data-translate-label>EN</span>
+        <span class="fs-trl-label" data-translate-label>Translate</span>
     </button>
+
+    <!-- Language cycle dots (EN · AR) -->
+    <div class="fs-trl-dots" aria-hidden="true">
+        <span class="fs-trl-dot" title="English"></span>
+        <span class="fs-trl-dot" title="العربية"></span>
+    </div>
 
     <!-- Status badge (floats above button) -->
     <div class="fs-trl-status" data-translate-status></div>
@@ -42,7 +49,7 @@ if (!defined('FREELASKILL_TRANSLATE_WIDGET')) {
     <!-- Tooltip -->
     <div class="fs-trl-tooltip" aria-hidden="true">
         <strong>AI Translate</strong>
-        <span>Powered by Groq</span>
+        <span>EN · AR</span>
     </div>
 </div>
 
