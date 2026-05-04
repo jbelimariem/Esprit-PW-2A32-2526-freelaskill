@@ -360,8 +360,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 if ($action === 'delete' && $id !== null) {
     if (deleteContrat($id)) {
-        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete');
-        exit;
+        $redirectUrl = strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete';
+        if (!headers_sent()) { header('Location: ' . $redirectUrl); exit; }
+        else { echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>'; exit; }
     } else {
         $errors['general'] = 'Impossible de supprimer ce contrat.';
     }
@@ -376,12 +377,14 @@ if ($action === 'change_status' && $id !== null) {
     if ($currentContrat && in_array($newStatus, $validStatuts)) {
         $data = array_merge($currentContrat, ['statut' => $newStatus]);
         if (updateContrat($id, $data)) {
-            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=status_changed');
-            exit;
+            $redirectUrl = strtok($_SERVER['REQUEST_URI'], '?') . '?success=status_changed';
+            if (!headers_sent()) { header('Location: ' . $redirectUrl); exit; }
+            else { echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>'; exit; }
         }
     }
-    header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?error=status_failed');
-    exit;
+    $redirectUrl = strtok($_SERVER['REQUEST_URI'], '?') . '?error=status_failed';
+    if (!headers_sent()) { header('Location: ' . $redirectUrl); exit; }
+    else { echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>'; exit; }
 }
 
 if ($action === 'archive' && $id !== null) {

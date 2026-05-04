@@ -180,13 +180,16 @@ if (isset($_GET['id'])) {
 
     // ── Section 2 : Description ───────────────────────────────────────
     $pdf->SectionTitle('>', 'Description du contrat');
-    $pdf->SetFont('Arial', '', 9);
+    $pdf->SetFont('Arial', '', 8.5);
     $pdf->SetTextColor(50, 50, 50);
     $pdf->SetFillColor(250, 251, 255);
     $pdf->SetX(10);
-    $desc = enc($contrat['description'] ?: 'Aucune description.');
-    $pdf->MultiCell(190, 5.5, $desc, 0, 'L', true);
-    $pdf->Ln(5);
+    // Limiter la description à 800 caractères pour éviter les pages vides
+    $descRaw = $contrat['description'] ?: 'Aucune description.';
+    $descTrunc = mb_strlen($descRaw) > 800 ? mb_substr($descRaw, 0, 800) . '...' : $descRaw;
+    $desc = enc($descTrunc);
+    $pdf->MultiCell(190, 5, $desc, 0, 'L', true);
+    $pdf->Ln(4);
 
     // ── Section 3 : Règles associées ─────────────────────────────────
     $pdf->SectionTitle('>', 'Regles associees (' . count($rules) . ')');
@@ -217,11 +220,7 @@ if (isset($_GET['id'])) {
         foreach ($rules as $i => $r) {
             $fillColor = $rowFill ? [248, 250, 255] : [255, 255, 255];
             $pdf->SetFillColor($fillColor[0], $fillColor[1], $fillColor[2]);
-
-            // Calculer la hauteur de ligne selon la description
-            $descText = enc(mb_substr($r['description'] ?? '', 0, 80));
-            $lineH = 6;
-
+            $lineH = 5.5;
             $pdf->SetX(10);
             $pdf->Cell(6,  $lineH, ($i + 1),                                          1, 0, 'C', $rowFill);
             $pdf->Cell(65, $lineH, enc(mb_substr($r['titre'], 0, 35)),                1, 0, 'L', $rowFill);
@@ -229,22 +228,32 @@ if (isset($_GET['id'])) {
             $pdf->Cell(28, $lineH, enc(mb_substr($r['valeur'] ?? '-', 0, 15)),        1, 0, 'C', $rowFill);
             $pdf->Cell(20, $lineH, enc(ucfirst($r['statut'])),                        1, 0, 'C', $rowFill);
             $pdf->Cell(43, $lineH, enc(mb_substr($r['description'] ?? '-', 0, 30)),   1, 1, 'L', $rowFill);
-
             $rowFill = !$rowFill;
         }
     }
     $pdf->Ln(5);
 
     // ── Section 4 : Signatures ────────────────────────────────────────
+    // Vérifier s'il reste assez de place (au moins 55mm) pour les signatures
+    $sigH = 38;
+    $sigW = 88;
+    $gap  = 14;
+    $spaceNeeded = 55; // hauteur totale : titre section + cadres + note
+
+    if ($pdf->GetY() > (297 - 20 - $spaceNeeded)) {
+        // Pas assez de place — nouvelle page
+        $pdf->AddPage();
+    }
+
     $pdf->SectionTitle('>', 'Signatures');
 
     $sigClientFile    = sigToTemp($contrat['signature_client']    ?? '');
     $sigFreelanceFile = sigToTemp($contrat['signature_freelance'] ?? '');
 
     $sigY = $pdf->GetY();
-    $sigW = 88;
-    $sigH = 38;
-    $gap  = 14;
+
+    // Désactiver le saut de page automatique pendant les signatures
+    $pdf->SetAutoPageBreak(false);
 
     // ── Cadre Client ──
     $pdf->SetDrawColor(200, 210, 240);
@@ -289,7 +298,9 @@ if (isset($_GET['id'])) {
         $pdf->Cell($sigW, 5, 'Non signe', 0, 0, 'C');
     }
 
-    $pdf->SetY($sigY + $sigH + 8);
+    // Réactiver le saut de page automatique
+    $pdf->SetAutoPageBreak(true, 20);
+    $pdf->SetY($sigY + $sigH + 5);
     $pdf->SetTextColor(0, 0, 0);
     $pdf->SetDrawColor(0, 0, 0);
 

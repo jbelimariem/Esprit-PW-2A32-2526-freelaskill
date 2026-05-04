@@ -60,7 +60,8 @@ $activePage = 'rules';
                 $msgs = [
                     'create' => 'Règle créée.',
                     'update' => 'Règle mise à jour.',
-                    'delete' => 'Règle supprimée.'
+                    'delete' => 'Règle supprimée.',
+                    'toggle' => 'Statut de la règle modifié.',
                 ];
                 echo $msgs[$_GET['success']] ?? 'Action réalisée.';
             ?>

@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>
+    <script src="../assets/camera_signature.js" defer></script>
 </head>
 <body>
 
@@ -271,6 +272,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                             </button>
                         </div>
                         <input type="hidden" id="signature_client" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <!-- Bouton signature caméra -->
+                        <button type="button" onclick="openCameraSignature('signature_client')"
+                                style="margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:rgba(37,99,235,0.1);color:#60A5FA;border:1px solid rgba(37,99,235,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;width:100%;justify-content:center;">
+                            ✋ Signer avec la caméra (Air Signature)
+                        </button>
                     <?php else: ?>
                         <input type="hidden" name="signature_client" value="<?php echo htmlspecialchars($currentContrat['signature_client'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">
@@ -305,6 +311,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                             </button>
                         </div>
                         <input type="hidden" id="signature_freelance" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
+                        <!-- Bouton signature caméra -->
+                        <button type="button" onclick="openCameraSignature('signature_freelance')"
+                                style="margin-top:0.5rem;display:inline-flex;align-items:center;gap:0.5rem;padding:0.5rem 1rem;background:rgba(37,99,235,0.1);color:#60A5FA;border:1px solid rgba(37,99,235,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;width:100%;justify-content:center;">
+                            ✋ Signer avec la caméra (Air Signature)
+                        </button>
                     <?php else: ?>
                         <input type="hidden" name="signature_freelance" value="<?php echo htmlspecialchars($currentContrat['signature_freelance'] ?? '', ENT_QUOTES, 'UTF-8'); ?>">
                         <div style="background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-md);height:140px;display:flex;align-items:center;justify-content:center;overflow:hidden;">

@@ -46,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>
+    <script src="../assets/camera_signature.js" defer></script>
 </head>
 <body>
 
@@ -350,8 +351,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                             </button>
                         </div>
                         <input type="hidden" name="signature_data" id="signature_data_client">
+                        <!-- Bouton caméra -->
+                        <button type="button" onclick="openCameraSignature('signature_data_client')"
+                                style="margin-top:0.5rem;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.5rem 1rem;background:rgba(37,99,235,0.1);color:#60A5FA;border:1px solid rgba(37,99,235,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                            ✋ Signer avec la caméra
+                        </button>
                         <button type="button" onclick="saveSignature(signaturePadClient,'signature_data_client','signatureFormClient')"
-                                class="btn btn-primary" style="width:100%;margin-top:0.75rem;">
+                                class="btn btn-primary" style="width:100%;margin-top:0.5rem;">
                             <i class="fa-solid fa-pen-nib"></i> Signer en tant que Client
                         </button>
                     </form>
@@ -379,8 +385,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
                             </button>
                         </div>
                         <input type="hidden" name="signature_data" id="signature_data_freelance">
+                        <!-- Bouton caméra -->
+                        <button type="button" onclick="openCameraSignature('signature_data_freelance')"
+                                style="margin-top:0.5rem;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:0.5rem;padding:0.5rem 1rem;background:rgba(37,99,235,0.1);color:#60A5FA;border:1px solid rgba(37,99,235,0.25);border-radius:999px;font-size:0.8rem;font-weight:600;cursor:pointer;font-family:inherit;">
+                            ✋ Signer avec la caméra
+                        </button>
                         <button type="button" onclick="saveSignature(signaturePadFreelance,'signature_data_freelance','signatureFormFreelance')"
-                                class="btn btn-primary" style="width:100%;margin-top:0.75rem;">
+                                class="btn btn-primary" style="width:100%;margin-top:0.5rem;">
                             <i class="fa-solid fa-pen-nib"></i> Signer en tant que Freelancer
                         </button>
                     </form>

@@ -182,8 +182,14 @@ if ($action === 'toggle' && $id !== null) {
     if ($rule) {
         $newStatus = $rule['statut'] === 'actif' ? 'inactif' : 'actif';
         if (updateRule($id, ['statut' => $newStatus])) {
-            header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=toggle');
-            exit;
+            $redirectUrl = strtok($_SERVER['REQUEST_URI'], '?') . '?success=toggle';
+            if (!headers_sent()) {
+                header('Location: ' . $redirectUrl);
+                exit;
+            } else {
+                echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>';
+                exit;
+            }
         } else {
             $errors['general'] = 'Impossible de changer le statut de la règle.';
         }
@@ -194,8 +200,14 @@ if ($action === 'toggle' && $id !== null) {
 
 if ($action === 'delete' && $id !== null) {
     if (deleteRule($id)) {
-        header('Location: ' . strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete');
-        exit;
+        $redirectUrl = strtok($_SERVER['REQUEST_URI'], '?') . '?success=delete';
+        if (!headers_sent()) {
+            header('Location: ' . $redirectUrl);
+            exit;
+        } else {
+            echo '<script>window.location.href="' . htmlspecialchars($redirectUrl, ENT_QUOTES) . '";</script>';
+            exit;
+        }
     } else {
         $errors['general'] = 'Impossible de supprimer cette règle.';
     }
