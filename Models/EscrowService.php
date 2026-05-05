@@ -96,6 +96,10 @@ class EscrowService {
             $stmt->execute(['id' => $idContrat]);
             $this->logTransaction($idContrat, 'depot', 'en_attente', 'bloque', 'Paiement déposé et bloqué en séquestre', $effectuePar);
             $this->createEscrowNotification($idContrat, '💰 Paiement bloqué en séquestre — le travail peut commencer.');
+
+            // ── Email escrow bloqué ────────────────────────────────
+            $this->sendEscrowEmail($idContrat, 'bloque');
+
             $this->pdo->commit();
             return ['success' => true, 'message' => 'Paiement bloqué en séquestre. Le freelancer peut commencer le travail.'];
         } catch (PDOException $e) {
@@ -118,6 +122,10 @@ class EscrowService {
             $stmt->execute(['id' => $idContrat]);
             $this->logTransaction($idContrat, 'liberation', 'bloque', 'libere', 'Travail validé — paiement libéré au freelancer', $effectuePar);
             $this->createEscrowNotification($idContrat, '✅ Travail validé — paiement libéré au freelancer.');
+
+            // ── Email paiement libéré ──────────────────────────────
+            $this->sendEscrowEmail($idContrat, 'libere');
+
             $this->pdo->commit();
             return ['success' => true, 'message' => 'Paiement libéré au freelancer. Contrat terminé.'];
         } catch (PDOException $e) {
@@ -146,6 +154,28 @@ class EscrowService {
             if ($this->pdo->inTransaction()) $this->pdo->rollBack();
             return ['success' => false, 'message' => 'Erreur DB : ' . $e->getMessage()];
         }
+    }
+
+    // ── Envoyer email escrow ──────────────────────────────────────────
+    private function sendEscrowEmail(int $idContrat, string $event): void {
+        try {
+            require_once __DIR__ . '/EmailService.php';
+            $emailSvc = new EmailService($this->pdo);
+            $contrat  = $this->pdo->prepare('SELECT * FROM contrat WHERE id_contrat = :id');
+            $contrat->execute(['id' => $idContrat]);
+            $c = $contrat->fetch();
+            if (!$c) return;
+
+            preg_match('/[\w.+-]+@[\w-]+\.[a-z]{2,}/i', $c['freelance_info'] ?? '', $m);
+            $toEmail = $m[0] ?? 'demo@freelaskill.com';
+            $toName  = trim(preg_split('/[-–|,]/', $c['freelance_info'] ?? 'Freelancer')[0]);
+
+            if ($event === 'bloque') {
+                $emailSvc->notifyEscrowBloque($c, $toEmail, $toName);
+            } elseif ($event === 'libere') {
+                $emailSvc->notifyPaiementLibere($c, $toEmail, $toName);
+            }
+        } catch (Exception $e) { /* silencieux */ }
     }
 
     // ── Enregistrer une transaction ───────────────────────────────────

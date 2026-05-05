@@ -109,4 +109,45 @@ try {
     echo "Migration 6 (déjà créée) : " . $e->getMessage() . "<br>";
 }
 
+// ── Migration 7 : Tables email (config + logs) ───────────────────────
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS email_config (
+            id      INT AUTO_INCREMENT PRIMARY KEY,
+            cle     VARCHAR(50)  NOT NULL UNIQUE,
+            valeur  TEXT         NOT NULL,
+            updated_at DATETIME  DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+    // Valeurs par défaut
+    $pdo->exec("INSERT IGNORE INTO email_config (cle, valeur) VALUES
+        ('smtp_user',     'freelaskill.notifications@gmail.com'),
+        ('smtp_password', ''),
+        ('from_name',     'FreelaSkill')
+    ");
+    echo "Migration 7a : Table email_config créée.<br>";
+} catch (PDOException $e) {
+    echo "Migration 7a (déjà créée) : " . $e->getMessage() . "<br>";
+}
+
+try {
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS email_logs (
+            id_log      INT AUTO_INCREMENT PRIMARY KEY,
+            id_contrat  INT          NOT NULL,
+            type_email  VARCHAR(50)  NOT NULL,
+            to_email    VARCHAR(255) NOT NULL,
+            subject     VARCHAR(500) NOT NULL,
+            statut      ENUM('envoye','echec','simule') NOT NULL DEFAULT 'simule',
+            date_envoi  DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            INDEX idx_contrat (id_contrat),
+            INDEX idx_type (type_email),
+            INDEX idx_date (date_envoi)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    ");
+    echo "Migration 7b : Table email_logs créée.<br>";
+} catch (PDOException $e) {
+    echo "Migration 7b (déjà créée) : " . $e->getMessage() . "<br>";
+}
+
 echo "<br><strong>✅ Toutes les migrations terminées.</strong>";

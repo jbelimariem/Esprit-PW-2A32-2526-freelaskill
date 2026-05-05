@@ -123,7 +123,26 @@ function createContrat(array $data) {
         'signature_freelance' => $data['signature_freelance']
     ]);
     if ($success) {
-        return $pdo->lastInsertId();
+        $newId = $pdo->lastInsertId();
+        // ── Email : notification création contrat ──────────────────
+        try {
+            require_once __DIR__ . '/../Models/EmailService.php';
+            $emailSvc = new EmailService($pdo);
+            $contrat  = getContratById((int)$newId);
+            if ($contrat) {
+                // Extraire email du freelancer depuis freelance_info
+                preg_match('/[\w.+-]+@[\w-]+\.[a-z]{2,}/i', $data['freelance_info'] ?? '', $m);
+                $freelancerEmail = $m[0] ?? '';
+                $freelancerName  = trim(preg_split('/[-–|,]/', $data['freelance_info'] ?? 'Freelancer')[0]);
+                if ($freelancerEmail) {
+                    $emailSvc->notifyContratCreated($contrat, $freelancerEmail, $freelancerName);
+                } else {
+                    // Simuler même sans email réel
+                    $emailSvc->notifyContratCreated($contrat, 'demo@freelaskill.com', $freelancerName);
+                }
+            }
+        } catch (Exception $e) { /* silencieux */ }
+        return $newId;
     }
     return false;
 }
@@ -153,6 +172,16 @@ function updateContrat(int $id, array $data) {
                 $newStatut
             );
             $notifRepo->create($notif);
+
+            // ── Email : notification changement de statut ──────────
+            try {
+                require_once __DIR__ . '/../Models/EmailService.php';
+                $emailSvc = new EmailService($pdo);
+                preg_match('/[\w.+-]+@[\w-]+\.[a-z]{2,}/i', $old['freelance_info'] ?? '', $m);
+                $toEmail = $m[0] ?? 'demo@freelaskill.com';
+                $toName  = trim(preg_split('/[-–|,]/', $old['freelance_info'] ?? 'Freelancer')[0]);
+                $emailSvc->notifyStatutChange($old, $old['statut'], $newStatut, $toEmail, $toName);
+            } catch (Exception $e) { /* silencieux */ }
         }
     }
 

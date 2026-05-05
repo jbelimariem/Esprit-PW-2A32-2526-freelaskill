@@ -81,6 +81,11 @@ $inRules    = ($activePage === 'rules');
         <span style="margin-left:auto;background:rgba(16,185,129,0.15);color:#34D399;font-size:0.65rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:999px;">NEW</span>
     </a>
 
+    <a href="admin_email_config.php" class="nav-item <?php echo $activePage === 'email' ? 'active' : ''; ?>">
+        <i class="fa-solid fa-envelope" style="color:#6366F1;"></i> Emails
+        <span style="margin-left:auto;background:rgba(99,102,241,0.15);color:#818CF8;font-size:0.65rem;font-weight:700;padding:0.15rem 0.45rem;border-radius:999px;">NEW</span>
+    </a>
+
     <a href="admin_approbations.html" class="nav-item <?php echo $activePage === 'approbations' ? 'active' : ''; ?>">
         <i class="fa-solid fa-check-double"></i> Validations
     </a>
