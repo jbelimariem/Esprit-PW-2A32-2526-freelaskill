@@ -1,7 +1,9 @@
 <?php
 // views/frontoffice/api_generate_job.php
 
+require_once __DIR__ . '/../../config.php';
 require_once __DIR__ . '/../../controllers/AiJobGeneratorController.php';
+
 
 header('Content-Type: application/json');
 

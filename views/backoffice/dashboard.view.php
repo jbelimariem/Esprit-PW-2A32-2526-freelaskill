@@ -33,9 +33,7 @@ function statutBadge($s) {
             <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
             <nav class="admin-nav">
                 <a href="dashboard.php" class="admin-nav-item active"><i class="fa-solid fa-briefcase"></i> Missions</a>
-                <a href="add_job_admin.php" class="admin-nav-item"><i class="fa-solid fa-plus-circle"></i> Ajouter</a>
                 <a href="admin_freelancers.php" class="admin-nav-item"><i class="fa-solid fa-users"></i> Freelancers</a>
-                <button onclick="exportToPDF()" class="admin-nav-item" style="width:100%; border:none; background:none; cursor:pointer; text-align:left; font-family:inherit;"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             </nav>
             <div class="admin-sidebar-user">
                 <div class="avatar">A</div>
@@ -59,7 +57,13 @@ function statutBadge($s) {
             </header>
 
             <div class="admin-content">
-                <h1 class="admin-page-title">Gestion des <span>Missions</span></h1>
+                <div class="admin-header-row">
+                    <h1 class="admin-page-title">Gestion des <span>Missions</span></h1>
+                    <div style="display:flex; gap:1rem;">
+                        <button onclick="exportToPDF()" class="btn btn-outline"><i class="fa-solid fa-file-pdf"></i> Exporter PDF</button>
+                        <a href="add_job_admin.php" class="btn btn-primary"><i class="fa-solid fa-plus-circle"></i> Ajouter une mission</a>
+                    </div>
+                </div>
 
                 <div class="admin-grid-4">
                     <div class="glass-card">

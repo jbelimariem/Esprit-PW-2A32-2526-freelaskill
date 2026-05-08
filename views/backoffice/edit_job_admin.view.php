@@ -16,8 +16,7 @@
         <aside class="admin-sidebar">
             <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
             <nav class="admin-nav">
-                <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a>
-                <a href="add_job_admin.php" class="admin-nav-item"><i class="fa-solid fa-plus-circle"></i> Ajouter</a>
+                <a href="dashboard.php" class="admin-nav-item active"><i class="fa-solid fa-briefcase"></i> Missions</a>
                 <a href="admin_freelancers.php" class="admin-nav-item"><i class="fa-solid fa-users"></i> Freelancers</a>
             </nav>
             <div class="admin-bottom" style="margin-top:auto; padding:1.5rem;">

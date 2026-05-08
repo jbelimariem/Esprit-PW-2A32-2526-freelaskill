@@ -1,8 +1,10 @@
 <?php
 // controllers/AiCandidateAssistantController.php
 
+require_once __DIR__ . '/../config.php';
+
 class AiCandidateAssistantController {
-    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
+    // Clé chargée depuis secrets.php via config.php
 
     public function chat($message, $history, $jobInfo, $candidates) {
         $systemPrompt = "Tu es un consultant RH expert assistant pour la plateforme FreelaSkill.\n";
@@ -45,7 +47,7 @@ class AiCandidateAssistantController {
             "parts" => [["text" => $message]]
         ];
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . self::GEMINI_API_KEY;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
         
         $data = [
             "systemInstruction" => [
@@ -69,7 +71,10 @@ class AiCandidateAssistantController {
         curl_close($ch);
 
         if ($httpCode !== 200 || !$response) {
-            return "Désolé, je rencontre une erreur de connexion.";
+            $errorBody = $response ? json_decode($response, true) : null;
+            $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
+            error_log("Erreur API Gemini (Candidate Assistant) [{$httpCode}]: " . $errorMsg);
+            return "⚠️ Erreur IA: " . $errorMsg;
         }
 
         $responseData = json_decode($response, true);

@@ -7,7 +7,7 @@ class AiAssistantController {
     private $pdo;
     
     // ⚠️ IMPORTANT: Remplacez par votre vraie clé API Gemini (Google AI Studio)
-    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
+    // Clé chargée depuis secrets.php via config.php
 
     public function __construct() {
         $this->pdo = config::getConnexion();
@@ -50,7 +50,7 @@ class AiAssistantController {
         ];
 
         // 4. Appel de l'API Gemini
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . self::GEMINI_API_KEY;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
         
         $data = [
             "systemInstruction" => [
@@ -75,8 +75,10 @@ class AiAssistantController {
         curl_close($ch);
 
         if ($httpCode !== 200 || !$response) {
-            error_log("Erreur API Gemini: " . $response);
-            return "⚠️ Je suis désolé, je n'arrive pas à me connecter au serveur d'Intelligence Artificielle. Vérifiez que la clé API `GEMINI_API_KEY` est bien configurée dans le fichier `AiAssistantController.php`.";
+            $errorBody = $response ? json_decode($response, true) : null;
+            $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
+            error_log("Erreur API Gemini (Freelancer Assistant) [{$httpCode}]: " . $errorMsg);
+            return "⚠️ Je suis désolé, je n'arrive pas à me connecter au serveur d'Intelligence Artificielle. Erreur: " . $errorMsg;
         }
 
         $responseData = json_decode($response, true);

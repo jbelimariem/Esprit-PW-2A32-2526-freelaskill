@@ -1,5 +1,6 @@
 <?php
 // config.php — Connexion à la base de données
+require_once __DIR__ . '/secrets.php';
 
 class config {
     private static $pdo = null;

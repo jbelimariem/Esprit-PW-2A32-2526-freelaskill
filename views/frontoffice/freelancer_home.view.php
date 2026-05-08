@@ -226,7 +226,9 @@
         </div>
     </div>
     <div class="ai-chat-input-area">
-        <form id="ai-form" style="display:flex; width:100%; gap:8px;">
+        <form id="ai-form" style="display:flex; width:100%; gap:8px; align-items: center;">
+            <button type="button" id="ai-mic" class="ai-mic-btn" title="Dicter votre message"><i class="fa-solid fa-microphone"></i></button>
+            <button type="button" id="ai-stop-voice" class="ai-mic-btn" title="Arrêter la voix" style="display:none;"><i class="fa-solid fa-volume-xmark"></i></button>
             <input type="text" id="ai-input" placeholder="Tapez votre message..." autocomplete="off">
             <button type="submit" id="ai-send"><i class="fa-solid fa-paper-plane"></i></button>
         </form>
@@ -260,14 +262,20 @@
 .ai-msg.user { align-self:flex-end; }
 
 .ai-bubble { padding:1rem 1.2rem; border-radius:18px; font-size:0.9rem; line-height:1.4; }
-.ai-msg.bot .ai-bubble { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; border-bottom-left-radius:4px; }
+.ai-msg.bot .ai-bubble { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:#e2e8f0; border-bottom-left-radius:4px; position:relative; padding-right: 2.5rem; }
 .ai-msg.user .ai-bubble { background:linear-gradient(135deg, #3b82f6, #2563eb); color:white; border-bottom-right-radius:4px; }
+.ai-replay-btn { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#94a3b8; cursor:pointer; font-size:0.9rem; padding:5px; transition:color 0.2s; display:flex; align-items:center; justify-content:center; }
+.ai-replay-btn:hover { color:#3b82f6; }
 
 .ai-chat-input-area { padding:1rem 1.5rem; border-top:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.2); }
 #ai-input { flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:10px 15px; color:white; outline:none; font-family:inherit; transition:border-color 0.2s; }
 #ai-input:focus { border-color:#3b82f6; }
 #ai-send { background:#3b82f6; border:none; width:40px; height:40px; border-radius:50%; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background 0.2s; }
 #ai-send:hover { background:#2563eb; }
+#ai-mic { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width:40px; height:40px; border-radius:50%; color:white; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s; }
+#ai-mic:hover { background:rgba(255,255,255,0.1); color:#3b82f6; }
+#ai-mic.listening { background:#ef4444; border-color:#ef4444; animation:pulse-red 1.5s infinite; }
+@keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
 /* Typing indicator */
 .typing-dots { display:flex; gap:4px; padding:5px 0; }
@@ -294,6 +302,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('ai-form');
     const input = document.getElementById('ai-input');
     const body = document.getElementById('ai-chat-body');
+    const micBtn = document.getElementById('ai-mic');
+    const stopVoiceBtn = document.getElementById('ai-stop-voice');
+
+    // --- SYNTHÈSE VOCALE ---
+    window.speak = function(text) {
+        if (!window.speechSynthesis) return;
+        window.speechSynthesis.cancel();
+        const cleanText = text.replace(/\*\*/g, '').replace(/\[.*?\]\(.*?\)/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'fr-FR';
+        
+        utterance.onstart = () => { stopVoiceBtn.style.display = 'flex'; };
+        utterance.onend = () => { stopVoiceBtn.style.display = 'none'; };
+        utterance.onerror = () => { stopVoiceBtn.style.display = 'none'; };
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    stopVoiceBtn.addEventListener('click', () => {
+        window.speechSynthesis.cancel();
+        stopVoiceBtn.style.display = 'none';
+    });
+
+    // --- RECONNAISSANCE VOCALE ---
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+        const recognition = new SpeechRecognition();
+        recognition.lang = 'fr-FR';
+        recognition.onstart = () => { micBtn.classList.add('listening'); input.placeholder = "Je vous écoute..."; };
+        recognition.onend = () => { micBtn.classList.remove('listening'); input.placeholder = "Tapez votre message..."; };
+        recognition.onresult = (event) => { input.value = event.results[0][0].transcript; form.dispatchEvent(new Event('submit')); };
+        micBtn.addEventListener('click', () => { if (micBtn.classList.contains('listening')) recognition.stop(); else recognition.start(); });
+    } else { micBtn.style.display = 'none'; }
+
 
     let chatHistory = [];
 
@@ -323,7 +365,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function appendMsg(text, type, isHtml = false) {
         const msgDiv = document.createElement('div');
         msgDiv.className = `ai-msg ${type}`;
-        msgDiv.innerHTML = `<div class="ai-bubble">${isHtml ? text : text}</div>`;
+        const replayHtml = type === 'bot' ? `<button class="ai-replay-btn" onclick="speak(this.parentElement.innerText)" title="Réécouter"><i class="fa-solid fa-volume-high"></i></button>` : '';
+        msgDiv.innerHTML = `<div class="ai-bubble">${isHtml ? text : text}${replayHtml}</div>`;
         body.appendChild(msgDiv);
         body.scrollTop = body.scrollHeight;
     }
@@ -351,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.status === 'success') {
                 const replyHtml = parseMarkdown(data.reply);
                 appendMsg(replyHtml, 'bot', true);
+                speak(data.reply); // L'IA parle !
                 
                 // Ajouter à l'historique pour que l'IA se souvienne de la conversation
                 chatHistory.push({ role: 'user', text: userMessage });

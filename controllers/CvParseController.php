@@ -4,7 +4,7 @@ require_once __DIR__ . '/AiAssistantController.php'; // Pour récupérer la clé
 
 class CvParseController {
     // Utiliser la même clé API
-    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
+    // Clé chargée depuis secrets.php via config.php
 
     public function parsePdfCv($tmpFilePath) {
         // 1. Lire le fichier et l'encoder en Base64
@@ -21,7 +21,7 @@ class CvParseController {
         $prompt .= "}";
 
         // 3. Appel de l'API Gemini 2.5 Flash avec InlineData
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . self::GEMINI_API_KEY;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
         
         $data = [
             "contents" => [

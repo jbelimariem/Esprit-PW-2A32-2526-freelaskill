@@ -1,8 +1,10 @@
 <?php
 // controllers/AiJobGeneratorController.php
 
+require_once __DIR__ . '/../config.php';
+
 class AiJobGeneratorController {
-    private const GEMINI_API_KEY = 'AIzaSyDdQZ40BrdEH8cg5pWx44Zo3LYJ_sLbmwQ';
+    // Clé chargée depuis secrets.php via config.php
 
     public function generateJob($history) {
         $systemPrompt = "Tu es un assistant IA conversationnel expert en recrutement pour la plateforme FreelaSkill en Tunisie.\n";
@@ -39,7 +41,7 @@ class AiJobGeneratorController {
             ];
         }
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . self::GEMINI_API_KEY;
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
         
         $data = [
             "systemInstruction" => [
@@ -64,8 +66,10 @@ class AiJobGeneratorController {
         curl_close($ch);
 
         if ($httpCode !== 200 || !$response) {
-            error_log("Erreur API Gemini (Job Generator): " . $response);
-            return ['status' => 'error', 'message' => 'Erreur de connexion à l\'IA.'];
+            $errorBody = $response ? json_decode($response, true) : null;
+            $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
+            error_log("Erreur API Gemini (Job Generator) [{$httpCode}]: " . $errorMsg);
+            return ['status' => 'error', 'message' => 'Erreur IA: ' . $errorMsg];
         }
 
         $responseData = json_decode($response, true);
