@@ -6,7 +6,7 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 try {
-    require_once __DIR__ . '/../config.php';
+    require_once __DIR__ . '/../controllers/config.php';
     if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
     // Récupération des données du panier

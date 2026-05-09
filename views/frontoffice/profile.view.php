@@ -611,7 +611,7 @@
     <ul class="nav-links">
         <li><a href="#">Accueil</a></li>
         <li><a href="#">Missions</a></li>
-        <li><a href="#">Marketplace</a></li>
+        <li><a href="home.php">Marketplace</a></li>
         <li><a href="#">Freelancers</a></li>
         <li><a href="profile.php" class="active">Mon Profil</a></li>
     </ul>

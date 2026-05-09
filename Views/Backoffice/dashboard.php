@@ -212,6 +212,9 @@ $chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
                 <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
                     Marketplace
                 </div>
+                <a href="produits.php" class="admin-nav-item">
+                    <i class="fa-solid fa-shop"></i> Gestion Marketplace
+                </a>
                 <a href="ajouter_produit.php" class="admin-nav-item">
                     <i class="fa-solid fa-plus"></i> Ajouter Produit
                 </a>

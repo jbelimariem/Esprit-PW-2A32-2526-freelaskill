@@ -3,7 +3,7 @@
 
 require_once __DIR__ . '/../Models/Produit.php';
 require_once __DIR__ . '/../controllers/Category_prodController.php';
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

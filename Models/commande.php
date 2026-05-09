@@ -20,6 +20,7 @@ class Commande {
         $this->montant_total = $montant_total;
         $this->mode_paiement = $mode_paiement;
         $this->mode_livraison = $mode_livraison;
+        require_once __DIR__ . '/../controllers/config.php';
 
     }
 
