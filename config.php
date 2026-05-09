@@ -10,7 +10,7 @@ class config {
             $servername = "localhost";
             $username   = "root";
             $password   = "";
-            $dbname     = "skillswap";
+            $dbname     = "freelaskill";
             try {
                 self::$pdo = new PDO(
                     "mysql:host=$servername;dbname=$dbname;charset=utf8",

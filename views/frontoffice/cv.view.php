@@ -2,7 +2,7 @@
 // views/frontoffice/cv.view.php
 ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: light;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
     <!-- jsPDF for export -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
     
     <style>
         :root {
@@ -191,9 +192,12 @@
 <body>
 
 <div class="action-bar">
-    <button onclick="window.close()" class="btn-action">
-        <i class="fa-solid fa-arrow-left"></i> Fermer
-    </button>
+    <div style="display:flex; gap:10px;">
+        <a href="client_freelancers.php" class="btn-action"><i class="fa-solid fa-arrow-left"></i> Retour</a>
+        <button class="theme-toggle-btn btn-action" title="Mode Nuit/Clair">
+            <i class="fa-solid fa-moon"></i>
+        </button>
+    </div>
     <button id="export-btn" class="btn-action btn-export">
         <i class="fa-solid fa-file-pdf"></i> Télécharger en PDF
     </button>
@@ -310,5 +314,6 @@ document.getElementById('export-btn').addEventListener('click', function() {
 });
 </script>
 
+<script src="../assets/theme.js"></script>
 </body>
 </html>

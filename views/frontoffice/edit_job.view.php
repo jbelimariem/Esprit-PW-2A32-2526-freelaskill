@@ -2,7 +2,7 @@
 // views/frontoffice/edit_job.view.php — Template: Modifier une offre
 ?>
 <!DOCTYPE html>
-<html lang="fr" style="color-scheme: dark;">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,6 +10,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
+    <style>
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { display: block; margin-bottom: .5rem; color: #94A3B8; font-size: .9rem; font-weight: 500; }
+        .form-label span { color: var(--tunisian-red); margin-left: 2px; }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1.1rem;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            outline: none;
+            transition: var(--transition);
+        }
+        .form-input:focus { background: rgba(59,130,246,0.05); border-color: var(--tech-blue); box-shadow: 0 0 0 4px rgba(59,130,246,0.12); }
+        .form-input.error { border-color: rgba(239,68,68,0.5); background: rgba(239,68,68,0.03); }
+        .error-msg { color: var(--tunisian-red); font-size: .8rem; margin-top: .4rem; display: flex; align-items: center; gap: .3rem; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        textarea.form-input { resize: vertical; min-height: 140px; }
+    <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
     <style>
         .form-group { margin-bottom: 1.5rem; }
         .form-label { display: block; margin-bottom: .5rem; color: #94A3B8; font-size: .9rem; font-weight: 500; }
@@ -45,6 +68,9 @@
                 <li><a href="freelancer_home.php">Freelancers</a></li>
             </ul>
             <div class="nav-right">
+                <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
                 <div class="nav-avatar">CL</div>
             </div>
         </nav>
@@ -156,5 +182,6 @@
 </div>
     </div>
 </div>
+<script src="../assets/theme.js"></script>
 </body>
 </html>
