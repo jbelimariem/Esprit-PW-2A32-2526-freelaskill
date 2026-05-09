@@ -2,7 +2,7 @@
 // controllers/NotificationController.php
 
 require_once __DIR__ . '/../Models/Notification.php';
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 
 class NotificationController {
     private $pdo;

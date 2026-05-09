@@ -2,7 +2,7 @@
 // controllers/Category_prodController.php
 
 require_once __DIR__ . '/../Models/Category_prod.php';
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 
 class Category_prodController {
 

@@ -2,7 +2,7 @@
 // controllers/CommandeProduitController.php
 
 require_once __DIR__ . '/../Models/CommandeProduit.php';
-require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/config.php';
 
 class CommandeProduitController {
 
