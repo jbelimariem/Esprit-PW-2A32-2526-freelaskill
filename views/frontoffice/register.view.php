@@ -522,7 +522,12 @@
 
             <!-- Bio (optional) -->
             <div class="form-group">
-                <label class="form-label" for="bio">Bio <span style="color:#475569; font-size:0.78rem;">(optionnel)</span></label>
+                <div class="pw-label-row">
+                    <label class="form-label" for="bio" style="margin:0;">Bio <span style="color:#475569; font-size:0.78rem;">(optionnel)</span></label>
+                    <button type="button" class="btn-ai-pwd" id="btn-suggest-bio" onclick="fetchAiBio()">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> IA : suggérer une bio
+                    </button>
+                </div>
                 <textarea class="form-input" id="bio" name="bio" rows="3"
                           placeholder="Quelques mots sur vous ou vos activités…"><?php echo htmlspecialchars($data['bio'] ?? ''); ?></textarea>
             </div>
@@ -639,6 +644,51 @@ function applyPassword(pwd) {
 
 function escHtml(str) {
     return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fetchAiBio() {
+    const bioTextarea = document.getElementById('bio');
+    const nom = document.getElementById('nom').value;
+    const prenom = document.getElementById('prenom').value;
+    const roleInput = document.querySelector('input[name="role"]:checked');
+    const role = roleInput ? roleInput.value : 'freelancer';
+    const btn = document.getElementById('btn-suggest-bio');
+    
+    if (!btn) return;
+
+    const originalHtml = btn.innerHTML;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Génération...';
+    btn.disabled = true;
+
+    const formData = new FormData();
+    formData.append('nom', nom);
+    formData.append('prenom', prenom);
+    formData.append('role', role);
+    formData.append('bio', bioTextarea.value);
+
+    fetch('bio_suggest_api.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.bio) {
+            bioTextarea.value = data.bio;
+            if (window.BadWordsGuard && typeof BadWordsGuard.check === 'function') {
+                BadWordsGuard.check('bio', 'badwords_api.php');
+            }
+        } else if (data.error) {
+            alert(data.error);
+        }
+    })
+    .catch(err => {
+        console.error(err);
+        alert('Erreur lors de la génération de la bio.');
+    })
+    .finally(() => {
+        btn.innerHTML = originalHtml;
+        btn.disabled = false;
+    });
 }
 // ──────────────────────────────────────────────────────────────────────────
 

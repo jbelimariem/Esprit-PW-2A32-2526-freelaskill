@@ -2,6 +2,7 @@
 // views/frontoffice/google_callback.php
 session_start();
 require_once __DIR__ . '/../../controllers/UserController.php';
+require_once __DIR__ . '/EmailApiService.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = '';
@@ -68,6 +69,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_nom']    = $existingUser->getNom();
         $_SESSION['user_prenom'] = $existingUser->getPrenom();
         $_SESSION['user_role']   = $existingUser->getRole();
+
+        $emailService = new EmailApiService();
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $time = date('Y-m-d H:i:s');
+        $emailService->sendLoginNotification($existingUser->getEmail(), $existingUser->getPrenom(), $ip, $time);
+
         header('Location: profile.php');
         exit;
 

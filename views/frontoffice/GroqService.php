@@ -121,4 +121,62 @@ class GroqService
             'max_completion_tokens' => 180,
         ]);
     }
+
+    /**
+     * Centralized content moderation using Groq.
+     * Returns ['clean' => bool, 'reason' => ?string, 'severity' => ?string]
+     */
+    public function checkContentModeration($text, $field = 'texte')
+    {
+        $text = trim((string) $text);
+        if ($text === '' || mb_strlen($text) < 2) {
+            return ['clean' => true];
+        }
+
+        if (!$this->isConfigured()) {
+            return ['clean' => true]; // Fail-open
+        }
+
+        $sample = mb_substr($text, 0, 1000);
+        $messages = [
+            [
+                'role' => 'system',
+                'content' => implode("\n", [
+                    'You are a content moderation assistant for a professional freelance platform.',
+                    'Your task is to analyze user-submitted text and detect inappropriate content.',
+                    'Categories: Insults, profanity, hate speech, sexual content, threats, violent language, spam.',
+                    'IMPORTANT: Normal professional text is CLEAN.',
+                    'OUTPUT FORMAT: Return ONLY a valid JSON object.',
+                    'If CLEAN: {"clean":true}',
+                    'If NOT CLEAN: {"clean":false,"reason":"Short explanation in French (max 10 words)","severity":"low|medium|high"}',
+                ]),
+            ],
+            [
+                'role' => 'user',
+                'content' => 'Analyze this ' . $field . " for inappropriate content:\n\n" . $sample,
+            ],
+        ];
+
+        try {
+            $raw = $this->chat($messages, [
+                'temperature' => 0.0,
+                'max_completion_tokens' => 100,
+            ]);
+
+            // Extract JSON
+            if (preg_match('/\{.*?\}/s', $raw, $m)) {
+                $result = json_decode($m[0], true);
+            } else {
+                $result = json_decode($raw, true);
+            }
+
+            if (!is_array($result) || !array_key_exists('clean', $result)) {
+                return ['clean' => true];
+            }
+
+            return $result;
+        } catch (Throwable $e) {
+            return ['clean' => true];
+        }
+    }
 }

@@ -18,17 +18,19 @@ class PasswordResetController {
     }
 
     private function ensureTable() {
-        $this->pdo->exec("
-            CREATE TABLE IF NOT EXISTS password_resets (
-                id         INT AUTO_INCREMENT PRIMARY KEY,
-                email      VARCHAR(255) NOT NULL,
-                code       VARCHAR(6)   NOT NULL,
-                expires_at DATETIME     NOT NULL,
-                used       TINYINT(1)   DEFAULT 0,
-                created_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP,
-                INDEX idx_email (email)
-            )
-        ");
+        try {
+            $this->pdo->exec("ALTER TABLE users ADD COLUMN reset_code VARCHAR(6) NULL");
+            $this->pdo->exec("ALTER TABLE users ADD COLUMN reset_expires_at DATETIME NULL");
+            $this->pdo->exec("ALTER TABLE users ADD COLUMN reset_used TINYINT(1) DEFAULT 0");
+        } catch (PDOException $e) {
+            // Columns likely already exist
+        }
+        
+        try {
+            $this->pdo->exec("DROP TABLE IF EXISTS password_resets");
+        } catch (PDOException $e) {
+            // Table might not exist
+        }
     }
 
     // ──────────────────────────────────────────
@@ -52,15 +54,11 @@ class PasswordResetController {
                     $code    = sprintf('%06d', random_int(0, 999999));
                     $expires = date('Y-m-d H:i:s', strtotime('+15 minutes'));
 
-                    // Delete old codes
-                    $stmt = $this->pdo->prepare("DELETE FROM password_resets WHERE email = ?");
-                    $stmt->execute([$email]);
-
-                    // Save new code
+                    // Save new code in users table
                     $stmt = $this->pdo->prepare(
-                        "INSERT INTO password_resets (email, code, expires_at) VALUES (?, ?, ?)"
+                        "UPDATE users SET reset_code = ?, reset_expires_at = ?, reset_used = 0 WHERE email = ?"
                     );
-                    $stmt->execute([$email, $code, $expires]);
+                    $stmt->execute([$code, $expires, $email]);
 
                     // Send real email via the configured email API
                     $sent = $this->sendResetEmail($email, $user->getPrenom(), $code);
@@ -102,8 +100,8 @@ class PasswordResetController {
                 $error = "Veuillez entrer le code reçu par email.";
             } else {
                 $stmt = $this->pdo->prepare(
-                    "SELECT * FROM password_resets
-                     WHERE email = ? AND code = ? AND used = 0 AND expires_at > NOW()
+                    "SELECT * FROM users
+                     WHERE email = ? AND reset_code = ? AND reset_used = 0 AND reset_expires_at > NOW()
                      LIMIT 1"
                 );
                 $stmt->execute([$email, $code]);
@@ -156,9 +154,14 @@ class PasswordResetController {
                     $uc->updatePassword($user->getId(), $password);
 
                     $stmt = $this->pdo->prepare(
-                        "UPDATE password_resets SET used = 1 WHERE email = ?"
+                        "UPDATE users SET reset_used = 1 WHERE email = ?"
                     );
                     $stmt->execute([$email]);
+
+                    $emailService = new EmailApiService($this->mailConfig);
+                    $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+                    $time = date('Y-m-d H:i:s');
+                    $emailService->sendPasswordChangedNotification($user->getEmail(), $user->getPrenom(), $ip, $time);
 
                     unset($_SESSION['reset_email'], $_SESSION['reset_verified']);
                     $success = true;
@@ -170,6 +173,8 @@ class PasswordResetController {
                         $_SESSION['user_prenom'] = $user->getPrenom();
                         $_SESSION['user_role']   = $user->getRole();
                         
+                        $emailService->sendLoginNotification($user->getEmail(), $user->getPrenom(), $ip, $time);
+
                         // We pass onboarding link to the view so the button knows where to go
                         $nextPage = ($user->getRole() === 'freelancer' && $user->getGithubUrl() === '' && $user->getLinkedinUrl() === '') 
                                     ? 'onboarding_links.php' : 'profile.php';

@@ -1,6 +1,6 @@
-﻿<?php
-session_start();
-session_destroy();
+<?php
+require_once __DIR__ . '/../../controllers/session.php';
+destroySession();
 header('Location: login.php');
 exit;
 

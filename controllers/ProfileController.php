@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/UserController.php';
 require_once __DIR__ . '/../views/frontoffice/GroqService.php';
+require_once __DIR__ . '/../views/frontoffice/EmailApiService.php';
 
 class ProfileController extends UserController {
 
@@ -183,6 +184,22 @@ class ProfileController extends UserController {
 
             $errors = $this->validateProfileUser($updatedUser);
 
+            if (empty($errors)) {
+                $groq = new GroqService();
+                $fieldsToCheck = [
+                    'bio' => $updatedUser->getBio()
+                ];
+
+                foreach ($fieldsToCheck as $field => $val) {
+                    if ($val === '') continue;
+                    $mod = $groq->checkContentModeration($val, $field);
+                    if (!($mod['clean'] ?? true)) {
+                        $reason = $mod['reason'] ?? 'Contenu inapproprié détecté.';
+                        $this->addFieldError($errors, $field, $reason);
+                    }
+                }
+            }
+
             if (empty($errors) && $updatedUser->getEmail() !== $user->getEmail() && $this->emailExists($updatedUser->getEmail())) {
                 $this->addFieldError($errors, 'email', 'Cet email est deja utilise.');
             }
@@ -218,6 +235,12 @@ class ProfileController extends UserController {
             if (empty($errors)) {
                 $this->updatePassword($userId, $newPassword);
                 $_SESSION['pwd_changed_time'] = time();
+
+                $emailService = new EmailApiService();
+                $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+                $time = date('Y-m-d H:i:s');
+                $emailService->sendPasswordChangedNotification($user->getEmail(), $user->getPrenom(), $ip, $time);
+
                 $success = true;
             }
         } elseif ($action === 'links') {

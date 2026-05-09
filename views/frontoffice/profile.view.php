@@ -295,6 +295,270 @@
         }
 
         @media (max-width: 900px) {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0;
+            border-top: 1px solid var(--border);
+        }
+        .stat-item {
+            padding: 1rem;
+            text-align: center;
+            border-right: 1px solid var(--border);
+            min-width: 0;
+        }
+        .stat-item:nth-child(even) { border-right: none; }
+        .stat-item:last-child {
+            grid-column: 1 / -1;
+            border-top: 1px solid var(--border);
+            border-right: none;
+        }
+        .stat-value { font-size: 1.3rem; font-weight: 700; color: white; font-family: 'JetBrains Mono', monospace; }
+        .stat-value-date { font-size: 1rem; letter-spacing: -0.04em; }
+        .stat-label { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 0.2rem; }
+
+        /* TABS */
+        .tab-nav {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1.75rem;
+        }
+        .tab-btn {
+            padding: 0.85rem 1.25rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            cursor: pointer;
+            border: none;
+            border-bottom: 2px solid transparent;
+            background: none;
+            font-family: 'Space Grotesk', sans-serif;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tab-btn:hover { color: white; }
+        .tab-btn.active { color: white; border-bottom-color: var(--tech-blue); }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.3s ease; }
+
+        /* SECTION CARDS */
+        .section-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .section-card-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .section-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .section-card-title i { color: var(--tech-blue); }
+        .section-card-body { padding: 1.5rem; }
+        .password-rules {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.55rem;
+            margin-top: 0.85rem;
+        }
+        .password-rule {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.42rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(71,85,105,0.5);
+            background: rgba(15,23,42,0.7);
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 500;
+            letter-spacing: 0.01em;
+            line-height: 1;
+            transition: all 0.35s cubic-bezier(.4,0,.2,1);
+            position: relative;
+            overflow: hidden;
+        }
+        .password-rule::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(5,150,105,0.08));
+            opacity: 0;
+            transition: opacity 0.35s ease;
+        }
+        .password-rule .rule-icon {
+            font-size: 0.72rem;
+            width: 16px;
+            height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 1.5px solid rgba(71,85,105,0.6);
+            transition: all 0.35s cubic-bezier(.4,0,.2,1);
+            flex-shrink: 0;
+        }
+        .password-rule .rule-icon i { font-size: 0.6rem; color: #475569; transition: all 0.3s; }
+        .password-rule.is-valid {
+            border-color: rgba(16,185,129,0.7);
+            background: rgba(16,185,129,0.12);
+            color: #6ee7b7;
+            box-shadow: 0 0 0 3px rgba(16,185,129,0.1), 0 0 12px rgba(16,185,129,0.12);
+        }
+        .password-rule.is-valid::before { opacity: 1; }
+        .password-rule.is-valid .rule-icon {
+            background: rgba(16,185,129,0.25);
+            border-color: rgba(16,185,129,0.7);
+            animation: rulePop 0.35s cubic-bezier(.4,0,.2,1);
+        }
+        .password-rule.is-valid .rule-icon i { color: #10b981; }
+        @keyframes rulePop {
+            0%   { transform: scale(0.7); }
+            60%  { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        /* ACTIVITY FEED */
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .activity-item:last-child { border-bottom: none; padding-bottom: 0; }
+        .activity-icon {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .activity-text { font-size: 0.88rem; color: var(--text-muted); }
+        .activity-text strong { color: white; }
+        .activity-time { font-size: 0.75rem; color: #475569; margin-top: 0.2rem; }
+
+        /* SIDEBAR NAV */
+        .side-nav { padding: 0.75rem; }
+        .side-nav a {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-sm);
+            color: var(--text-muted);
+            font-size: 0.88rem;
+            transition: var(--transition);
+        }
+        .side-nav a:hover { color: white; background: rgba(255,255,255,0.03); }
+        .side-nav a.danger { color: var(--tunisian-red); }
+        .side-nav a.danger:hover { background: rgba(239,68,68,0.1); }
+        .nav-avatar.has-image {
+            padding: 0;
+            overflow: hidden;
+            background: rgba(15,23,42,0.95);
+        }
+        .nav-avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 50%;
+        }
+        .field-error {
+            margin-top: 0.45rem;
+            color: #fca5a5;
+            font-size: 0.8rem;
+        }
+        .form-input.input-error,
+        .input-error {
+            border-color: rgba(239, 68, 68, 0.65) !important;
+        }
+
+        /* ── AI Password Suggester ── */
+        .pw-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.35rem;
+        }
+        .btn-ai-pwd {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.76rem;
+            font-weight: 600;
+            color: #a78bfa;
+            background: rgba(139,92,246,0.12);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 999px;
+            padding: 0.28rem 0.75rem;
+            cursor: pointer;
+            transition: all 0.25s;
+            white-space: nowrap;
+        }
+        .btn-ai-pwd:hover {
+            background: rgba(139,92,246,0.25);
+            border-color: rgba(139,92,246,0.6);
+            color: #c4b5fd;
+            transform: scale(1.03);
+        }
+        .btn-ai-pwd i { font-size: 0.7rem; }
+        #ai-pwd-modal {
+            position: fixed; inset: 0; z-index: 9000;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(6px);
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.25s;
+        }
+        #ai-pwd-modal.open { opacity: 1; pointer-events: auto; }
+        .ai-pwd-box {
+            background: #0f172a;
+            border: 1px solid rgba(139,92,246,0.35);
+            border-radius: 20px;
+            padding: 2rem 1.75rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 0 60px rgba(139,92,246,0.2);
+            animation: fadeUp 0.3s ease;
+        }
+        .ai-pwd-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; }
+        .ai-pwd-title { font-size:1rem; font-weight:700; color:#e2e8f0; display:flex; align-items:center; gap:.5rem; }
+        .ai-pwd-close { background:none; border:none; color:#64748b; cursor:pointer; font-size:1rem; transition:color .2s; }
+        .ai-pwd-close:hover { color:#e2e8f0; }
+        .ai-pwd-subtitle { font-size:.8rem; color:#64748b; margin-bottom:1rem; }
+        #ai-pwd-list { display:flex; flex-direction:column; gap:.65rem; }
+        .ai-pwd-option {
+            display:flex; align-items:center; justify-content:space-between;
+            background:rgba(139,92,246,.07); border:1px solid rgba(139,92,246,.2);
+            border-radius:12px; padding:.75rem 1rem; cursor:pointer;
+            transition:all .2s; font-family:'JetBrains Mono',monospace;
+            font-size:.85rem; color:#c4b5fd; word-break:break-all;
+        }
+        .ai-pwd-option:hover { background:rgba(139,92,246,.2); border-color:rgba(139,92,246,.5); color:#a78bfa; }
+        .ai-pwd-option i { font-size:.75rem; color:#7c3aed; margin-left:.5rem; flex-shrink:0; }
+        .ai-pwd-spinner { text-align:center; padding:1.5rem 0; color:#a78bfa; font-size:.88rem; }
+        .ai-pwd-spinner i { font-size:1.5rem; display:block; margin-bottom:.5rem; animation:fa-spin 1s linear infinite; }
+        .ai-pwd-error { background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.3); border-radius:10px; padding:.7rem .9rem; color:#fca5a5; font-size:.82rem; text-align:center; }
+        .ai-pwd-regen { margin-top:1rem; width:100%; display:flex; align-items:center; justify-content:center; gap:.4rem; background:transparent; border:1px dashed rgba(139,92,246,.35); border-radius:10px; color:#7c3aed; font-size:.8rem; font-weight:600; padding:.55rem; cursor:pointer; transition:all .2s; }
+        .ai-pwd-regen:hover { background:rgba(139,92,246,.1); border-color:rgba(139,92,246,.55); color:#a78bfa; }
+
+        @media (max-width: 900px) {
             .profile-layout { grid-template-columns: 1fr; padding: 1.5rem; }
             .profile-sidebar { position: static; }
         }
@@ -302,6 +566,38 @@
             .stat-value { font-size: 1.1rem; }
             .stat-value-date { font-size: 0.92rem; }
         }
+
+        /* ── AI Bio Suggester ── */
+        .pw-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        .btn-ai-pwd {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: #a78bfa;
+            background: rgba(139,92,246,0.12);
+            border: 1px solid rgba(139,92,246,0.3);
+            border-radius: 999px;
+            padding: 0.35rem 0.9rem;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .btn-ai-pwd:hover {
+            background: rgba(139,92,246,0.22);
+            border-color: rgba(139,92,246,0.6);
+            color: #c4b5fd;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
+        }
+        .btn-ai-pwd i { font-size: 0.75rem; }
     </style>
 </head>
 <body class="page-anim">
@@ -428,24 +724,24 @@
 
         <!-- TABS NAV -->
         <div class="tab-nav">
-            <button class="tab-btn active" id="tab-info"     onclick="showTab('info')">
+            <button class="tab-btn <?php echo $activeProfileTab === 'info' ? 'active' : ''; ?>" id="tab-info"     onclick="showTab('info')">
                 <i class="fa-solid fa-user"></i> Informations personnelles
             </button>
-            <button class="tab-btn" id="tab-security" onclick="showTab('security')">
+            <button class="tab-btn <?php echo $activeProfileTab === 'security' ? 'active' : ''; ?>" id="tab-security" onclick="showTab('security')">
                 <i class="fa-solid fa-shield-halved"></i> Sécurité
             </button>
             <?php if ($user->getRole() === 'freelancer'): ?>
-            <button class="tab-btn" id="tab-networks" onclick="showTab('networks')">
+            <button class="tab-btn <?php echo $activeProfileTab === 'networks' ? 'active' : ''; ?>" id="tab-networks" onclick="showTab('networks')">
                 <i class="fa-brands fa-github"></i> Réseaux
             </button>
             <?php endif; ?>
-            <button class="tab-btn" id="tab-activity" onclick="showTab('activity')">
+            <button class="tab-btn <?php echo $activeProfileTab === 'activity' ? 'active' : ''; ?>" id="tab-activity" onclick="showTab('activity')">
                 <i class="fa-solid fa-clock-rotate-left"></i> Activité
             </button>
         </div>
 
         <!-- TAB: INFO -->
-        <div class="tab-panel active" id="panel-info">
+        <div class="tab-panel <?php echo $activeProfileTab === 'info' ? 'active' : ''; ?>" id="panel-info">
             <div class="section-card">
                 <div class="section-card-header">
                     <div class="section-card-title">
@@ -494,15 +790,17 @@
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label" for="bio">Bio</label>
-                            <textarea class="form-input" id="bio" name="bio" rows="4"
-                                      placeholder="Parlez-nous de vous…"><?php echo htmlspecialchars($profileFormValues['bio'] ?? ''); ?></textarea>
-                            <div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;margin-top:0.85rem;">
-                                <button type="submit" class="btn btn-outline" style="width:auto;" onclick="document.getElementById('profile-form-action').value='generate_bio';">
-                                    <i class="fa-solid fa-wand-magic-sparkles"></i> Generer ma bio avec AI
+                            <div class="pw-label-row">
+                                <label class="form-label" for="bio" style="margin:0;">Bio <span style="color:#475569; font-size:0.78rem;">(optionnel)</span></label>
+                                <button type="submit" class="btn-ai-pwd" id="btn-suggest-bio" onclick="document.getElementById('profile-form-action').value='generate_bio';">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> IA : suggérer une bio
                                 </button>
-                                <span style="font-size:0.82rem;color:var(--text-muted);">
-                                    Utilise votre nom, votre role et votre texte actuel pour proposer une version plus pro.
+                            </div>
+                            <textarea class="form-input" id="bio" name="bio" rows="4"
+                                      placeholder="Quelques mots sur vous ou vos activités…"><?php echo htmlspecialchars($profileFormValues['bio'] ?? ''); ?></textarea>
+                            <div style="margin-top:0.45rem;">
+                                <span style="font-size:0.78rem;color:var(--text-muted);">
+                                    Utilise votre nom, votre rôle et votre texte actuel pour proposer une version plus pro.
                                 </span>
                             </div>
                         </div>
@@ -520,7 +818,7 @@
 
         <!-- TAB: NETWORKS (freelancer only) -->
         <?php if ($user->getRole() === 'freelancer'): ?>
-        <div class="tab-panel" id="panel-networks">
+        <div class="tab-panel <?php echo $activeProfileTab === 'networks' ? 'active' : ''; ?>" id="panel-networks">
 
             <!-- ===== SOCIAL LINKS CARD ===== -->
             <div class="section-card" style="margin-bottom:1.5rem;">
@@ -739,9 +1037,11 @@
         <?php endif; ?>
 
 
+
+
         <!-- TAB: SECURITY -->
 
-        <div class="tab-panel" id="panel-security">
+        <div class="tab-panel <?php echo $activeProfileTab === 'security' ? 'active' : ''; ?>" id="panel-security">
             <div class="section-card">
                 <div class="section-card-header">
                     <div class="section-card-title">
@@ -754,7 +1054,12 @@
                         <input type="hidden" name="action" value="password">
 
                         <div class="form-group">
-                            <label class="form-label" for="new_password">Nouveau mot de passe</label>
+                            <div class="pw-label-row" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                                <label class="form-label" for="new_password" style="margin:0;">Nouveau mot de passe</label>
+                                <button type="button" class="btn-ai-pwd" onclick="openAiPwdModal()" style="background:transparent; border:none; color:#a78bfa; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:0.3rem;">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i> IA : suggérer un MDP fort
+                                </button>
+                            </div>
                             <div style="position:relative;">
                                 <input class="form-input<?php echo $fieldError($passwordErrors, 'new_password') !== '' ? ' input-error' : ''; ?>" type="password" id="new_password" name="new_password"
                                        placeholder="Minimum 8 caracteres"
@@ -878,7 +1183,7 @@
         </div>
 
         <!-- TAB: ACTIVITY -->
-        <div class="tab-panel" id="panel-activity">
+        <div class="tab-panel <?php echo $activeProfileTab === 'activity' ? 'active' : ''; ?>" id="panel-activity">
             <div class="section-card">
                 <div class="section-card-header">
                     <div class="section-card-title">
@@ -907,97 +1212,20 @@
                     </div>
                     <?php if ($passwordChangedTime !== null): ?>
                     <div class="activity-item">
-                        <div class="activity-icon" style="background:rgba(245,158,11,0.12);">
-                            <i class="fa-solid fa-key" style="color:#fcd34d;"></i>
+                        <div class="activity-icon" style="background:rgba(234,179,8,0.15);">
+                            <i class="fa-solid fa-key" style="color:#fbbf24;"></i>
                         </div>
                         <div>
-                            <div class="activity-text"><strong>Sécurité</strong> — Mot de passe modifié avec succès</div>
-                            <div class="activity-time">A l'instant</div>
+                            <div class="activity-text"><strong>Mot de passe modifié</strong> — Sécurité mise à jour</div>
+                            <div class="activity-time"><?php echo date('d/m/Y H:i', $passwordChangedTime); ?></div>
                         </div>
                     </div>
                     <?php endif; ?>
-                    <div style="text-align:center;padding:2rem 0;color:var(--text-muted);font-size:0.88rem;">
-                        <i class="fa-solid fa-inbox" style="font-size:2rem;opacity:.3;display:block;margin-bottom:.75rem;"></i>
-                        Plus d'activité disponible lorsque vous utilisez la plateforme.
-                    </div>
                 </div>
             </div>
         </div>
-
     </main>
-
-
-
 </div>
-
-<script>
-function showTab(name) {
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    
-    const panel = document.getElementById('panel-' + name);
-    const btn = document.getElementById('tab-' + name);
-    
-    if (panel && btn) {
-        panel.classList.add('active');
-        btn.classList.add('active');
-        sessionStorage.setItem('activeProfileTab', name);
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    const serverTab = '<?php echo $activeProfileTab; ?>';
-    if (serverTab && document.getElementById('panel-' + serverTab)) {
-        showTab(serverTab);
-        return;
-    }
-    const savedTab = sessionStorage.getItem('activeProfileTab');
-    if (savedTab && document.getElementById('panel-' + savedTab)) {
-        showTab(savedTab);
-    }
-});
-
-
-
-function togglePwdField(inputId, iconId) {
-    const input = document.getElementById(inputId);
-    const icon  = document.getElementById(iconId);
-    if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-    } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-    }
-}
-
-function updatePasswordRules(value, prefix) {
-    const checks = {
-        length: value.length >= 8,
-        upper: /[A-Z]/.test(value),
-        special: /[^A-Za-z0-9]/.test(value)
-    };
-
-    document.getElementById(prefix + '-rule-length')?.classList.toggle('is-valid', checks.length);
-    document.getElementById(prefix + '-rule-upper')?.classList.toggle('is-valid', checks.upper);
-    document.getElementById(prefix + '-rule-special')?.classList.toggle('is-valid', checks.special);
-}
-
-updatePasswordRules(document.getElementById('new_password')?.value || '', 'profile');
-
-function openAvatarPicker() {
-    document.getElementById('avatarInput')?.click();
-}
-
-document.getElementById('avatarInput')?.addEventListener('change', function () {
-    if (!this.files || this.files.length === 0) {
-        return;
-    }
-
-    document.getElementById('avatarUploadForm')?.submit();
-});
-</script>
-
 <!-- Load face-api.js -->
 <script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.min.js"></script>
 <script>
@@ -1083,8 +1311,122 @@ function stopFaceRegistration() {
 
 <?php include __DIR__ . '/chatbot_widget.php'; ?>
 <?php include __DIR__ . '/translate_widget.php'; ?>
+
+<!-- ── AI Password Modal ── -->
+<div id="ai-pwd-modal" role="dialog" aria-modal="true" aria-labelledby="ai-pwd-modal-title">
+    <div class="ai-pwd-box">
+        <div class="ai-pwd-header">
+            <div class="ai-pwd-title" id="ai-pwd-modal-title"><span>&#128272;</span> MDP sugg&#233;r&#233;s par l&#39;IA</div>
+            <button class="ai-pwd-close" onclick="closeAiPwdModal()" aria-label="Fermer"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="ai-pwd-subtitle">Cliquez sur un mot de passe pour l&#39;utiliser automatiquement.</div>
+        <div id="ai-pwd-list"></div>
+        <button class="ai-pwd-regen" id="ai-pwd-regen-btn" onclick="fetchAiPasswords()" style="display:none;">
+            <i class="fa-solid fa-rotate"></i> Reg&#233;n&#233;rer
+        </button>
+    </div>
+</div>
 <script src="../assets/badwords.js"></script>
 <script>
+function showTab(tabId) {
+    // Hide all panels
+    document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+    });
+    // Deactivate all tab buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    // Show target panel
+    const targetPanel = document.getElementById('panel-' + tabId);
+    if (targetPanel) targetPanel.classList.add('active');
+    // Activate target button
+    const targetBtn = document.getElementById('tab-' + tabId);
+    if (targetBtn) targetBtn.classList.add('active');
+}
+
+// ── AI Password Suggester ──
+const AI_PWD_API = 'password_suggest_api.php';
+function openAiPwdModal() {
+    document.getElementById('ai-pwd-modal').classList.add('open');
+    fetchAiPasswords();
+}
+function closeAiPwdModal() {
+    document.getElementById('ai-pwd-modal').classList.remove('open');
+}
+function fetchAiPasswords() {
+    const list = document.getElementById('ai-pwd-list');
+    const regenBtn = document.getElementById('ai-pwd-regen-btn');
+    regenBtn.style.display = 'none';
+    list.innerHTML = `<div class="ai-pwd-spinner"><i class="fa-solid fa-spinner"></i>L'IA génère vos mots de passe…</div>`;
+    fetch(AI_PWD_API, { method: 'POST' })
+        .then(r => r.json())
+        .then(data => {
+            if (data.error) throw new Error(data.error);
+            if (!data.passwords || !data.passwords.length) throw new Error('Réponse vide.');
+            renderPasswords(data.passwords);
+        })
+        .catch(err => {
+            list.innerHTML = `<div class="ai-pwd-error"><i class="fa-solid fa-circle-exclamation"></i> ${err.message || 'Erreur réseau.'}</div>`;
+        })
+        .finally(() => { regenBtn.style.display = 'flex'; });
+}
+function renderPasswords(passwords) {
+    const list = document.getElementById('ai-pwd-list');
+    list.innerHTML = '';
+    passwords.forEach(pwd => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'ai-pwd-option';
+        btn.innerHTML = `<span>${escHtml(pwd)}</span><i class="fa-solid fa-arrow-right-to-bracket"></i>`;
+        btn.addEventListener('click', () => applyPassword(pwd));
+        list.appendChild(btn);
+    });
+}
+function applyPassword(pwd) {
+    const pwdInput  = document.getElementById('new_password');
+    const confInput = document.getElementById('confirm_password');
+    pwdInput.type  = 'text';
+    confInput.type = 'text';
+    pwdInput.value  = pwd;
+    confInput.value = pwd;
+    updatePasswordRules(pwd, 'profile');
+    setTimeout(() => {
+        pwdInput.type  = 'password';
+        confInput.type = 'password';
+    }, 2000);
+    closeAiPwdModal();
+}
+function escHtml(str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Password Helpers ──
+function togglePwdField(inputId, iconId) {
+    const input = document.getElementById(inputId);
+    const icon  = document.getElementById(iconId);
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+    }
+}
+function updatePasswordRules(val, prefix) {
+    const checks = {
+        length: val.length >= 8,
+        upper: /[A-Z]/.test(val),
+        special: /[^A-Za-z0-9]/.test(val)
+    };
+    const lengthRule = document.getElementById(prefix + '-rule-length');
+    const upperRule = document.getElementById(prefix + '-rule-upper');
+    const specialRule = document.getElementById(prefix + '-rule-special');
+    if (lengthRule) lengthRule.classList.toggle('is-valid', checks.length);
+    if (upperRule) upperRule.classList.toggle('is-valid', checks.upper);
+    if (specialRule) specialRule.classList.toggle('is-valid', checks.special);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Watch bio field for inappropriate content
     BadWordsGuard.watch('bio', 'badwords_api.php', { delay: 900 });

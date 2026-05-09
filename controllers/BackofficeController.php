@@ -2,6 +2,8 @@
 // controllers/BackofficeController.php
 
 require_once __DIR__ . '/UserController.php';
+require_once __DIR__ . '/../views/frontoffice/EmailApiService.php';
+require_once __DIR__ . '/../views/frontoffice/GroqService.php';
 
 class BackofficeController extends UserController {
 
@@ -131,6 +133,20 @@ class BackofficeController extends UserController {
 
                 $data['errors'] = $this->validateAdminCreate($newUser);
 
+                if (empty($data['errors'])) {
+                    $groq = new GroqService();
+                    $fieldsToCheck = [
+                        'bio' => $newUser->getBio()
+                    ];
+                    foreach ($fieldsToCheck as $field => $val) {
+                        if ($val === '') continue;
+                        $mod = $groq->checkContentModeration($val, $field);
+                        if (!($mod['clean'] ?? true)) {
+                            $this->addFieldError($data['errors'], $field, $mod['reason'] ?? 'Contenu inapproprié.');
+                        }
+                    }
+                }
+
                 if (empty($data['errors']) && $this->emailExists($newUser->getEmail())) {
                     $this->addFieldError($data['errors'], 'email', 'Email deja utilise.');
                 }
@@ -156,6 +172,20 @@ class BackofficeController extends UserController {
 
                 $data['errors'] = $this->validateAdminUpdate($updatedUser);
 
+                if (empty($data['errors'])) {
+                    $groq = new GroqService();
+                    $fieldsToCheck = [
+                        'bio' => $updatedUser->getBio()
+                    ];
+                    foreach ($fieldsToCheck as $field => $val) {
+                        if ($val === '') continue;
+                        $mod = $groq->checkContentModeration($val, $field);
+                        if (!($mod['clean'] ?? true)) {
+                            $this->addFieldError($data['errors'], $field, $mod['reason'] ?? 'Contenu inapproprié.');
+                        }
+                    }
+                }
+
                 $existing = $this->getById($updatedUser->getId());
                 if (
                     empty($data['errors']) &&
@@ -168,6 +198,16 @@ class BackofficeController extends UserController {
 
                 if (empty($data['errors'])) {
                     $this->updateFull($updatedUser);
+
+                    if ($existing && in_array($existing->getStatus(), ['pending', 'rejected'])) {
+                        $emailService = new EmailApiService();
+                        if ($updatedUser->getStatus() === 'active') {
+                            $emailService->sendAccountApprovedNotification($updatedUser->getEmail(), $updatedUser->getPrenom());
+                        } elseif ($updatedUser->getStatus() === 'rejected' && $existing->getStatus() === 'pending') {
+                            $emailService->sendAccountRefusedNotification($updatedUser->getEmail(), $updatedUser->getPrenom());
+                        }
+                    }
+
                     header('Location: users_dashboard.php?msg=updated');
                     exit;
                 }
@@ -176,16 +216,25 @@ class BackofficeController extends UserController {
 
         if (!empty($_GET['action']) && !empty($_GET['id'])) {
             $targetId = (int) $_GET['id'];
+            $targetUser = $this->getById($targetId);
 
             if ($_GET['action'] === 'ban') {
                 $this->updateStatus($targetId, 'banned');
             }
             if ($_GET['action'] === 'activate') {
                 $this->updateStatus($targetId, 'active');
+                if ($targetUser && in_array($targetUser->getStatus(), ['pending', 'rejected'])) {
+                    $emailService = new EmailApiService();
+                    $emailService->sendAccountApprovedNotification($targetUser->getEmail(), $targetUser->getPrenom());
+                }
             }
             if ($_GET['action'] === 'reject') {
                 // Mark as rejected so the user sees a clear message on login
                 $this->updateStatus($targetId, 'rejected');
+                if ($targetUser && $targetUser->getStatus() === 'pending') {
+                    $emailService = new EmailApiService();
+                    $emailService->sendAccountRefusedNotification($targetUser->getEmail(), $targetUser->getPrenom());
+                }
             }
             if ($_GET['action'] === 'delete') {
                 $this->delete($targetId);

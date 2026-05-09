@@ -39,60 +39,8 @@ $sample = mb_substr($text, 0, 1000);
 
 try {
     $groq = new GroqService();
-
-    if (!$groq->isConfigured()) {
-        // Si l'API n'est pas configurée, on laisse passer (fail-open)
-        echo json_encode(['clean' => true]);
-        exit;
-    }
-
-    $messages = [
-        [
-            'role'    => 'system',
-            'content' => implode("\n", [
-                'You are a content moderation assistant for a professional freelance platform.',
-                'Your task is to analyze user-submitted text and detect inappropriate content.',
-                'Categories to detect:',
-                '  - Insults, profanity, hate speech, slurs (in any language: French, English, Arabic, etc.)',
-                '  - Sexual or explicit content',
-                '  - Threats or violent language',
-                '  - Spam, promotional/advertising content unrelated to professional services',
-                '  - Personal attacks or harassment',
-                '  - Gibberish or meaningless sequences of characters used to bypass filters',
-                'IMPORTANT: Normal professional text, even if critical or opinionated, is CLEAN.',
-                'OUTPUT FORMAT: Return ONLY a valid JSON object. No markdown, no explanation.',
-                'If CLEAN: {"clean":true}',
-                'If NOT CLEAN: {"clean":false,"reason":"Short explanation in French (max 15 words)","severity":"low|medium|high"}',
-                'severity=low: mild profanity; medium: insults/hate; high: threats/explicit.',
-            ]),
-        ],
-        [
-            'role'    => 'user',
-            'content' => 'Analyze this text for inappropriate content. Field: ' . $field . "\n\nText:\n" . $sample,
-        ],
-    ];
-
-    $raw = $groq->chat($messages, [
-        'temperature'           => 0.0,
-        'max_completion_tokens' => 80,
-    ]);
-
-    // Extraire le JSON même si l'IA ajoute du texte autour
-    if (preg_match('/\{.*?\}/s', $raw, $m)) {
-        $result = json_decode($m[0], true);
-    } else {
-        $result = json_decode($raw, true);
-    }
-
-    if (!is_array($result) || !array_key_exists('clean', $result)) {
-        // Réponse inattendue → fail-open
-        echo json_encode(['clean' => true]);
-        exit;
-    }
-
+    $result = $groq->checkContentModeration($text, $field);
     echo json_encode($result);
-
 } catch (Throwable $e) {
-    // En cas d'erreur API → fail-open (ne pas bloquer l'utilisateur)
     echo json_encode(['clean' => true, '_warning' => 'Moderation unavailable.']);
 }

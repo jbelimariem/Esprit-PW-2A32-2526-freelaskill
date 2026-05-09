@@ -1,5 +1,8 @@
 <?php
 
+require_once __DIR__ . '/GroqService.php';
+
+
 class EmailApiService
 {
     private $config;
@@ -22,56 +25,81 @@ class EmailApiService
         ]);
     }
 
+    public function sendLoginNotification($email, $prenom, $ip, $time) {
+        $subject = 'Nouvelle connexion a votre compte FreelaSkill';
+        $prompt = "Tu es l'assistant de securite de la plateforme FreelaSkill. Redige un court email design en HTML inline pour informer {$prenom} d'une nouvelle connexion a son compte depuis l'IP {$ip} le {$time}. Le ton doit etre professionnel, rassurant et informer que si ce n'est pas lui, il doit changer son mot de passe immediatement. Retourne UNIQUEMENT le code HTML valide, sans balises ```html.";
+        return $this->sendAiGeneratedEmail($email, $prenom, $subject, $prompt);
+    }
+
+    public function sendRegistrationNotification($email, $prenom) {
+        $subject = 'Bienvenue sur FreelaSkill !';
+        $prompt = "Tu es le community manager de la plateforme FreelaSkill. Redige un superbe email de bienvenue design en HTML inline pour {$prenom} qui vient de creer son compte. Explique brievement ce qu'il peut faire sur la plateforme (completer son profil, chercher des missions ou des talents). Retourne UNIQUEMENT le code HTML valide, sans balises ```html ni markdown.";
+        return $this->sendAiGeneratedEmail($email, $prenom, $subject, $prompt);
+    }
+
+    public function sendPasswordChangedNotification($email, $prenom, $ip, $time) {
+        $subject = 'Modification de votre mot de passe FreelaSkill';
+        $prompt = "Tu es l'assistant de securite de FreelaSkill. Redige un court email design en HTML inline pour confirmer a {$prenom} que son mot de passe a bien ete modifie avec succes le {$time} depuis l'IP {$ip}. Ajoute un conseil de securite. Retourne UNIQUEMENT le code HTML brut, sans markdown ni balises ```html.";
+        return $this->sendAiGeneratedEmail($email, $prenom, $subject, $prompt);
+    }
+
+    public function sendAccountApprovedNotification($email, $prenom) {
+        $subject = 'Votre compte FreelaSkill est approuve !';
+        $prompt = "Tu es l'administrateur de FreelaSkill. Redige un email enthousiaste en HTML inline pour informer {$prenom} que son compte a ete verifie et approuve. Il peut desormais se connecter et acceder a toutes les fonctionnalites. Retourne UNIQUEMENT le code HTML valide, sans markdown.";
+        return $this->sendAiGeneratedEmail($email, $prenom, $subject, $prompt);
+    }
+
+    public function sendAccountRefusedNotification($email, $prenom) {
+        $subject = 'Mise a jour concernant votre compte FreelaSkill';
+        $prompt = "Tu es l'administrateur de FreelaSkill. Redige un email poli et professionnel en HTML inline pour informer {$prenom} que son compte n'a malheureusement pas pu etre approuve car il ne respecte pas nos criteres actuels. Retourne UNIQUEMENT le code HTML valide, sans markdown.";
+        return $this->sendAiGeneratedEmail($email, $prenom, $subject, $prompt);
+    }
+
+    private function sendAiGeneratedEmail($email, $prenom, $subject, $prompt) {
+        $groq = new GroqService();
+        $htmlContent = '';
+        $textContent = "Bonjour {$prenom},\n\nUn evenement important a ete detecte sur votre compte.\nCordialement,\nL'equipe FreelaSkill.";
+        
+        try {
+            if ($groq->isConfigured()) {
+                $htmlContent = $groq->chat([
+                    ['role' => 'system', 'content' => 'You are an email generator. Always output ONLY valid HTML code. No markdown, no explanations.'],
+                    ['role' => 'user', 'content' => $prompt]
+                ], ['temperature' => 0.6, 'max_completion_tokens' => 600]);
+                
+                $htmlContent = preg_replace('/^```(?:html)?\s*(.*?)\s*```$/is', '$1', trim((string) $htmlContent));
+            }
+        } catch (Exception $e) {
+            // Fallback content if Groq fails
+            $htmlContent = "<div style='font-family:sans-serif;padding:20px;'><p>Bonjour {$prenom},</p><p>Une action importante a ete effectuee sur votre compte.</p></div>";
+        }
+
+        if (empty($htmlContent)) {
+            $htmlContent = "<div style='font-family:sans-serif;padding:20px;'><p>Bonjour {$prenom},</p><p>Une action importante a ete effectuee sur votre compte.</p></div>";
+        }
+
+        return $this->sendEmail([
+            'to_email' => $email,
+            'to_name'  => $prenom,
+            'subject'  => $subject,
+            'html'     => $htmlContent,
+            'text'     => $textContent,
+        ]);
+    }
+
     public function sendEmail(array $message)
     {
         if (!function_exists('curl_init')) {
             return ['ok' => false, 'error' => 'Extension PHP cURL manquante pour appeler API email.'];
         }
 
-        $provider = strtolower(trim((string) ($this->config['provider'] ?? 'brevo')));
-
-        if ($provider === 'resend') {
-            return $this->sendViaResend($message);
-        }
+        $provider = strtolower(trim((string) ($this->config['provider'] ?? 'resend')));
 
         if ($provider === 'generic') {
             return $this->sendViaGenericApi($message);
         }
 
-        return $this->sendViaBrevo($message);
-    }
-
-    private function sendViaBrevo(array $message)
-    {
-        $apiKey = trim((string) ($this->config['api_key'] ?? ''));
-
-        if ($apiKey === '') {
-            return ['ok' => false, 'error' => 'Cle API email manquante. Configurez MAIL_API_KEY ou controllers/email_config.local.php.'];
-        }
-
-        $payload = [
-            'sender'      => [
-                'email' => $this->getFromEmail(),
-                'name'  => $this->getFromName(),
-            ],
-            'to'          => [[
-                'email' => $message['to_email'],
-                'name'  => $message['to_name'] ?? '',
-            ]],
-            'subject'     => $message['subject'],
-            'htmlContent' => $message['html'],
-            'textContent' => $message['text'],
-        ];
-
-        return $this->postJson(
-            $this->getApiUrl('https://api.brevo.com/v3/smtp/email'),
-            [
-                'Accept: application/json',
-                'Content-Type: application/json',
-                'api-key: ' . $apiKey,
-            ],
-            $payload
-        );
+        return $this->sendViaResend($message);
     }
 
     private function sendViaResend(array $message)

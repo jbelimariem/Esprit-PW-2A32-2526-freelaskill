@@ -1,7 +1,10 @@
 <?php
 // controllers/AuthController.php
 
+require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/UserController.php';
+require_once __DIR__ . '/../views/frontoffice/EmailApiService.php';
+require_once __DIR__ . '/../views/frontoffice/GroqService.php';
 
 class AuthController extends UserController {
 
@@ -9,9 +12,8 @@ class AuthController extends UserController {
     private $lockoutSeconds = 900; // 15 minutes
 
     private function startSessionIfNeeded() {
-        if (session_status() === PHP_SESSION_NONE) {
-            session_start();
-        }
+        // session.php already handles session_start() at require time
+        // This method kept for compatibility
     }
 
     private function redirectAuthenticatedUser() {
@@ -196,10 +198,18 @@ class AuthController extends UserController {
         // Success — reset attempts
         $this->resetAttempts();
 
-        $_SESSION['user_id'] = $user->getId();
-        $_SESSION['user_nom'] = $user->getNom();
-        $_SESSION['user_prenom'] = $user->getPrenom();
-        $_SESSION['user_role'] = $user->getRole();
+        // Use centralized session helper
+        createUserSession([
+            'id'     => $user->getId(),
+            'nom'    => $user->getNom(),
+            'prenom' => $user->getPrenom(),
+            'role'   => $user->getRole(),
+        ]);
+
+        $emailService = new EmailApiService();
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+        $time = date('Y-m-d H:i:s');
+        $emailService->sendLoginNotification($user->getEmail(), $user->getPrenom(), $ip, $time);
 
         if ($user->getRole() === 'freelancer' && $user->getGithubUrl() === '' && $user->getLinkedinUrl() === '') {
             header('Location: onboarding_links.php');
@@ -234,6 +244,22 @@ class AuthController extends UserController {
         $confirmPassword = trim($_POST['confirm_password'] ?? '');
         $errors = $this->validateRegistrationUser($user, $confirmPassword);
 
+        if (empty($errors)) {
+            $groq = new GroqService();
+            $fieldsToCheck = [
+                'bio' => $user->getBio()
+            ];
+
+            foreach ($fieldsToCheck as $field => $val) {
+                if ($val === '') continue;
+                $mod = $groq->checkContentModeration($val, $field);
+                if (!($mod['clean'] ?? true)) {
+                    $reason = $mod['reason'] ?? 'Contenu inapproprié détecté.';
+                    $this->addFieldError($errors, $field, $reason);
+                }
+            }
+        }
+
         if (empty($errors) && $this->emailExists($user->getEmail())) {
             $this->addFieldError($errors, 'email', 'Cet email est deja utilise.');
         }
@@ -244,6 +270,9 @@ class AuthController extends UserController {
 
         $this->create($user);
 
+        $emailService = new EmailApiService();
+        $emailService->sendRegistrationNotification($user->getEmail(), $user->getPrenom());
+
         // Account is pending — do NOT create a session yet.
         // Redirect to the waiting page so user knows to wait for admin approval.
         $_SESSION['pending_email'] = $user->getEmail();
@@ -252,4 +281,3 @@ class AuthController extends UserController {
         exit;
     }
 }
-
