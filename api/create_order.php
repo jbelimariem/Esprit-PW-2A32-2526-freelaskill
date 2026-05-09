@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../controllers/MailController.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -23,8 +24,16 @@ function ensureTables($pdo) {
         date_commande DATE NOT NULL,
         statut VARCHAR(50) NOT NULL DEFAULT 'en_attente',
         adresse_livraison TEXT,
+        mode_paiement VARCHAR(50),
+        mode_livraison VARCHAR(50),
         montant_total DECIMAL(10,2) NOT NULL DEFAULT 0
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+    // Mise à jour de la table si colonnes manquantes
+    try {
+        $pdo->exec("ALTER TABLE commande ADD COLUMN IF NOT EXISTS mode_paiement VARCHAR(50)");
+        $pdo->exec("ALTER TABLE commande ADD COLUMN IF NOT EXISTS mode_livraison VARCHAR(50)");
+    } catch (Exception $e) {}
 
     $pdo->exec("CREATE TABLE IF NOT EXISTS commande_produit (
         id INT AUTO_INCREMENT PRIMARY KEY,
@@ -34,6 +43,89 @@ function ensureTables($pdo) {
         prix_unitaire DECIMAL(10,2) NOT NULL DEFAULT 0,
         FOREIGN KEY (idCommande) REFERENCES commande(idCommande) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+}
+
+function getUserEmail($pdo, $user_id) {
+    foreach (['idUser', 'id'] as $column) {
+        try {
+            $stmt = $pdo->prepare("SELECT email FROM user WHERE $column = ? LIMIT 1");
+            $stmt->execute([$user_id]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($user && !empty($user['email']) && filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
+                return $user['email'];
+            }
+        } catch (Exception $e) {}
+    }
+
+    return null;
+}
+
+function buildMailItems($cart) {
+    $items = [];
+
+    foreach ($resolvedCart as $item) {
+        $items[] = [
+            'nom' => $item['title'] ?? $item['nom'] ?? 'Produit',
+            'prix' => $item['price'] ?? $item['prix'] ?? 0,
+            'quantite' => $item['quantity'] ?? $item['quantite'] ?? 1,
+        ];
+    }
+
+    return $items;
+}
+
+function resolveCartProducts($pdo, $cart) {
+    $resolved = [];
+
+    foreach ($cart as $item) {
+        $produit_id = null;
+        $quantity = max(1, intval($item['quantity'] ?? $item['quantite'] ?? 1));
+
+        if (!empty($item['id']) && intval($item['id']) > 0) {
+            $produit_id = intval($item['id']);
+        } elseif (!empty($item['idProduit']) && intval($item['idProduit']) > 0) {
+            $produit_id = intval($item['idProduit']);
+        }
+
+        if (!$produit_id && !empty($item['title'])) {
+            $find = $pdo->prepare("SELECT idProduit FROM produit WHERE nom = ? LIMIT 1");
+            $find->execute([trim($item['title'])]);
+            $row = $find->fetch(PDO::FETCH_ASSOC);
+            if ($row) $produit_id = intval($row['idProduit']);
+        }
+
+        if (!$produit_id) {
+            throw new Exception("Produit introuvable dans le panier.");
+        }
+
+        $stmt = $pdo->prepare("SELECT idProduit, nom, prix, stock, disponibilite FROM produit WHERE idProduit = ? FOR UPDATE");
+        $stmt->execute([$produit_id]);
+        $product = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$product) {
+            throw new Exception("Produit #$produit_id introuvable.");
+        }
+        if (($product['disponibilite'] ?? '') === 'Non disponible') {
+            throw new Exception($product['nom'] . " est non disponible.");
+        }
+        if ((int)$product['stock'] < $quantity) {
+            throw new Exception("Stock insuffisant pour " . $product['nom'] . ".");
+        }
+
+        $resolved[] = [
+            'idProduit' => (int)$product['idProduit'],
+            'id' => (int)$product['idProduit'],
+            'nom' => $product['nom'],
+            'title' => $product['nom'],
+            'prix' => (float)$product['prix'],
+            'price' => (float)$product['prix'],
+            'quantite' => $quantity,
+            'quantity' => $quantity,
+        ];
+    }
+
+    return $resolved;
 }
 
 // ── Vérification méthode ─────────────────────────────────────────────────────
@@ -52,9 +144,11 @@ if (!$input || !isset($input['cart']) || !isset($input['adresse'])) {
     exit;
 }
 
-$cart    = $input['cart'];
-$adresse = trim($input['adresse'] ?? '');
-$user_id = $_SESSION['user_id'] ?? 1;
+$cart           = $input['cart'];
+$adresse        = trim($input['adresse'] ?? '');
+$mode_paiement  = trim($input['mode_paiement'] ?? 'Sur place');
+$mode_livraison = trim($input['mode_livraison'] ?? 'Standard');
+$user_id        = $_SESSION['user_id'] ?? 1;
 
 if (empty($cart) || !is_array($cart)) {
     http_response_code(400);
@@ -63,13 +157,6 @@ if (empty($cart) || !is_array($cart)) {
 }
 
 // ── Calcul montant ───────────────────────────────────────────────────────────
-$montant_total = 0;
-foreach ($cart as $item) {
-    $price    = floatval($item['price']    ?? 0);
-    $quantity = intval($item['quantity'] ?? 1);
-    $montant_total += $price * $quantity;
-}
-
 // ── Transaction ──────────────────────────────────────────────────────────────
 try {
     $pdo = config::getConnexion();
@@ -77,51 +164,60 @@ try {
 
     $pdo->beginTransaction();
 
+    $resolvedCart = resolveCartProducts($pdo, $cart);
+    $montant_total = 0;
+    foreach ($resolvedCart as $item) {
+        $montant_total += $item['prix'] * $item['quantite'];
+    }
+
     // 1. Créer la commande
-    $stmt = $pdo->prepare("INSERT INTO commande (user_id, date_commande, statut, adresse_livraison, montant_total)
-                           VALUES (?, CURDATE(), 'en_attente', ?, ?)");
-    $stmt->execute([$user_id, $adresse, $montant_total]);
+    $stmt = $pdo->prepare("INSERT INTO commande (user_id, date_commande, statut, adresse_livraison, mode_paiement, mode_livraison, montant_total)
+                           VALUES (?, CURDATE(), 'en_attente', ?, ?, ?, ?)");
+    $stmt->execute([$user_id, $adresse, $mode_paiement, $mode_livraison, $montant_total]);
     $commande_id = $pdo->lastInsertId();
 
     // 2. Ajouter chaque produit
     $stmtCP = $pdo->prepare("INSERT INTO commande_produit (idCommande, idProduit, quantite, prix_unitaire)
                              VALUES (?, ?, ?, ?)");
+    $stmtStock = $pdo->prepare("UPDATE produit SET stock = GREATEST(stock - ?, 0), disponibilite = CASE WHEN GREATEST(stock - ?, 0) <= 0 THEN 'Non disponible' ELSE disponibilite END WHERE idProduit = ?");
 
-    foreach ($cart as $item) {
-        $produit_id = null;
-
-        // Priorité à l'ID envoyé depuis le JS
-        if (!empty($item['id']) && intval($item['id']) > 0) {
-            $produit_id = intval($item['id']);
-        }
-
-        // Fallback : chercher par nom
-        if (!$produit_id && !empty($item['title'])) {
-            $find = $pdo->prepare("SELECT idProduit FROM produit WHERE nom = ? LIMIT 1");
-            $find->execute([trim($item['title'])]);
-            $row = $find->fetch(PDO::FETCH_ASSOC);
-            if ($row) $produit_id = intval($row['idProduit']);
-        }
-
-        if ($produit_id) {
-            $stmtCP->execute([
-                $commande_id,
-                $produit_id,
-                intval($item['quantity'] ?? 1),
-                floatval($item['price']    ?? 0)
-            ]);
-        }
-        // Si le produit n'est pas trouvé en BD, on l'ignore (ne plante pas la commande)
+    foreach ($resolvedCart as $item) {
+        $stmtCP->execute([
+            $commande_id,
+            $item['idProduit'],
+            $item['quantite'],
+            $item['prix']
+        ]);
+        
+        $qty = $item['quantite'];
+        $stmtStock->execute([$qty, $qty, $item['idProduit']]);
     }
 
     $pdo->commit();
+
+    $mailSent = false;
+    $mailError = null;
+    $userEmail = getUserEmail($pdo, $user_id);
+
+    if ($userEmail) {
+        $mailController = new MailController();
+        $mailSent = $mailController->sendOrderConfirmation($userEmail, $commande_id, $montant_total, $resolvedCart);
+        if (!$mailSent) {
+            $mailError = $mailController->getLastError();
+        }
+    } else {
+        $mailError = "Aucun email valide trouve pour l'utilisateur #$user_id.";
+        error_log('[TalentBridge SMTP] ' . $mailError);
+    }
 
     http_response_code(201);
     echo json_encode([
         'success'  => true,
         'message'  => 'Commande créée avec succès',
         'order_id' => (int)$commande_id,
-        'montant'  => $montant_total
+        'montant'  => $montant_total,
+        'mail_sent' => $mailSent,
+        'mail_error' => $mailError
     ]);
 
 } catch (Exception $e) {

@@ -4,7 +4,7 @@ require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
-
+$pendingProducts = $produitController->getByStatutData('pending');
 if (!isset($_GET['id'])) {
     header('Location: produits.php');
     exit;
@@ -40,7 +40,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'description' => $_POST['description'],
             'prix'        => $price,
             'category_id' => $_POST['category'],
-            'statut'      => $_POST['availability'],
+            'statut'      => $_POST['statut'] ?? $produit['statut'],
+            'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
             'stock'       => $produit['stock'],
             'image'       => $imagePath
         ];
@@ -116,8 +117,13 @@ $categories = $categoryController->getAllData();
                     <input type="text" placeholder="...">
                 </div>
                 <div class="admin-top-actions">
-                    <div class="admin-icon-btn"><i class="fa-regular fa-moon"></i></div>
-                    <div class="admin-icon-btn"><i class="fa-regular fa-bell"></i><span class="badge-dot"></span></div>
+                    <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
+                        <i class="fa-regular fa-moon"></i>
+                    </div>
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>
@@ -163,11 +169,14 @@ $categories = $categoryController->getAllData();
                                 <input id="price" name="price" type="number" min="1" value="<?= htmlspecialchars($produit['prix']) ?>" class="price-input" style="width:100%;">
                             </div>
                             <div>
-                                <label for="availability" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Statut de publication</label>
-                                <select id="availability" name="availability" class="price-input" style="width:100%;">
-                                    <option value="pending" <?= $produit['statut'] === 'pending' ? 'selected' : '' ?>>En attente</option>
-                                    <option value="disponible" <?= $produit['statut'] === 'disponible' ? 'selected' : '' ?>>Disponible</option>
+                                <label for="disponibilite" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité actuelle</label>
+                                <select id="disponibilite" name="disponibilite" class="price-input" style="width:100%;">
+                                    <option value="Disponible maintenant" <?= ($produit['disponibilite'] ?? '') === 'Disponible maintenant' ? 'selected' : '' ?>>Disponible maintenant</option>
+                                    <option value="Dans 2 semaines" <?= ($produit['disponibilite'] ?? '') === 'Dans 2 semaines' ? 'selected' : '' ?>>Dans 2 semaines</option>
+                                    <option value="Dans 1 mois" <?= ($produit['disponibilite'] ?? '') === 'Dans 1 mois' ? 'selected' : '' ?>>Dans 1 mois</option>
+                                    <option value="Non disponible" <?= ($produit['disponibilite'] ?? '') === 'Non disponible' ? 'selected' : '' ?>>Non disponible</option>
                                 </select>
+                                <input type="hidden" name="statut" value="<?= htmlspecialchars($produit['statut']) ?>">
                             </div>
                         </div>
 

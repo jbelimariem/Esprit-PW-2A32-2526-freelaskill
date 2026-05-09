@@ -7,14 +7,18 @@ class Commande {
     private $date_commande;
     private $statut;
     private $adresse_livraison;
+    private $mode_paiement;
+    private $mode_livraison;
     private $montant_total;
 
-    public function __construct($user_id = null, $date_commande = '', $statut = '', $adresse_livraison = '', $montant_total = 0) {
+    public function __construct($user_id = null, $date_commande = '', $statut = '', $adresse_livraison = '', $montant_total = 0, $mode_paiement = '', $mode_livraison = '') {
         $this->user_id = $user_id;
         $this->date_commande = $date_commande;
         $this->statut = $statut;
         $this->adresse_livraison = $adresse_livraison;
         $this->montant_total = $montant_total;
+        $this->mode_paiement = $mode_paiement;
+        $this->mode_livraison = $mode_livraison;
     }
 
     public function getIdCommande() { return $this->idCommande; }
@@ -31,6 +35,12 @@ class Commande {
 
     public function getAdresseLivraison() { return $this->adresse_livraison; }
     public function setAdresseLivraison($adresse) { $this->adresse_livraison = $adresse; }
+
+    public function getModePaiement() { return $this->mode_paiement; }
+    public function setModePaiement($mode) { $this->mode_paiement = $mode; }
+
+    public function getModeLivraison() { return $this->mode_livraison; }
+    public function setModeLivraison($mode) { $this->mode_livraison = $mode; }
 
     public function getMontantTotal() { return $this->montant_total; }
     public function setMontantTotal($montant) { $this->montant_total = $montant; }

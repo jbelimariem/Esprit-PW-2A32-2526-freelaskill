@@ -1,10 +1,15 @@
 <?php
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/NotificationController.php';
+
+$notifController = new NotificationController();
+$unreadCount = $notifController->getUnreadCount(1);
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
-$produits = $produitController->getByStatus('disponible');
+$sellerId = $_SESSION['user_id'] ?? $_SESSION['admin_id'] ?? 1;
+$produits = $produitController->getAllAdminData($sellerId);
 $categories = $categoryController->getAllData();
 $categoryCounts = [];
 foreach ($produits as $produit) {
@@ -29,6 +34,42 @@ $totalPages = ceil($totalProduitCount / $itemsPerPage);
 $currentPage = min($currentPage, $totalPages > 0 ? $totalPages : 1);
 $startIndex = ($currentPage - 1) * $itemsPerPage;
 $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
+
+$pdo = config::getConnexion();
+$sellerStats = [
+    'revenue' => 0,
+    'pending_orders' => 0,
+    'sold_units' => 0,
+    'top_products' => []
+];
+try {
+    $stmt = $pdo->prepare("SELECT COALESCE(SUM(cp.quantite * cp.prix_unitaire), 0) AS revenue, COALESCE(SUM(cp.quantite), 0) AS sold_units
+                           FROM commande_produit cp
+                           JOIN produit p ON p.idProduit = cp.idProduit
+                           WHERE p.user_id = ?");
+    $stmt->execute([$sellerId]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+    $sellerStats['revenue'] = (float)($row['revenue'] ?? 0);
+    $sellerStats['sold_units'] = (int)($row['sold_units'] ?? 0);
+
+    $stmt = $pdo->prepare("SELECT COUNT(DISTINCT c.idCommande)
+                           FROM commande c
+                           JOIN commande_produit cp ON cp.idCommande = c.idCommande
+                           JOIN produit p ON p.idProduit = cp.idProduit
+                           WHERE p.user_id = ? AND c.statut = 'en_attente'");
+    $stmt->execute([$sellerId]);
+    $sellerStats['pending_orders'] = (int)$stmt->fetchColumn();
+
+    $stmt = $pdo->prepare("SELECT p.nom, COALESCE(SUM(cp.quantite), 0) AS qty, COALESCE(SUM(cp.quantite * cp.prix_unitaire), 0) AS total
+                           FROM produit p
+                           LEFT JOIN commande_produit cp ON cp.idProduit = p.idProduit
+                           WHERE p.user_id = ?
+                           GROUP BY p.idProduit, p.nom
+                           ORDER BY qty DESC, total DESC
+                           LIMIT 3");
+    $stmt->execute([$sellerId]);
+    $sellerStats['top_products'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
 ?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
@@ -39,6 +80,16 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=6">
+    <style>
+        .seller-dashboard { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin:1.5rem 0; }
+        .seller-kpi { background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:1rem; padding:1rem; }
+        .seller-kpi span { color:#94a3b8; font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; }
+        .seller-kpi strong { display:block; color:white; font-size:1.35rem; margin-top:.35rem; }
+        .top-list { display:flex; flex-direction:column; gap:.35rem; margin-top:.5rem; }
+        .top-list div { display:flex; justify-content:space-between; gap:.75rem; color:#cbd5e1; font-size:.86rem; }
+        @media(max-width:900px){ .seller-dashboard{grid-template-columns:1fr 1fr;} }
+        @media(max-width:560px){ .seller-dashboard{grid-template-columns:1fr;} }
+    </style>
 </head>
 <body class="page-anim home-page">
 
@@ -59,8 +110,14 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
         <button class="theme-toggle-btn" style="background: none; border: none; color: #e2e8f0; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;" title="Toggle dark/light mode">
             <i class="fa-regular fa-moon"></i>
         </button>
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px;">
+            <i class="fa-solid fa-bell"></i>
+            <?php if($unreadCount > 0): ?>
+                <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
+            <?php endif; ?>
+        </a>
         <a href="panier.php" class="cart-btn" style="position: relative;">
-            <i class="fa-solid fa-bag-shopping"></i> Mes achats
+            <i class="fa-solid fa-bag-shopping"></i> Mon panier
             <span class="cart-count" style="position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border-radius: 50%; font-size: 0.7rem; font-weight: bold; display: flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 2px solid var(--bg-dark);">0</span>
         </a>
         <div class="nav-avatar">AH</div>
@@ -106,6 +163,15 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 </a>
                 <a href="mes_ventes.php" class="nav-item active">
                     <i class="fa-solid fa-tag"></i> Mes ventes
+                </a>
+                <a href="mes_commandes.php" class="nav-item">
+                    <i class="fa-solid fa-receipt"></i> Mes commandes
+                </a>
+                <a href="notifications.php" class="nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <?php if($unreadCount > 0): ?>
+                        <span style="background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; margin-left:auto;"><?= $unreadCount ?></span>
+                    <?php endif; ?>
                 </a>
                 <a href="vendreproduit.php" class="nav-item">
                     <i class="fa-solid fa-plus-circle"></i> Vendre un produit
@@ -199,6 +265,33 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
             </div>
         </div>
 
+        <div class="seller-dashboard">
+            <div class="seller-kpi">
+                <span>Total ventes</span>
+                <strong><?= (int)$sellerStats['sold_units'] ?></strong>
+            </div>
+            <div class="seller-kpi">
+                <span>Commandes en attente</span>
+                <strong><?= (int)$sellerStats['pending_orders'] ?></strong>
+            </div>
+            <div class="seller-kpi">
+                <span>Revenu estimé</span>
+                <strong><?= number_format($sellerStats['revenue'], 0, ',', ' ') ?> DT</strong>
+            </div>
+            <div class="seller-kpi">
+                <span>Produits les plus vendus</span>
+                <div class="top-list">
+                    <?php if (empty($sellerStats['top_products'])): ?>
+                        <div><em>Aucune vente</em><span>0</span></div>
+                    <?php else: ?>
+                        <?php foreach ($sellerStats['top_products'] as $top): ?>
+                            <div><em><?= htmlspecialchars($top['nom']) ?></em><span><?= (int)$top['qty'] ?></span></div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
         <!-- Active filter chips -->
         <div class="active-filters">
             <div class="chip">Tous les produits <button>✕</button></div>
@@ -217,9 +310,32 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
             <?php else: ?>
                 <?php foreach ($produitsPagines as $produit):
                     $categoryName = $categoryNames[$produit['category_id']] ?? 'Autre';
-                    $stockClass = $produit['stock'] <= 0 ? 'out-stock' : ($produit['stock'] <= 2 ? 'low-stock' : 'in-stock');
-                    $stockText = $produit['stock'] <= 0 ? 'Rupture de stock' : ($produit['stock'] <= 2 ? 'Stock faible' : 'En stock');
-                    $opacityStyle = $produit['stock'] <= 0 ? 'opacity:0.6;' : '';
+                    
+                    // Statut logic
+                    $isPending = (strtolower(trim($produit['statut'] ?? '')) === 'pending');
+                    
+                    // Disponibilité logic (Align with home.php)
+                    $dispoValue = $produit['disponibilite'] ?? 'Disponible maintenant';
+                    $stockQty = (int)($produit['stock'] ?? 0);
+
+                    if ($stockQty <= 0) {
+                        $stockClass = 'out-stock';
+                        $stockText = 'Rupture de stock';
+                        $opacityStyle = 'opacity:0.6;';
+                    } elseif ($dispoValue === 'Disponible maintenant') {
+                        $stockClass = 'in-stock';
+                        $stockText = 'Dispo. maintenant';
+                        $opacityStyle = '';
+                    } elseif ($dispoValue === 'Non disponible') {
+                        $stockClass = 'out-stock';
+                        $stockText = 'Non disponible';
+                        $opacityStyle = 'opacity:0.6;';
+                    } else {
+                        $stockClass = 'low-stock';
+                        $stockText = $dispoValue;
+                        $opacityStyle = '';
+                    }
+                    
                     $priceFormatted = number_format($produit['prix'], 0, ',', ' ');
                     $descriptionPreview = htmlspecialchars(mb_strimwidth($produit['description'], 0, 70, '...'));
                 ?>
@@ -230,10 +346,8 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                             <?php else: ?>
                                 <span style="font-size: 3rem;">🛍️</span>
                             <?php endif; ?>
-                            <?php if ($produit['stock'] <= 2 && $produit['stock'] > 0): ?>
-                                <span class="card-badge badge-popular">STOCK FAIBLE</span>
-                            <?php elseif ($produit['stock'] <= 0): ?>
-                                <span class="card-badge badge-out">RUPTURE</span>
+                            <?php if ($isPending): ?>
+                                <span class="card-badge badge-popular" style="background: rgba(245, 158, 11, 0.9);"><i class="fa-solid fa-clock"></i> EN ATTENTE</span>
                             <?php endif; ?>
                             <button class="wishlist-btn"><i class="fa-regular fa-heart"></i></button>
                         </div>
@@ -337,7 +451,7 @@ function closeDeleteModal() {
 }
 </script>
 
-<script src="../assets/js.js?v=2"></script>
+<script src="../assets/js.js?v=6"></script>
 
 </body>
 </html>

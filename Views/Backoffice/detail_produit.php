@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
+$pendingProducts = $produitController->getByStatutData('pending');
 $produit = null;
 $categoryName = 'Autre';
 $stockClass = 'out-stock';
@@ -45,11 +46,22 @@ if (!empty($_GET['id'])) {
             border-radius: var(--radius-lg);
             padding: 2rem;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 450px 1fr;
             gap: 2rem;
+            align-items: start;
         }
-        @media (max-width: 900px) {
+        .detail-image {
+            width: 100%;
+            height: 500px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 1rem;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        @media (max-width: 1100px) {
             .admin-detail-card { grid-template-columns: 1fr; }
+            .detail-image { height: 400px; }
         }
     </style>
 </head>
@@ -106,13 +118,13 @@ if (!empty($_GET['id'])) {
                     <input type="text" placeholder="...">
                 </div>
                 <div class="admin-top-actions">
-                    <div class="admin-icon-btn">
+                    <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>
@@ -129,7 +141,7 @@ if (!empty($_GET['id'])) {
 
                 <?php if ($produit): ?>
                     <div class="admin-detail-card">
-                        <div class="detail-image" style="background: rgba(0,0,0,0.3); border-radius: 1rem; overflow:hidden; position: relative;">
+                        <div class="detail-image">
                             <?php if (!empty($produit['image'])): ?>
                                 <img src="<?= htmlspecialchars($produit['image']) ?>" alt="Image" style="width: 100%; height: 100%; object-fit: cover; display:block;" />
                             <?php else: ?>

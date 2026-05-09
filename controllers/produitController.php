@@ -88,6 +88,18 @@ class ProduitController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAllFrontData($category_id = null) {
+        if ($category_id) {
+            $sql = "SELECT * FROM produit WHERE LOWER(TRIM(statut)) = 'disponible' AND category_id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$category_id]);
+        } else {
+            $sql = "SELECT * FROM produit WHERE LOWER(TRIM(statut)) = 'disponible'";
+            $stmt = $this->pdo->query($sql);
+        }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // Retourne les produits de l'admin
     public function getAllAdminData($admin_id) {
         try {
@@ -110,17 +122,29 @@ class ProduitController {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function getByCategoryData($category_id) {
-        $sql = "SELECT * FROM produit WHERE category_id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$category_id]);
+    public function getByCategoryData($category_id, $statut = null) {
+        if ($statut) {
+            $sql = "SELECT * FROM produit WHERE category_id = ? AND LOWER(TRIM(statut)) = LOWER(TRIM(?))";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$category_id, $statut]);
+        } else {
+            $sql = "SELECT * FROM produit WHERE category_id = ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$category_id]);
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getByPriceData($min, $max) {
-        $sql = "SELECT * FROM produit WHERE prix BETWEEN ? AND ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$min, $max]);
+    public function getByPriceData($min, $max, $statut = null) {
+        if ($statut) {
+            $sql = "SELECT * FROM produit WHERE (prix BETWEEN ? AND ?) AND LOWER(TRIM(statut)) = LOWER(TRIM(?))";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$min, $max, $statut]);
+        } else {
+            $sql = "SELECT * FROM produit WHERE prix BETWEEN ? AND ?";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute([$min, $max]);
+        }
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -136,12 +160,30 @@ class ProduitController {
         return $this->getByStatutData($status);
     }
 
+    public function normalizeDisponibilite($value) {
+        $value = trim((string) $value);
+        $values = [
+            'disponible' => 'Disponible maintenant',
+            'disponible maintenant' => 'Disponible maintenant',
+            'deux_semaines' => 'Dans 2 semaines',
+            'dans 2 semaines' => 'Dans 2 semaines',
+            'un_mois' => 'Dans 1 mois',
+            'dans 1 mois' => 'Dans 1 mois',
+            'non_disponible' => 'Non disponible',
+            'non disponible' => 'Non disponible',
+        ];
+
+        $key = strtolower($value);
+        return $values[$key] ?? 'Disponible maintenant';
+    }
+
     public function createData($data) {
+        $disponibilite = $this->normalizeDisponibilite($data['disponibilite'] ?? 'Disponible maintenant');
         try {
             if (isset($data['user_id'])) {
                 $sql = "INSERT INTO produit 
-                        (category_id, nom, description, prix, stock, image, statut, user_id) 
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                        (category_id, nom, description, prix, stock, image, statut, disponibilite, user_id) 
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([
                     $data['category_id'],
@@ -151,6 +193,7 @@ class ProduitController {
                     $data['stock'],
                     $data['image'],
                     isset($data['statut']) ? trim(strtolower($data['statut'])) : 'pending',
+                    $disponibilite,
                     $data['user_id']
                 ]);
             } else {
@@ -158,8 +201,8 @@ class ProduitController {
             }
         } catch (PDOException $e) {
             $sql = "INSERT INTO produit 
-                    (category_id, nom, description, prix, stock, image, statut) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?)";
+                    (category_id, nom, description, prix, stock, image, statut, disponibilite) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $data['category_id'],
@@ -168,7 +211,8 @@ class ProduitController {
                 $data['prix'],
                 $data['stock'],
                 $data['image'],
-                isset($data['statut']) ? trim(strtolower($data['statut'])) : 'pending'
+                isset($data['statut']) ? trim(strtolower($data['statut'])) : 'pending',
+                $disponibilite
             ]);
         }
         return $this->pdo->lastInsertId();
@@ -176,7 +220,7 @@ class ProduitController {
 
     public function updateData($id, $data) {
         $sql = "UPDATE produit 
-                SET nom=?, description=?, prix=?, stock=?, image=?, category_id=?, statut=? 
+                SET nom=?, description=?, prix=?, stock=?, image=?, category_id=?, statut=?, disponibilite=? 
                 WHERE idProduit=?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -187,6 +231,7 @@ class ProduitController {
             $data['image'],
             $data['category_id'],
             isset($data['statut']) ? trim(strtolower($data['statut'])) : null,
+            $this->normalizeDisponibilite($data['disponibilite'] ?? 'Disponible maintenant'),
             $id
         ]);
     }
@@ -230,19 +275,19 @@ class ProduitController {
     // -------------------------------------------------------
     public function index() {
         $produits    = $this->getAllData();
-        $categories  = $this->categoryController->getAll();
+        $categories  = $this->categoryController->getAllData();
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
     public function filterByCategory($category_id) {
-        $produits   = $this->getByCategoryData($category_id);
-        $categories = $this->categoryController->getAll();
+        $produits   = $this->getByCategoryData($category_id, 'disponible');
+        $categories = $this->categoryController->getAllData();
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
     public function filterByPrice($min, $max) {
-        $produits   = $this->getByPriceData($min, $max);
-        $categories = $this->categoryController->getAll();
+        $produits   = $this->getByPriceData($min, $max, 'disponible');
+        $categories = $this->categoryController->getAllData();
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
@@ -256,7 +301,7 @@ class ProduitController {
     }
 
     public function showForm() {
-        $categories = $this->categoryController->getAll();
+        $categories = $this->categoryController->getAllData();
         include __DIR__ . '/../Views/Frontoffice/vendreproduit.php';
     }
 
@@ -293,14 +338,15 @@ class ProduitController {
 
             if (empty($errors)) {
                 $data = [
-                    'nom'         => $_POST['title'],
-                    'description' => $_POST['description'],
-                    'prix'        => $price,
-                    'category_id' => $_POST['category'],
-                    'statut'      => 'pending',
-                    'stock'       => 1,
-                    'image'       => $imagePath,
-                    'user_id'     => $_SESSION['admin_id'] ?? 1
+                    'nom'           => $_POST['title'],
+                    'description'   => $_POST['description'],
+                    'prix'          => $price,
+                    'category_id'   => $_POST['category'],
+                    'statut'        => 'pending',
+                    'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
+                    'stock'         => 1,
+                    'image'         => $imagePath,
+                    'user_id'       => $_SESSION['admin_id'] ?? 1
                 ];
                 $new_id = $this->createData($data);
                 header('Location: home.php');
@@ -323,12 +369,13 @@ class ProduitController {
 
             $price = max(1, (int) $_POST['price']);
             $data = [
-                'nom'         => $_POST['title'],
-                'description' => $_POST['description'],
-                'prix'        => $price,
-                'category_id' => $_POST['category'],
-                'statut'      => 'disponible',
-                'stock'       => 1,
+                'nom'           => $_POST['title'],
+                'description'   => $_POST['description'],
+                'prix'          => $price,
+                'category_id'   => $_POST['category'],
+                'statut'        => 'disponible',
+                'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
+                'stock'         => 1,
                 'image'       => $imagePath,
                 'user_id'     => $_SESSION['admin_id'] ?? 1
             ];

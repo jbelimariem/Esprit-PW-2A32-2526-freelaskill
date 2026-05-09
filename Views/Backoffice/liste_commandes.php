@@ -1,12 +1,16 @@
 <?php
 require_once __DIR__ . '/../../controllers/commandeController.php';
 require_once __DIR__ . '/../../controllers/CommandeProduitController.php';
+require_once __DIR__ . '/../../controllers/produitController.php';
+require_once __DIR__ . '/../../controllers/NotificationController.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 $commandeController = new CommandeController();
+$productController = new ProduitController();
+$pendingProducts = $productController->getByStatutData('pending');
 
 // Action de suppression
 if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'])) {
@@ -19,13 +23,23 @@ if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($_POST['action']) && $_POST['action'] === 'update_status') {
     $id = (int) $_POST['id'];
     $statut = $_POST['statut'] ?? 'en_attente';
+    
+    // Get old status to compare (optional) or just send notification
+    $currentOrder = $commandeController->getByIdData($id);
+    
     $commandeController->updateStatutData($id, $statut);
+    
+    // Create Notification for the user
+    $notifController = new NotificationController();
+    $message = "Le statut de votre commande #$id a été mis à jour : " . str_replace('_', ' ', $statut) . ".";
+    $notifController->createData($currentOrder['user_id'], $message, 'order_update');
+
     header('Location: liste_commandes.php');
     exit;
 }
 
 // Récupérer toutes les commandes
-$commandes = $commandeController->getAll();
+$commandes = $commandeController->getAllData();
 
 // Pagination
 $itemsPerPage = 15;
@@ -212,6 +226,10 @@ function getUserName($pdo, $user_id) {
                 <a href="./liste_commandes.php" class="admin-nav-item active">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
+                <a href="./notification.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;"><?= isset($pendingProducts) ? count($pendingProducts) + 2 : 3 ?></span>
+                </a>
 
             </div>
 
@@ -232,10 +250,10 @@ function getUserName($pdo, $user_id) {
                     <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>
@@ -265,6 +283,7 @@ function getUserName($pdo, $user_id) {
                                     <th>Produits</th>
                                     <th>Montant</th>
                                     <th>Adresse Livraison</th>
+                                    <th>Mode Paiement</th>
                                     <th>Statut</th>
                                     <th style="min-width: 250px;">Actions</th>
                                 </tr>
@@ -295,6 +314,7 @@ function getUserName($pdo, $user_id) {
                                             </td>
                                             <td><strong style="color: #10b981;"><?= number_format($commande['montant_total'], 2, '.', ' ') ?> DT</strong></td>
                                             <td><span style="color: var(--text-muted); font-size: 0.85rem;"><?= htmlspecialchars(substr($commande['adresse_livraison'], 0, 30)) ?></span></td>
+                                            <td><span class="badge badge-info"><?= htmlspecialchars($commande['mode_paiement'] ?? 'Non spécifié') ?></span></td>
                                             <td><?= getStatusBadge($commande['statut']) ?></td>
                                             <td>
                                                 <form method="POST" style="display: inline-block; margin-right: 0.5rem;">

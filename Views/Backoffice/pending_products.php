@@ -83,6 +83,10 @@ $pendingProductsPagines = array_slice($pendingProducts, $startIndex, $itemsPerPa
                 <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
+                <a href="./notification.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;"><?= count($pendingProducts) + 2 ?></span>
+                </a>
 
             </div>
 
@@ -103,10 +107,10 @@ $pendingProductsPagines = array_slice($pendingProducts, $startIndex, $itemsPerPa
                     <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>
@@ -178,13 +182,30 @@ $pendingProductsPagines = array_slice($pendingProducts, $startIndex, $itemsPerPa
                                         </div>
                                     </div>
                                     
+                                    <!-- Smart Moderator AI Section -->
+                                    <div id="ai-mod-<?= $pending['idProduit'] ?>" style="background: rgba(59, 130, 246, 0.03); border: 1px solid rgba(59, 130, 246, 0.1); border-radius: 0.75rem; padding: 0.75rem;">
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                            <span style="font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em;">Smart Moderator</span>
+                                            <button onclick="moderateProduct(<?= $pending['idProduit'] ?>, '<?= base64_encode($pending['nom'] . ' ' . $pending['description']) ?>', true)" class="admin-btn" style="padding: 0.2rem 0.6rem; font-size: 0.7rem; background: rgba(59, 130, 246, 0.15); border-color: rgba(59, 130, 246, 0.2); color: #60a5fa;">
+                                                <i class="fa-solid fa-wand-magic-sparkles"></i> Analyser
+                                            </button>
+                                        </div>
+                                        <div id="ai-res-<?= $pending['idProduit'] ?>" style="font-size: 0.8rem; color: #cbd5e1; display: none; line-height: 1.4;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                                                <span class="ai-status-badge"></span>
+                                                <span class="ai-score-label"></span>
+                                            </div>
+                                            <p class="ai-reason-text" style="margin: 0; color: #94a3b8; font-style: italic;"></p>
+                                        </div>
+                                    </div>
+                                    
                                     <div style="display: flex; gap: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.25rem; margin-top: auto;">
                                         <a href="./pending_products.php?product_action=approve&id=<?= $pending['idProduit'] ?>" class="btn" style="flex: 1; text-align: center; background: linear-gradient(135deg, #10b981 0%, #059669 100%); justify-content: center; gap: 0.5rem;">
                                             <i class="fa-solid fa-check"></i> Accepter
                                         </a>
-                                        <a href="./pending_products.php?product_action=reject&id=<?= $pending['idProduit'] ?>" class="btn btn-danger js-delete-link" style="flex: 1; text-align: center; justify-content: center; gap: 0.5rem;" onclick="return confirm('Êtes-vous sûr de vouloir refuser ce produit ? Il sera supprimé.');">
+                                         <a href="#" class="btn btn-danger js-delete-link" style="flex: 1; text-align: center; justify-content: center; gap: 0.5rem;" onclick="openRejectModal(<?= $pending['idProduit'] ?>); return false;">
                                             <i class="fa-solid fa-xmark"></i> Refuser
-                                        </a>
+                                         </a>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -246,6 +267,96 @@ $pendingProductsPagines = array_slice($pendingProducts, $startIndex, $itemsPerPa
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="../assets/pdf_export.js"></script>
     <script src="../assets/js.js?v=2"></script>
+    <script>
+    let rejectId = null;
+    function openRejectModal(id) {
+        rejectId = id;
+        document.getElementById('rejectModal').style.display = 'flex';
+    }
+    function closeRejectModal() {
+        document.getElementById('rejectModal').style.display = 'none';
+    }
+    function confirmReject() {
+        if (rejectId) {
+            window.location.href = `./pending_products.php?product_action=reject&id=${rejectId}`;
+        }
+    }
+
+    async function moderateProduct(id, text, isBase64 = false) {
+        if (isBase64) {
+            try {
+                // Handle UTF-8 correctly
+                const binaryString = atob(text);
+                const bytes = new Uint8Array(binaryString.length);
+                for (let i = 0; i < binaryString.length; i++) {
+                    bytes[i] = binaryString.charCodeAt(i);
+                }
+                text = new TextDecoder().decode(bytes);
+            } catch(e) {
+                text = atob(text);
+            }
+        }
+        const resDiv = document.getElementById('ai-res-' + id);
+        const modDiv = document.getElementById('ai-mod-' + id);
+        const btn = modDiv.querySelector('button');
+        
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Analyse...';
+        
+        try {
+            const response = await fetch('api_moderate.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            
+            const data = await response.json();
+            
+            resDiv.style.display = 'block';
+            const badge = resDiv.querySelector('.ai-status-badge');
+            const scoreLabel = resDiv.querySelector('.ai-score-label');
+            const reasonText = resDiv.querySelector('.ai-reason-text');
+            
+            if (data.error) {
+                badge.style.display = 'none';
+                scoreLabel.textContent = "Erreur: " + data.error;
+                reasonText.textContent = "";
+            } else {
+                badge.style.display = 'inline-block';
+                badge.textContent = data.status === 'APPROVED' ? 'VALIDE' : 'RISQUE';
+                badge.style.background = data.status === 'APPROVED' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+                badge.style.color = data.status === 'APPROVED' ? '#10b981' : '#ef4444';
+                badge.style.padding = '0.1rem 0.4rem';
+                badge.style.borderRadius = '0.25rem';
+                badge.style.fontSize = '0.65rem';
+                badge.style.fontWeight = '700';
+                
+                scoreLabel.textContent = 'Confiance: ' + data.score + '%';
+                reasonText.textContent = '« ' + data.reason + ' »';
+            }
+        } catch (e) {
+            alert('Erreur lors de la modération IA');
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> Analyser';
+        }
+    }
+    </script>
+
+    <!-- Custom Reject Modal -->
+    <div id="rejectModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 9999; align-items: center; justify-content: center; padding: 1.5rem;">
+        <div class="glass-card" style="max-width: 450px; width: 100%; padding: 2rem; border: 1px solid rgba(239, 68, 68, 0.2); text-align: center;">
+            <div style="width: 64px; height: 64px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                <i class="fa-solid fa-triangle-exclamation" style="font-size: 1.75rem; color: #ef4444;"></i>
+            </div>
+            <h2 style="font-size: 1.5rem; margin-bottom: 0.75rem; color: white;">Confirmer le refus ?</h2>
+            <p style="color: #94a3b8; margin-bottom: 2rem; line-height: 1.6;">Êtes-vous sûr de vouloir refuser ce produit ? Cette action est irréversible et le produit sera supprimé.</p>
+            <div style="display: flex; gap: 1rem;">
+                <button onclick="closeRejectModal()" class="admin-btn-outline" style="flex: 1; justify-content: center;">Annuler</button>
+                <button onclick="confirmReject()" class="admin-btn" style="flex: 1; background: #ef4444; border: none; justify-content: center;">Confirmer le refus</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 

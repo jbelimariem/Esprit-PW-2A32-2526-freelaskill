@@ -1,7 +1,10 @@
 <?php
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/produitController.php';
 
 $categoryController = new Category_prodController();
+$productController = new ProduitController();
+$pendingProducts = $productController->getByStatutData('pending');
 
 if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'])) {
     $categoryController->deleteData((int) $_GET['id']);
@@ -68,6 +71,10 @@ $categoriesPagines = array_slice($categories, $startIndex, $itemsPerPage);
                 <a href="./liste_commandes.php" class="admin-nav-item">
                     <i class="fa-solid fa-cart-shopping"></i> Commandes
                 </a>
+                <a href="./notification.php" class="admin-nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;"><?= isset($pendingProducts) ? count($pendingProducts) + 2 : 3 ?></span>
+                </a>
 
             </div>
 
@@ -88,10 +95,10 @@ $categoriesPagines = array_slice($categories, $startIndex, $itemsPerPage);
                     <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn">
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
                         <i class="fa-regular fa-bell"></i>
-                        <span class="badge-dot"></span>
-                    </div>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>

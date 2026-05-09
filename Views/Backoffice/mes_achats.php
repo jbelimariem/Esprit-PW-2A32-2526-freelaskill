@@ -9,6 +9,7 @@ if (!isset($_SESSION['admin_id'])) {
 }
 
 $produitController = new ProduitController();
+$pendingProducts = $produitController->getByStatutData('pending');
 
 // Gestion de la suppression
 if (isset($_GET['delete_id'])) {

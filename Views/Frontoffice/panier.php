@@ -1,3 +1,8 @@
+<?php
+require_once __DIR__ . '/../../controllers/NotificationController.php';
+$notifController = new NotificationController();
+$unreadCount = $notifController->getUnreadCount(1);
+?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
 <head>
@@ -50,6 +55,8 @@
         #checkout-btn.loading .btn-spinner { display: inline-block; }
         @keyframes spin { to { transform: rotate(360deg); } }
     </style>
+    <!-- Stripe JS SDK -->
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body class="page-anim cart-page">
 
@@ -113,6 +120,15 @@
                 <a href="mes_ventes.php" class="nav-item">
                     <i class="fa-solid fa-tag"></i> Mes ventes
                 </a>
+                <a href="mes_commandes.php" class="nav-item">
+                    <i class="fa-solid fa-receipt"></i> Mes commandes
+                </a>
+                <a href="notifications.php" class="nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <?php if($unreadCount > 0): ?>
+                        <span style="background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; margin-left:auto;"><?= $unreadCount ?></span>
+                    <?php endif; ?>
+                </a>
                 <a href="vendreproduit.php" class="nav-item">
                     <i class="fa-solid fa-plus-circle"></i> Vendre un produit
                 </a>
@@ -173,6 +189,27 @@
                     <span class="address-error" id="adresse-error">Veuillez saisir votre adresse de livraison.</span>
                 </div>
 
+              
+
+
+                <div class="address-block" style="margin-top: 1.5rem;">
+                    <label><i class="fa-solid fa-credit-card"></i> Mode de paiement</label>
+                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="mode_paiement" value="Sur place" checked style="display: none;">
+                            <div class="payment-opt active" data-val="Sur place" style="padding: 0.75rem; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 0.75rem; text-align: center; transition: 0.3s; background: rgba(255,255,255,0.03);">
+                                <i class="fa-solid fa-hand-holding-dollar"></i><br><span style="font-size: 0.75rem;">Sur place</span>
+                            </div>
+                        </label>
+                        <label style="flex: 1; cursor: pointer;">
+                            <input type="radio" name="mode_paiement" value="En ligne" style="display: none;">
+                            <div class="payment-opt" data-val="En ligne" style="padding: 0.75rem; border: 1.5px solid rgba(255,255,255,0.1); border-radius: 0.75rem; text-align: center; transition: 0.3s; background: rgba(255,255,255,0.03);">
+                                <i class="fa-solid fa-globe"></i><br><span style="font-size: 0.75rem;">En ligne</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
                 <button id="checkout-btn" class="btn-cart" style="margin-top:.75rem;">
                     <span class="btn-spinner"></span>
                     <i class="fa-solid fa-check" id="checkout-icon"></i>
@@ -201,7 +238,7 @@
     <span class="toast-sub"   id="toast-sub"></span>
 </div>
 
-<script src="../assets/js.js?v=4"></script>
+<script src="../assets/js.js?v=6"></script>
 <script>
 (function () {
     function showToast(success, title, sub) {
@@ -220,6 +257,19 @@
             ? parts.slice(0, idx + 1).join('/') + '/api/create_order.php'
             : '../../api/create_order.php';
     }
+
+    function getStripeApiUrl() {
+        var parts = window.location.pathname.split('/');
+        var idx   = parts.indexOf('Esprit-PW-2A32-2526-TalentBridge');
+        return idx !== -1
+            ? parts.slice(0, idx + 1).join('/') + '/api/create_stripe_session.php'
+            : '../../api/create_stripe_session.php';
+    }
+
+    // Initialisation Stripe
+    var stripe = Stripe('pk_test_your_public_key'); // Elle sera remplacée par la constante PHP ci-dessous
+    <?php require_once __DIR__ . '/../../config.php'; ?>
+    stripe = Stripe('<?= STRIPE_PUBLIC_KEY ?>');
 
     var btn        = document.getElementById('checkout-btn');
     var adresseEl  = document.getElementById('adresse-livraison');
@@ -250,10 +300,52 @@
         iconEl.style.display = 'none';
         labelEl.textContent  = 'Envoi en cours…';
 
+        var modePaiement = document.querySelector('input[name="mode_paiement"]:checked').value;
+        var modeLivraison = "Standard";
+
+        // SI PAIEMENT EN LIGNE -> REDIRECTION STRIPE
+        if (modePaiement === 'En ligne') {
+            var total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            
+            // On mappe les données pour que le backend reçoive les bons noms de clés
+            var formattedItems = cart.map(item => ({
+                idProduit: item.id,
+                nom: item.title,
+                prix: item.price,
+                quantite: item.quantity,
+                image: item.imageSrc
+            }));
+
+            fetch(getStripeApiUrl(), {
+                method : 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body   : JSON.stringify({ 
+                    items: formattedItems,
+                    adresse: adresse,
+                    total: total,
+                    user_id: 1 
+                })
+            })
+            .then(res => res.json())
+            .then(session => {
+                if (session.error) throw new Error(session.error);
+                return stripe.redirectToCheckout({ sessionId: session.id });
+            })
+            .catch(err => {
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                iconEl.style.display = '';
+                labelEl.textContent  = 'Valider la commande';
+                showToast(false, 'Erreur Stripe', err.message);
+            });
+            return;
+        }
+
+        // SI PAIEMENT SUR PLACE -> LOGIQUE HABITUELLE
         fetch(getApiUrl(), {
             method : 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body   : JSON.stringify({ cart: cart, adresse: adresse })
+            body   : JSON.stringify({ cart: cart, adresse: adresse, mode_paiement: modePaiement, mode_livraison: modeLivraison })
         })
         .then(function (res) {
             if (!res.ok) return res.text().then(function (t) { throw new Error('HTTP ' + res.status + ' : ' + t); });
@@ -266,8 +358,11 @@
             labelEl.textContent  = 'Valider la commande';
             if (data.success) {
                 clearCart();
+                var mailInfo = data.mail_sent
+                    ? ' Email envoye.'
+                    : ' Email non envoye : ' + (data.mail_error || 'configuration SMTP a verifier.');
                 showToast(true, 'Commande #' + data.order_id + ' créée !',
-                    'Montant : ' + Number(data.montant).toLocaleString('fr-FR') + ' DT — Merci !');
+                    'Montant : ' + Number(data.montant).toLocaleString('fr-FR') + ' DT. ' + mailInfo);
                 setTimeout(function () { window.location.href = 'home.php'; }, 2500);
             } else {
                 showToast(false, 'Erreur', data.error || 'Impossible de créer la commande.');
@@ -288,6 +383,26 @@
             adresseErr.classList.remove('show');
         }
     });
+
+    // Toggle visual for payment options
+    document.querySelectorAll('input[name="mode_paiement"]').forEach(function(input) {
+        input.addEventListener('change', function() {
+            document.querySelectorAll('.payment-opt').forEach(function(opt) {
+                opt.classList.remove('active');
+                opt.style.borderColor = 'rgba(255,255,255,0.1)';
+                opt.style.background = 'rgba(255,255,255,0.03)';
+            });
+            var div = this.nextElementSibling;
+            div.classList.add('active');
+            div.style.borderColor = '#3b82f6';
+            div.style.background = 'rgba(59,130,246,0.1)';
+        });
+    });
+    // Init first one payment
+    var activeOpt = document.querySelector('input[name="mode_paiement"]:checked').nextElementSibling;
+    activeOpt.style.borderColor = '#3b82f6';
+    activeOpt.style.background = 'rgba(59,130,246,0.1)';
+
 })();
 </script>
 </body>

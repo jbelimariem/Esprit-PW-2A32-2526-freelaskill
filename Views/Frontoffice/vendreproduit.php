@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/NotificationController.php';
+
+$notifController = new NotificationController();
+$unreadCount = $notifController->getUnreadCount(1);
 
 $controller = new ProduitController();
 $errors = [];
@@ -39,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'prix' => $price,
             'category_id' => $category,
             'statut' => 'pending',
+            'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
             'stock' => 1,
             'image' => $imagePath,
             'user_id' => $_SESSION['admin_id'] ?? 1
@@ -107,6 +112,15 @@ $categories = $categoryController->getAllData();
                 <a href="mes_ventes.php" class="nav-item">
                     <i class="fa-solid fa-tag"></i> Mes ventes
                 </a>
+                <a href="mes_commandes.php" class="nav-item">
+                    <i class="fa-solid fa-receipt"></i> Mes commandes
+                </a>
+                <a href="notifications.php" class="nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <?php if($unreadCount > 0): ?>
+                        <span style="background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; margin-left:auto;"><?= $unreadCount ?></span>
+                    <?php endif; ?>
+                </a>
                 <a href="vendreproduit.php" class="nav-item active">
                     <i class="fa-solid fa-plus-circle"></i> Vendre un produit
                 </a>
@@ -169,8 +183,27 @@ $categories = $categoryController->getAllData();
                     </div>
                     
                     <div style="grid-column: 1 / -1;">
-                        <label for="description" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Description détaillée</label>
-                        <textarea id="description" name="description" rows="5" placeholder="Décrivez l'état, les caractéristiques techniques, les défauts éventuels et les informations concernant la remise ou livraison..." class="price-input" style="width: 100%; resize: vertical; min-height: 120px;"></textarea>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem;">
+                            <label for="description" style="color:#94A3B8; font-size:.9rem; font-weight: 500;">Description détaillée</label>
+                            <button type="button" id="toggle-ai-btn" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--tech-blue); padding: 0.3rem 0.8rem; border-radius: 0.5rem; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; transition: all 0.3s;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Générer avec IA
+                            </button>
+                        </div>
+
+                        <!-- AI Prompt Input (Hidden by default) -->
+                        <div id="ai-prompt-container" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); border-radius: 0.8rem; animation: slideDown 0.3s ease;">
+                            <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 0.5rem;">Décrivez brièvement le produit (ex: iPhone 13 bleu, 128Go, batterie 90%)</p>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="ai-prompt-input" placeholder="Quel produit vendez-vous ?" class="price-input" style="flex: 1; margin-bottom: 0;">
+                                <button type="button" id="generate-ai-btn" style="background: var(--tech-blue); color: white; border: none; padding: 0 1.2rem; border-radius: 0.5rem; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                                    <span id="ai-btn-text">Générer</span>
+                                    <i id="ai-btn-icon" class="fa-solid fa-paper-plane"></i>
+                                </button>
+                            </div>
+                            <div id="ai-error" style="color: #ef4444; font-size: 0.75rem; margin-top: 0.5rem; display: none;"></div>
+                        </div>
+
+                        <textarea id="description" name="description" rows="5" placeholder="Décrivez l'état, les caractéristiques techniques, les défauts éventuels..." class="price-input" style="width: 100%; resize: vertical; min-height: 120px;"></textarea>
                     </div>
                     
                     <div style="grid-column: 1 / -1; margin-bottom: 0.5rem;">
@@ -185,15 +218,30 @@ $categories = $categoryController->getAllData();
                         <div id="image-error-container" style="min-height:1.25rem; margin-top:0.5rem; color:#f87171; font-size:0.93rem; line-height:1.3;"></div>
                     </div>
                     
-                    <div>
-                        <label for="availability" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité actuelle</label>
-                        <select id="availability" name="availability" class="price-input" style="width: 100%;">
-                            <option value="">Sélectionnez</option>
-                            <option>Immédiate</option>
-                            <option>Sous quelques jours</option>
-                        </select>
+                    <div style="grid-column: 1 / -1;">
+                        <label style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité</label>
+                        <div class="mkt-sidebar-section" style="gap: 0.5rem;">
+                            <input type="radio" id="dispo_immediate" name="disponibilite" value="Disponible maintenant" style="display:none;" />
+                            <label for="dispo_immediate" class="filter-option" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-circle-check" style="color:#10b981;margin-right:.4rem;"></i>Disponible maintenant</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_deux_semaines" name="disponibilite" value="Dans 2 semaines" style="display:none;" />
+                            <label for="dispo_deux_semaines" class="filter-option" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-clock" style="color:#f59e0b;margin-right:.4rem;"></i>Dans 2 semaines</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_un_mois" name="disponibilite" value="Dans 1 mois" style="display:none;" />
+                            <label for="dispo_un_mois" class="filter-option" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-clock" style="color:#f59e0b;margin-right:.4rem;"></i>Dans 1 mois</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_non_disponible" name="disponibilite" value="Non disponible" style="display:none;" />
+                            <label for="dispo_non_disponible" class="filter-option" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-circle-xmark" style="color:#ef4444;margin-right:.4rem;"></i>Non disponible</span>
+                            </label>
+                        </div>
                     </div>
-                    <div></div> <!-- Empty cell for alignment if needed, but we keep flex below -->
                     
                     <div style="grid-column: 1 / -1; display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 2rem;">
                         <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem; font-size: 1.05rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--tech-blue); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);"><i class="fa-solid fa-paper-plane"></i> Publier l'annonce</button>
@@ -208,6 +256,90 @@ $categories = $categoryController->getAllData();
     </div>
 </div>
 
-<script src="../assets/js.js?v=2"></script>
+<script>
+// Handle availability option selection
+document.querySelectorAll('input[name="disponibilite"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('label[for^="dispo_"]').forEach(label => {
+            label.classList.remove('active');
+        });
+        if (this.checked) {
+            document.querySelector('label[for="' + this.id + '"]').classList.add('active');
+        }
+    });
+});
+// Set active state on load if a radio is checked
+document.querySelectorAll('input[name="disponibilite"]:checked').forEach(radio => {
+    const label = document.querySelector('label[for="' + radio.id + '"]');
+    if (label) label.classList.add('active');
+});
+</script>
+<script src="../assets/js.js?v=6"></script>
+<script>
+// AI Generation Logic
+const toggleAiBtn = document.getElementById('toggle-ai-btn');
+const aiPromptContainer = document.getElementById('ai-prompt-container');
+const aiPromptInput = document.getElementById('ai-prompt-input');
+const generateAiBtn = document.getElementById('generate-ai-btn');
+const aiBtnText = document.getElementById('ai-btn-text');
+const aiBtnIcon = document.getElementById('ai-btn-icon');
+const descriptionField = document.getElementById('description');
+const aiError = document.getElementById('ai-error');
+
+toggleAiBtn.addEventListener('click', () => {
+    const isHidden = aiPromptContainer.style.display === 'none';
+    aiPromptContainer.style.display = isHidden ? 'block' : 'none';
+    if(isHidden) aiPromptInput.focus();
+});
+
+generateAiBtn.addEventListener('click', async () => {
+    const prompt = aiPromptInput.value.trim();
+    if(!prompt) {
+        aiError.textContent = "Veuillez entrer quelques mots sur votre produit.";
+        aiError.style.display = 'block';
+        return;
+    }
+
+    aiError.style.display = 'none';
+    aiBtnText.textContent = "Génération...";
+    aiBtnIcon.className = "fa-solid fa-circle-notch fa-spin";
+    generateAiBtn.disabled = true;
+
+    try {
+        const response = await fetch('api_generate_ai.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt })
+        });
+
+        const data = await response.json();
+
+        if(data.error) {
+            aiError.textContent = data.error;
+            aiError.style.display = 'block';
+        } else if(data.text) {
+            descriptionField.value = data.text;
+            aiPromptContainer.style.display = 'none';
+            aiPromptInput.value = '';
+            // Trigger animation on textarea
+            descriptionField.style.borderColor = 'var(--tech-blue)';
+            setTimeout(() => descriptionField.style.borderColor = '', 1000);
+        }
+    } catch (error) {
+        aiError.textContent = "Une erreur est survenue lors de la connexion à l'IA.";
+        aiError.style.display = 'block';
+    } finally {
+        aiBtnText.textContent = "Générer";
+        aiBtnIcon.className = "fa-solid fa-paper-plane";
+        generateAiBtn.disabled = false;
+    }
+});
+</script>
+<style>
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </body>
 </html>

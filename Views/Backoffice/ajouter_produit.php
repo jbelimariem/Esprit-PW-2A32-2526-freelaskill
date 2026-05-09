@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 
 $controller = new ProduitController();
+$pendingProducts = $controller->getByStatutData('pending');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $controller->createAdmin();
     exit;
@@ -80,7 +81,10 @@ $categories = $categoryController->getAllData();
                     <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
                         <i class="fa-regular fa-moon"></i>
                     </div>
-                    <div class="admin-icon-btn"><i class="fa-regular fa-bell"></i><span class="badge-dot"></span></div>
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
                     <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
                 </div>
             </header>

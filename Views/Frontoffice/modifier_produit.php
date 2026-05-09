@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/NotificationController.php';
+
+$notifController = new NotificationController();
+$unreadCount = $notifController->getUnreadCount(1);
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
@@ -34,7 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'description' => $_POST['description'],
         'prix'        => $price,
         'category_id' => $_POST['category'],
-        'statut'      => $_POST['availability'],
+        'statut'      => $produit['statut'],
+        'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
         'stock'       => $produit['stock'],
         'image'       => $imagePath
     ];
@@ -51,7 +56,7 @@ $categories = $categoryController->getAllData();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendre un produit — FreelaSkill</title>
+    <title>Modifier l'annonce — FreelaSkill</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=6">
@@ -67,18 +72,20 @@ $categories = $categoryController->getAllData();
         <button class="theme-toggle-btn" style="background: none; border: none; color: #e2e8f0; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;" title="Toggle dark/light mode">
             <i class="fa-regular fa-moon"></i>
         </button>
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px;">
+            <i class="fa-solid fa-bell"></i>
+            <?php if($unreadCount > 0): ?>
+                <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
+            <?php endif; ?>
+        </a>
         <a href="home.php" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
-            <i class="fa-solid fa-arrow-left"></i> Retour
+            <i class="fa-solid fa-arrow-left"></i> Boutique
         </a>
     </div>
 </nav>
 
-<!-- MARKETPLACE LAYOUT -->
 <div class="marketplace-layout">
-
-    <!-- ── SIDEBAR ── -->
     <aside class="mkt-sidebar">
-        <!-- Card 1 : Modifier -->
         <div class="mkt-profile-card">
             <div class="mkt-profile-header">
                 <div class="mkt-avatar"><i class="fa-solid fa-pen"></i></div>
@@ -87,7 +94,6 @@ $categories = $categoryController->getAllData();
             </div>
         </div>
 
-        <!-- Card 2 : Navigation -->
         <div class="mkt-sidebar-card">
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
@@ -100,6 +106,15 @@ $categories = $categoryController->getAllData();
                 <a href="mes_ventes.php" class="nav-item">
                     <i class="fa-solid fa-tag"></i> Mes ventes
                 </a>
+                <a href="mes_commandes.php" class="nav-item">
+                    <i class="fa-solid fa-receipt"></i> Mes commandes
+                </a>
+                <a href="notifications.php" class="nav-item">
+                    <i class="fa-solid fa-bell"></i> Notifications
+                    <?php if($unreadCount > 0): ?>
+                        <span style="background:#ef4444; color:white; border-radius:50%; width:18px; height:18px; font-size:10px; display:flex; align-items:center; justify-content:center; margin-left:auto;"><?= $unreadCount ?></span>
+                    <?php endif; ?>
+                </a>
                 <a href="vendreproduit.php" class="nav-item">
                     <i class="fa-solid fa-plus-circle"></i> Vendre un produit
                 </a>
@@ -107,10 +122,7 @@ $categories = $categoryController->getAllData();
         </div>
     </aside>
 
-    <!-- MAIN PANEL -->
     <div class="mkt-main">
-
-        <!-- HERO -->
         <section class="hero-banner" style="padding: 2rem 2rem 3rem;">
             <div class="hero-glow"></div>
             <div class="hero-glow-2"></div>
@@ -123,9 +135,6 @@ $categories = $categoryController->getAllData();
 
         <div class="products-toolbar" style="flex-direction: column; align-items: stretch; gap: 1rem; margin-bottom: 2rem; width:100%;">
             <p class="result-count"><strong>Formulaire de modification</strong></p>
-            <div class="toolbar-right" style="flex-wrap: wrap; gap: 1rem;">
-                <button class="view-btn active" title="Modifier le produit"><i class="fa-solid fa-pen"></i></button>
-            </div>
         </div>
 
         <div class="product-card" style="opacity: 1; max-width: 850px; margin: 0 auto; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
@@ -152,9 +161,26 @@ $categories = $categoryController->getAllData();
                         <input id="price" name="price" type="number" min="1" value="<?= htmlspecialchars($produit['prix']) ?>" class="price-input" style="width: 100%;">
                     </div>
                     
-                    <div style="grid-column: 1 / -1;">
-                        <label for="description" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Description détaillée</label>
-                        <textarea id="description" name="description" rows="5" class="price-input" style="width: 100%; resize: vertical; min-height: 120px;"> <?= htmlspecialchars($produit['description']) ?></textarea>
+                    <div style="grid-column: 1 / -1; margin-bottom: 0.5rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
+                            <label for="description" style="margin-bottom:0; color:#94A3B8; font-size:.9rem; font-weight: 500;">Description détaillée</label>
+                            <button type="button" id="toggle-ai-prompt" style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--tech-blue); padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                                <i class="fa-solid fa-wand-magic-sparkles"></i> Générer avec l'IA
+                            </button>
+                        </div>
+                        
+                        <!-- AI Prompt Input (Hidden by default) -->
+                        <div id="ai-prompt-container" style="display: none; margin-bottom: 1rem; animation: slideDown 0.3s ease-out;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <input type="text" id="ai-prompt-input" placeholder="Décrivez votre produit en quelques mots (ex: PC Gamer RTX 4090...)" style="flex: 1; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.75rem; border-radius: 8px; font-size: 0.9rem;">
+                                <button type="button" id="generate-ai-btn" style="background: var(--tech-blue); border: none; color: white; padding: 0 1.25rem; border-radius: 8px; cursor: pointer; font-weight: 600;">
+                                    <i class="fa-solid fa-paper-plane" id="ai-btn-icon"></i> <span id="ai-btn-text">Générer</span>
+                                </button>
+                            </div>
+                            <p id="ai-error" style="color: #ef4444; font-size: 0.8rem; margin-top: 0.5rem; display: none;"></p>
+                        </div>
+
+                        <textarea id="description" name="description" rows="5" class="price-input" style="width: 100%; resize: vertical; min-height: 120px;"><?= htmlspecialchars($produit['description']) ?></textarea>
                     </div>
                     
                     <div style="grid-column: 1 / -1; margin-bottom: 0.5rem;">
@@ -168,24 +194,36 @@ $categories = $categoryController->getAllData();
                         </label>
                     </div>
                     
-                    <div>
-                        <label for="availability" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité actuelle</label>
-                        <select id="availability" name="availability" class="price-input" style="width: 100%;">
-                            <option value="">Sélectionnez</option>
-                            <option <?= $produit['statut'] === 'Immédiate' || $produit['statut'] === 'disponible' ? 'selected' : '' ?> value="disponible">Immédiate / Disponible</option>
-                            <option <?= $produit['statut'] === 'Sous quelques jours' ? 'selected' : '' ?> value="Sous quelques jours">Sous quelques jours</option>
-                        </select>
+                    <div style="grid-column: 1 / -1;">
+                        <label style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité</label>
+                        <div class="mkt-sidebar-section" style="display:flex; flex-wrap:wrap; gap: 0.5rem;">
+                            <input type="radio" id="dispo_immediate" name="disponibilite" value="Disponible maintenant" style="display:none;" <?= ($produit['disponibilite'] ?? 'Disponible maintenant') === 'Disponible maintenant' ? 'checked' : '' ?> />
+                            <label for="dispo_immediate" class="filter-option <?= ($produit['disponibilite'] ?? 'Disponible maintenant') === 'Disponible maintenant' ? 'active' : '' ?>" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-circle-check" style="color:#10b981;margin-right:.4rem;"></i>Disponible</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_deux_semaines" name="disponibilite" value="Dans 2 semaines" style="display:none;" <?= ($produit['disponibilite'] ?? '') === 'Dans 2 semaines' ? 'checked' : '' ?> />
+                            <label for="dispo_deux_semaines" class="filter-option <?= ($produit['disponibilite'] ?? '') === 'Dans 2 semaines' ? 'active' : '' ?>" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-clock" style="color:#f59e0b;margin-right:.4rem;"></i>2 semaines</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_un_mois" name="disponibilite" value="Dans 1 mois" style="display:none;" <?= ($produit['disponibilite'] ?? '') === 'Dans 1 mois' ? 'checked' : '' ?> />
+                            <label for="dispo_un_mois" class="filter-option <?= ($produit['disponibilite'] ?? '') === 'Dans 1 mois' ? 'active' : '' ?>" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-clock" style="color:#f59e0b;margin-right:.4rem;"></i>1 mois</span>
+                            </label>
+                            
+                            <input type="radio" id="dispo_non_disponible" name="disponibilite" value="Non disponible" style="display:none;" <?= ($produit['disponibilite'] ?? '') === 'Non disponible' ? 'checked' : '' ?> />
+                            <label for="dispo_non_disponible" class="filter-option <?= ($produit['disponibilite'] ?? '') === 'Non disponible' ? 'active' : '' ?>" style="cursor: pointer; margin-bottom: 0;">
+                                <span><i class="fa-solid fa-circle-xmark" style="color:#ef4444;margin-right:.4rem;"></i>Indisponible</span>
+                            </label>
+                        </div>
                     </div>
-                    <div></div> <!-- Empty cell for alignment if needed, but we keep flex below -->
                     
                     <div style="grid-column: 1 / -1; display:flex; gap:1.5rem; flex-wrap:wrap; align-items:center; margin-top: 1rem; border-top: 1px solid var(--border); padding-top: 2rem;">
-                        <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem; font-size: 1.05rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--tech-blue); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);"><i class="fa-solid fa-save"></i> Enregistrer les modifications</button>
+                        <button type="submit" class="btn-submit" style="width:auto; padding: 0.9rem 2.5rem; font-size: 1.05rem; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); color: var(--tech-blue); border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);"><i class="fa-solid fa-save"></i> Enregistrer</button>
                         <a href="mes_ventes.php" style="color: var(--text-muted); font-size: 0.9rem; text-decoration: none; font-weight: 500;">Annuler</a>
                     </div>
                 </form>
-                <div id="sell-confirmation" style="display:none; margin-top:1.5rem; color: var(--tech-green); font-weight: 500; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 1rem; border-radius: var(--radius-sm); text-align: center;">
-                    <i class="fa-solid fa-circle-check"></i> 
-                </div>
             </div>
         </div>
     </div>
@@ -199,46 +237,88 @@ const imagePrompt = document.getElementById('image-prompt');
 
 imageInput.addEventListener('change', () => {
     const file = imageInput.files[0];
-    if (!file) {
-        imagePreview.style.display = 'none';
-        imagePrompt.textContent = 'Glissez vos images ici ou cliquez pour parcourir';
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            imagePreview.src = e.target.result;
+            imagePreview.style.display = 'block';
+            imagePrompt.textContent = file.name;
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+// AI Generation Logic
+const toggleAiBtn = document.getElementById('toggle-ai-prompt');
+const aiPromptContainer = document.getElementById('ai-prompt-container');
+const aiPromptInput = document.getElementById('ai-prompt-input');
+const generateAiBtn = document.getElementById('generate-ai-btn');
+const aiError = document.getElementById('ai-error');
+const aiBtnText = document.getElementById('ai-btn-text');
+const aiBtnIcon = document.getElementById('ai-btn-icon');
+const descriptionField = document.getElementById('description');
+
+toggleAiBtn.addEventListener('click', () => {
+    const isVisible = aiPromptContainer.style.display === 'block';
+    aiPromptContainer.style.display = isVisible ? 'none' : 'block';
+    if (!isVisible) aiPromptInput.focus();
+});
+
+generateAiBtn.addEventListener('click', async () => {
+    const prompt = aiPromptInput.value.trim();
+    if (!prompt) {
+        aiError.textContent = "Veuillez entrer quelques mots-clés.";
+        aiError.style.display = 'block';
         return;
     }
-    if (!file.type.startsWith('image/')) {
-        imagePrompt.textContent = 'Fichier non valide. Choisissez une image PNG, JPG ou WEBP.';
-        return;
+
+    aiError.style.display = 'none';
+    aiBtnText.textContent = "Génération...";
+    aiBtnIcon.className = "fa-solid fa-circle-notch fa-spin";
+    generateAiBtn.disabled = true;
+
+    try {
+        const response = await fetch('api_generate_ai.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ prompt: prompt })
+        });
+
+        const data = await response.json();
+
+        if(data.error) {
+            aiError.textContent = data.error;
+            aiError.style.display = 'block';
+        } else if(data.text) {
+            descriptionField.value = data.text;
+            aiPromptContainer.style.display = 'none';
+            aiPromptInput.value = '';
+            descriptionField.style.borderColor = 'var(--tech-blue)';
+            setTimeout(() => descriptionField.style.borderColor = '', 1000);
+        }
+    } catch (error) {
+        aiError.textContent = "Une erreur est survenue lors de la connexion à l'IA.";
+        aiError.style.display = 'block';
+    } finally {
+        aiBtnText.textContent = "Générer";
+        aiBtnIcon.className = "fa-solid fa-paper-plane";
+        generateAiBtn.disabled = false;
     }
-    const reader = new FileReader();
-    reader.onload = (event) => {
-        imagePreview.src = event.target.result;
-        imagePreview.style.display = 'block';
-        imagePrompt.textContent = file.name;
-    };
-    reader.readAsDataURL(file);
 });
 
-imageDropzone.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    imageDropzone.style.borderColor = 'rgba(59,130,246,0.8)';
-    imageDropzone.style.background = 'rgba(59,130,246,0.06)';
-});
-
-imageDropzone.addEventListener('dragleave', () => {
-    imageDropzone.style.borderColor = 'rgba(59,130,246,0.3)';
-    imageDropzone.style.background = 'rgba(59,130,246,0.02)';
-});
-
-imageDropzone.addEventListener('drop', (event) => {
-    event.preventDefault();
-    imageDropzone.style.borderColor = 'rgba(59,130,246,0.3)';
-    imageDropzone.style.background = 'rgba(59,130,246,0.02)';
-    const file = event.dataTransfer.files[0];
-    if (file) {
-        imageInput.files = event.dataTransfer.files;
-        imageInput.dispatchEvent(new Event('change'));
-    }
+// Sync radio active state
+document.querySelectorAll('input[name="disponibilite"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        document.querySelectorAll('label[for^="dispo_"]').forEach(l => l.classList.remove('active'));
+        if(this.checked) document.querySelector('label[for="'+this.id+'"]').classList.add('active');
+    });
 });
 </script>
-<script src="../assets/js.js?v=2"></script>
+<style>
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+</style>
 </body>
 </html>

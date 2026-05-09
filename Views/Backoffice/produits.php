@@ -11,6 +11,7 @@ if (!isset($_SESSION['admin_id'])) {
 
 $produitController  = new ProduitController();
 $categoryController = new Category_prodController();
+$pendingProducts = $produitController->getByStatutData('pending');
 
 if (isset($_GET['delete_id'])) {
     $produitController->deleteData($_GET['delete_id'], $_SESSION['admin_id']);

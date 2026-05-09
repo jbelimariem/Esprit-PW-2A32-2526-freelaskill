@@ -88,9 +88,13 @@ function updateCartCount() {
     const total = cart.reduce((sum, item) => sum + item.quantity, 0);
     const amount= cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
-    // Navbar badge
-    const count = document.querySelector('.cart-count');
-    if (count) count.textContent = total;
+    // Navbar cart badges. Some notification badges also use .cart-count,
+    // so only update badges attached to panier links.
+    const countBadges = document.querySelectorAll('a[href*="panier.php"] .cart-count, [data-cart-count]');
+    countBadges.forEach(count => {
+        count.textContent = total;
+        count.style.display = total > 0 ? 'flex' : 'none';
+    });
 
     // Sidebar stats on panier.php
     const sqty = document.getElementById('sidebar-qty');
@@ -108,8 +112,7 @@ function getCardProductData(card) {
     const price = parseInt(priceText.replace(/[^\d]/g, ''), 10) || 0;
     const category = card.querySelector('.card-category')?.textContent.trim() || '';
     
-    const imageText = card.querySelector('.card-image')?.innerText.trim() || '';
-    const icon = imageText.split('\n')[0].trim();
+    const icon = card.querySelector('.card-image > span')?.textContent.trim() || '';
     
     const imgEl = card.querySelector('.card-image img');
     const imageSrc = imgEl ? imgEl.getAttribute('src') : '';
@@ -127,6 +130,11 @@ function addToCart(product) {
         cart.push({ ...product, quantity: 1 });
     }
     saveCart(cart);
+}
+
+function getCartItemIcon(item) {
+    const icon = String(item.icon || '').trim();
+    return icon.toLowerCase().includes('comparer') ? '' : icon;
 }
 
 function renderCartPage() {
@@ -164,7 +172,7 @@ function renderCartPage() {
             <div class="cart-item-left">
                 ${item.imageSrc ? 
                     `<img src="${item.imageSrc}" alt="${item.title}" style="width: 65px; height: 65px; object-fit: cover; border-radius: 0.5rem;">` : 
-                    `<div class="item-icon">${item.icon || '🛍️'}</div>`
+                    `<div class="item-icon">${getCartItemIcon(item) || '<i class="fa-solid fa-box"></i>'}</div>`
                 }
                 <div>
                     <div class="cart-item-name">${item.title}</div>
@@ -220,8 +228,10 @@ viewButtons.forEach(btn => {
 let currentCategoryFilter = 'all';
 let currentSearchTerm = '';
 let currentMinPrice = 0;
-let currentMaxPrice = 3000;
-let currentAvailability = 'all'; // 'all', 'en stock', 'stock faible'
+let currentMaxPrice = 1000000;
+let currentAvailability = 'all'; 
+let visualSearchAllowedIds = null; 
+let visualSearchProductIds = null;
 
 function normalizeFilterValue(value) {
     return value.toString().trim().toLowerCase();
@@ -410,14 +420,9 @@ function initializeFilters() {
     );
 
     if (availabilitySection) {
-        const activeOption = availabilitySection.querySelector('.filter-option.active span');
-        const activeText = normalizeFilterValue(activeOption?.textContent || '');
-        if (activeText.includes('faible')) {
-            currentAvailability = 'stock faible';
-        } else if (activeText.includes('tous')) {
-            currentAvailability = 'all';
-        } else {
-            currentAvailability = 'en stock';
+        const activeOption = availabilitySection.querySelector('.filter-option.active');
+        if (activeOption) {
+            currentAvailability = activeOption.dataset.filter ? normalizeFilterValue(activeOption.dataset.filter) : 'all';
         }
     }
 }
@@ -452,23 +457,35 @@ function applyFilters() {
     cardsArray.forEach(card => {
         const category = normalizeFilterValue(card.querySelector('.card-category')?.textContent || '');
         const title = normalizeFilterValue(card.querySelector('.card-title')?.textContent || '');
+        const description = normalizeFilterValue(card.querySelector('.rating-text')?.textContent || '');
         const priceText = card.querySelector('.price-main')?.textContent.trim() || '0';
         const price = parseInt(priceText.replace(/[^\d]/g, ''), 10) || 0;
         
-        const stockInfo = normalizeFilterValue(card.querySelector('.stock-info')?.textContent || '');
-        let stockState = 'en stock';
-        if (stockInfo.includes('rupture')) stockState = 'rupture';
-        else if (stockInfo.includes('faible')) stockState = 'faible';
+        const dispoText = normalizeFilterValue(card.dataset.dispo || 'disponible maintenant');
         
         const matchesCategory = currentCategoryFilter === 'all' || category === currentCategoryFilter;
-        const matchesSearch = currentSearchTerm === '' || title.includes(currentSearchTerm);
+        
+        // Recherche multi-mots (plus flexible)
+        let matchesSearch = true;
+        if (currentSearchTerm !== '') {
+            const searchWords = currentSearchTerm.split(' ');
+            matchesSearch = searchWords.some(word => title.includes(word) || category.includes(word));
+        }
+
         const matchesPrice = price >= currentMinPrice && price <= currentMaxPrice;
         
         let matchesStock = true;
-        if (currentAvailability === 'en stock') matchesStock = stockState === 'en stock' || stockState === 'faible';
-        else if (currentAvailability === 'stock faible') matchesStock = stockState === 'faible';
+        if (currentAvailability !== 'all') {
+            matchesStock = dispoText === currentAvailability;
+        }
+
+        // Filtre spécifique Recherche Visuelle (si actif)
+        let matchesVisual = true;
+        if (typeof visualSearchAllowedIds !== 'undefined' && visualSearchAllowedIds !== null) {
+            matchesVisual = visualSearchAllowedIds.includes(parseInt(card.dataset.id));
+        }
         
-        if (matchesCategory && matchesSearch && matchesPrice && matchesStock) {
+        if (matchesCategory && matchesSearch && matchesPrice && matchesStock && matchesVisual) {
             card.style.display = '';
             count++;
         } else {
@@ -497,9 +514,7 @@ filterSections.forEach(section => {
                 if (filterTitle === 'catégorie') {
                     currentCategoryFilter = opt.dataset.filter ? normalizeFilterValue(opt.dataset.filter) : 'all';
                 } else if (filterTitle === 'disponibilité') {
-                    if (optText.includes('faible')) currentAvailability = 'stock faible';
-                    else if (optText.includes('tous')) currentAvailability = 'all';
-                    else currentAvailability = 'en stock';
+                    currentAvailability = opt.dataset.filter ? normalizeFilterValue(opt.dataset.filter) : 'all';
                 }
                 
                 applyFilters();
@@ -527,7 +542,7 @@ const priceRange = document.querySelector('input[type="range"]');
 if (priceMinInput && priceMaxInput && priceRange) {
     const syncPrices = () => {
         currentMinPrice = parseInt(priceMinInput.value) || 0;
-        currentMaxPrice = parseInt(priceMaxInput.value) || 3000;
+        currentMaxPrice = parseInt(priceMaxInput.value) || 1000000;
         applyFilters();
     };
 
@@ -546,12 +561,14 @@ const searchBtn = document.getElementById('main-search-btn');
 
 if (searchInput) {
     searchInput.addEventListener('input', (e) => {
+        if (e.isTrusted) visualSearchProductIds = null;
         currentSearchTerm = e.target.value.toLowerCase().trim();
         applyFilters();
     });
     
     if (searchBtn) {
         searchBtn.addEventListener('click', () => {
+            visualSearchProductIds = null;
             currentSearchTerm = searchInput.value.toLowerCase().trim();
             applyFilters();
         });
@@ -687,3 +704,96 @@ function exportToPDF() {
 
     html2pdf().set(opt).from(element).save();
 }
+
+// ==========================================
+// VISUAL SEARCH LOGIC (Search by Image)
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const visualSearchBtn = document.getElementById('visual-search-btn');
+    const visualSearchFile = document.getElementById('visual-search-file');
+    const searchInput = document.getElementById('main-search-input');
+
+    if (!visualSearchBtn || !visualSearchFile) return;
+
+    visualSearchBtn.addEventListener('click', (e) => {
+        console.log("Camera button clicked");
+        e.preventDefault();
+        e.stopPropagation();
+        visualSearchFile.click();
+    });
+
+    visualSearchFile.addEventListener('change', async () => {
+        if (!visualSearchFile.files.length) return;
+
+        const file = visualSearchFile.files[0];
+        const formData = new FormData();
+        formData.append('image', file);
+
+        // UI Loading state
+        const originalBtnIcon = visualSearchBtn.innerHTML;
+        visualSearchBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+        visualSearchBtn.disabled = true;
+
+        try {
+            const response = await fetch('../../api/ai_visual_search.php', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                console.log("Visual Search Description:", data.description);
+                // Mettre à jour l'input de recherche avec la description de l'IA
+                if (searchInput) {
+                    searchInput.value = data.description;
+                    currentSearchTerm = data.description.toLowerCase();
+                    
+                    // Stocker les IDs trouvés par l'IA pour un filtrage précis
+                    if (data.products && data.products.length > 0) {
+                        visualSearchAllowedIds = data.products.map(p => parseInt(p.idProduit));
+                    } else {
+                        visualSearchAllowedIds = []; // Aucun résultat
+                    }
+
+                    applyFilters();
+                    
+                    // Scroll vers les résultats
+                    const grid = document.querySelector('.products-grid');
+                    if (grid) grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    
+                    // Feedback visuel
+                    const resultCount = document.querySelector('.result-count');
+                    if (resultCount) {
+                        resultCount.innerHTML += ` <span id="visual-search-label" style="color: #3b82f6; font-size: 0.8rem; margin-left: 10px; background: rgba(59,130,246,0.1); padding: 4px 10px; border-radius: 20px;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> Image analysée : "${data.description}"
+                            <button onclick="resetVisualSearch()" style="background:none; border:none; color:#ef4444; margin-left:5px; cursor:pointer;"><i class="fa-solid fa-times"></i></button>
+                        </span>`;
+                    }
+                }
+            } else {
+                alert("Erreur de recherche visuelle : " + (data.error || "Inconnu"));
+            }
+        } catch (error) {
+            console.error("Visual Search Error:", error);
+            alert("Erreur lors de la communication avec l'IA.");
+        } finally {
+            visualSearchBtn.innerHTML = originalBtnIcon;
+            visualSearchBtn.disabled = false;
+            visualSearchFile.value = ''; // Reset file input
+        }
+    });
+});
+
+// Fonction pour réinitialiser la recherche visuelle
+window.resetVisualSearch = function() {
+    visualSearchAllowedIds = null;
+    const searchInput = document.getElementById('main-search-input');
+    if (searchInput) searchInput.value = '';
+    currentSearchTerm = '';
+    
+    const label = document.getElementById('visual-search-label');
+    if (label) label.remove();
+    
+    applyFilters();
+};
