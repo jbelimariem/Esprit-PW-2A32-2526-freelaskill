@@ -30,44 +30,45 @@ class AiAssistantController {
         $systemPrompt .= "--- OFFRES DISPONIBLES EN BASE DE DONNÉES ---\n";
         $systemPrompt .= $offersJson;
 
-        // 3. Préparer l'historique de la conversation
-        $contents = [];
+        // 3. Préparer l'historique de la conversation (Format OpenAI/Groq)
+        $messages = [
+            ["role" => "system", "content" => $systemPrompt]
+        ];
+
         foreach ($history as $msg) {
-            $role = ($msg['role'] === 'bot') ? 'model' : 'user';
-            // Ignorer les messages vides pour éviter les erreurs d'API
+            $role = ($msg['role'] === 'bot') ? 'assistant' : 'user';
             if (empty(trim($msg['text']))) continue;
             
-            $contents[] = [
+            $messages[] = [
                 "role" => $role,
-                "parts" => [["text" => $msg['text']]]
+                "content" => $msg['text']
             ];
         }
         
         // Ajouter le message actuel de l'utilisateur
-        $contents[] = [
+        $messages[] = [
             "role" => "user",
-            "parts" => [["text" => $message]]
+            "content" => $message
         ];
 
-        // 4. Appel de l'API Gemini
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
+        // 4. Appel de l'API Groq (OpenAI compatible)
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
         
         $data = [
-            "systemInstruction" => [
-                "parts" => [["text" => $systemPrompt]]
-            ],
-            "contents" => $contents,
-            "generationConfig" => [
-                "temperature" => 0.4 // Équilibre entre créativité et précision
-            ]
+            "model" => "llama-3.3-70b-versatile",
+            "messages" => $messages,
+            "temperature" => 0.4,
+            "max_tokens" => 1024
         ];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . GROQ_API_KEY
+        ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
-        // Désactiver la vérification SSL en local (facultatif mais utile sous XAMPP/Windows)
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
         
         $response = curl_exec($ch);
@@ -77,14 +78,14 @@ class AiAssistantController {
         if ($httpCode !== 200 || !$response) {
             $errorBody = $response ? json_decode($response, true) : null;
             $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
-            error_log("Erreur API Gemini (Freelancer Assistant) [{$httpCode}]: " . $errorMsg);
-            return "⚠️ Je suis désolé, je n'arrive pas à me connecter au serveur d'Intelligence Artificielle. Erreur: " . $errorMsg;
+            error_log("Erreur API Groq (Freelancer Assistant) [{$httpCode}]: " . $errorMsg);
+            return "⚠️ Je suis désolé, je n'arrive pas à me connecter au serveur d'Intelligence Artificielle Groq. Erreur: " . $errorMsg;
         }
 
         $responseData = json_decode($response, true);
         
-        if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
-            return $responseData['candidates'][0]['content']['parts'][0]['text'];
+        if (isset($responseData['choices'][0]['message']['content'])) {
+            return $responseData['choices'][0]['message']['content'];
         }
 
         return "Désolé, je n'ai pas pu comprendre votre demande.";

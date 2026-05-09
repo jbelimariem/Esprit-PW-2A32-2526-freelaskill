@@ -29,35 +29,37 @@ class AiJobGeneratorController {
         $systemPrompt .= "  \"job_data\": null // Si is_complete est true, remplis cet objet avec {\"titre\": \"...\", \"description\": \"...\", \"competences\": \"...\", \"budget\": \"...\", \"delai\": \"...\"}\n";
         $systemPrompt .= "}\n";
 
-        // Construire les contents pour l'historique de Gemini
-        $contents = [];
+        // 3. Préparer l'historique de la conversation (Format OpenAI/Groq)
+        $messages = [
+            ["role" => "system", "content" => $systemPrompt]
+        ];
+
         foreach ($history as $msg) {
-            $role = ($msg['role'] === 'bot') ? 'model' : 'user';
+            $role = ($msg['role'] === 'bot') ? 'assistant' : 'user';
             if (empty(trim($msg['text']))) continue;
             
-            $contents[] = [
+            $messages[] = [
                 "role" => $role,
-                "parts" => [["text" => $msg['text']]]
+                "content" => $msg['text']
             ];
         }
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
         
         $data = [
-            "systemInstruction" => [
-                "parts" => [["text" => $systemPrompt]]
-            ],
-            "contents" => $contents,
-            "generationConfig" => [
-                "temperature" => 0.5,
-                "responseMimeType" => "application/json"
-            ]
+            "model" => "llama-3.3-70b-versatile",
+            "messages" => $messages,
+            "temperature" => 0.5,
+            "response_format" => ["type" => "json_object"]
         ];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . GROQ_API_KEY
+        ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
         
@@ -68,24 +70,20 @@ class AiJobGeneratorController {
         if ($httpCode !== 200 || !$response) {
             $errorBody = $response ? json_decode($response, true) : null;
             $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
-            error_log("Erreur API Gemini (Job Generator) [{$httpCode}]: " . $errorMsg);
-            return ['status' => 'error', 'message' => 'Erreur IA: ' . $errorMsg];
+            error_log("Erreur API Groq (Job Generator) [{$httpCode}]: " . $errorMsg);
+            return ['status' => 'error', 'message' => 'Erreur IA Groq: ' . $errorMsg];
         }
 
         $responseData = json_decode($response, true);
         
-        if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
-            $jsonText = $responseData['candidates'][0]['content']['parts'][0]['text'];
-            
-            $jsonText = trim(str_replace('```json', '', $jsonText));
-            $jsonText = trim(str_replace('```', '', $jsonText));
-            
+        if (isset($responseData['choices'][0]['message']['content'])) {
+            $jsonText = $responseData['choices'][0]['message']['content'];
             $aiData = json_decode($jsonText, true);
             
             if (json_last_error() === JSON_ERROR_NONE && isset($aiData['message'])) {
                 return ['status' => 'success', 'data' => $aiData];
             } else {
-                return ['status' => 'error', 'message' => 'L\'IA a généré un format invalide.'];
+                return ['status' => 'error', 'message' => 'L\'IA Groq a généré un format invalide.'];
             }
         }
 

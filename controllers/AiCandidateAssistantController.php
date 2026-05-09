@@ -31,38 +31,41 @@ class AiCandidateAssistantController {
         $systemPrompt .= "- Réponds de manière concise et utilise du Markdown (gras, listes) pour la clarté.\n";
         $systemPrompt .= "- Ne mentionne pas de données que tu n'as pas.\n";
 
-        $contents = [];
+        $messages = [
+            ["role" => "system", "content" => $systemPrompt]
+        ];
+
         foreach ($history as $msg) {
-            $role = ($msg['role'] === 'bot') ? 'model' : 'user';
+            $role = ($msg['role'] === 'bot') ? 'assistant' : 'user';
             if (empty(trim($msg['text']))) continue;
-            $contents[] = [
+            $messages[] = [
                 "role" => $role,
-                "parts" => [["text" => $msg['text']]]
+                "content" => $msg['text']
             ];
         }
 
-        // Ajouter le message actuel s'il n'est pas dans l'historique
-        $contents[] = [
+        // Ajouter le message actuel
+        $messages[] = [
             "role" => "user",
-            "parts" => [["text" => $message]]
+            "content" => $message
         ];
 
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
+        $url = 'https://api.groq.com/openai/v1/chat/completions';
         
         $data = [
-            "systemInstruction" => [
-                "parts" => [["text" => $systemPrompt]]
-            ],
-            "contents" => $contents,
-            "generationConfig" => [
-                "temperature" => 0.4
-            ]
+            "model" => "llama-3.3-70b-versatile",
+            "messages" => $messages,
+            "temperature" => 0.4,
+            "max_tokens" => 2048
         ];
 
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . GROQ_API_KEY
+        ]);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); 
         
@@ -73,13 +76,13 @@ class AiCandidateAssistantController {
         if ($httpCode !== 200 || !$response) {
             $errorBody = $response ? json_decode($response, true) : null;
             $errorMsg = isset($errorBody['error']['message']) ? $errorBody['error']['message'] : 'HTTP ' . $httpCode;
-            error_log("Erreur API Gemini (Candidate Assistant) [{$httpCode}]: " . $errorMsg);
-            return "⚠️ Erreur IA: " . $errorMsg;
+            error_log("Erreur API Groq (Candidate Assistant) [{$httpCode}]: " . $errorMsg);
+            return "⚠️ Erreur IA Groq: " . $errorMsg;
         }
 
         $responseData = json_decode($response, true);
-        if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
-            return $responseData['candidates'][0]['content']['parts'][0]['text'];
+        if (isset($responseData['choices'][0]['message']['content'])) {
+            return $responseData['choices'][0]['message']['content'];
         }
 
         return "Je n'ai pas pu générer de réponse.";
