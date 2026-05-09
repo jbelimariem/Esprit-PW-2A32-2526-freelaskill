@@ -99,6 +99,10 @@ class EmailApiService
             return $this->sendViaGenericApi($message);
         }
 
+        if ($provider === 'brevo') {
+            return $this->sendViaBrevo($message);
+        }
+
         return $this->sendViaResend($message);
     }
 
@@ -124,6 +128,41 @@ class EmailApiService
                 'Accept: application/json',
                 'Content-Type: application/json',
                 'Authorization: Bearer ' . $apiKey,
+            ],
+            $payload
+        );
+    }
+
+    private function sendViaBrevo(array $message)
+    {
+        $apiKey = trim((string) ($this->config['api_key'] ?? ''));
+
+        if ($apiKey === '') {
+            return ['ok' => false, 'error' => 'Cle API Brevo manquante.'];
+        }
+
+        $payload = [
+            'sender' => [
+                'name'  => $this->getFromName(),
+                'email' => $this->getFromEmail()
+            ],
+            'to' => [
+                [
+                    'email' => $message['to_email'],
+                    'name'  => $message['to_name'] ?? ''
+                ]
+            ],
+            'subject'     => $message['subject'],
+            'htmlContent' => $message['html'],
+            'textContent' => $message['text']
+        ];
+
+        return $this->postJson(
+            'https://api.brevo.com/v3/smtp/email',
+            [
+                'Accept: application/json',
+                'Content-Type: application/json',
+                'api-key: ' . $apiKey,
             ],
             $payload
         );
@@ -304,3 +343,4 @@ class EmailApiService
         </html>';
     }
 }
+

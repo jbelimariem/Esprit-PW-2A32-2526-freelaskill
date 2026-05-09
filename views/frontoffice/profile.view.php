@@ -944,7 +944,7 @@
 
                             <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;">
                                 <!-- Download -->
-                                <a href="../../<?php echo htmlspecialchars($filePath); ?>" download target="_blank"
+                                <a href="<?php echo htmlspecialchars($filePath); ?>" download target="_blank"
                                    style="display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1.1rem;border-radius:10px;font-size:.82rem;font-weight:600;
                                           background:rgba(37,99,235,.12);border:1px solid rgba(37,99,235,.3);color:var(--tech-blue);text-decoration:none;transition:background .2s;"
                                    onmouseover="this.style.background='rgba(37,99,235,.22)'" onmouseout="this.style.background='rgba(37,99,235,.12)'">
@@ -1328,6 +1328,24 @@ function stopFaceRegistration() {
 </div>
 <script src="../assets/badwords.js"></script>
 <script>
+// ── Avatar Picker ──
+function openAvatarPicker() {
+    const input = document.getElementById('avatarInput');
+    if (input) input.click();
+}
+
+// Auto-submit avatar form when file is selected
+document.addEventListener('DOMContentLoaded', function() {
+    const avatarInput = document.getElementById('avatarInput');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                document.getElementById('avatarUploadForm').submit();
+            }
+        });
+    }
+});
+
 function showTab(tabId) {
     // Hide all panels
     document.querySelectorAll('.tab-panel').forEach(panel => {

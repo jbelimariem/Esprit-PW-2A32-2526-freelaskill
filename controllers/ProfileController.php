@@ -75,6 +75,12 @@ class ProfileController extends UserController {
             return '';
         }
 
+        // Cloudinary or external URL — return directly
+        if (strpos($avatar, 'http://') === 0 || strpos($avatar, 'https://') === 0) {
+            return $avatar;
+        }
+
+        // Legacy local path fallback
         $relativePath = ltrim(str_replace('\\', '/', $avatar), '/');
         $absolutePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $relativePath);
 

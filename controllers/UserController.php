@@ -3,6 +3,7 @@
 
 require_once __DIR__ . '/../Models/User.php';
 require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/CloudinaryService.php';
 
 class UserController {
 
@@ -400,25 +401,15 @@ class UserController {
             return ['avatar_file' => 'Format image non supporte. Utilisez JPG, PNG, WEBP ou GIF.'];
         }
 
-        $uploadDir = $this->uploadsPath('avatar');
-        if (!$this->ensureDirectory($uploadDir)) {
-            return ['avatar_file' => "Impossible de preparer le dossier d'upload."];
+        // Upload vers Cloudinary (cloud — visible par toute l'équipe)
+        $cloudinary = new CloudinaryService();
+        $result = $cloudinary->uploadImage($avatarFile['tmp_name'], 'freelaskill/avatars');
+
+        if (!$result['ok']) {
+            return ['avatar_file' => 'Erreur Cloudinary : ' . $result['error']];
         }
 
-        $fileName = 'avatar_' . $user->getId() . '_' . time() . '.' . $allowedTypes[$mimeType];
-        $relativeAvatarPath = 'uploads/avatar/' . $fileName;
-        $targetPath = $this->uploadsPath('avatar/' . $fileName);
-
-        if (!move_uploaded_file($avatarFile['tmp_name'], $targetPath)) {
-            return ['avatar_file' => "Impossible d'enregistrer la photo."];
-        }
-
-        if ($user->getAvatar() !== '') {
-            $oldAvatarPath = $this->projectPath($user->getAvatar());
-            if (is_file($oldAvatarPath)) {
-                @unlink($oldAvatarPath);
-            }
-        }
+        $avatarUrl = $result['url']; // URL https://res.cloudinary.com/...
 
         $updatedUser = new User(
             $user->getNom(),
@@ -427,7 +418,7 @@ class UserController {
             '',
             $user->getRole(),
             $user->getBio(),
-            $relativeAvatarPath,
+            $avatarUrl,
             $user->getStatus()
         );
         $updatedUser->setId($user->getId());
@@ -482,6 +473,8 @@ class UserController {
         $newCvPath = null;
         $newPortfolioPath = null;
 
+        $cloudinary = new CloudinaryService();
+
         if (!empty($_FILES['cv_file']['name'])) {
             $file = $_FILES['cv_file'];
 
@@ -492,20 +485,11 @@ class UserController {
             } elseif (!in_array($file['type'], $allowedCv, true)) {
                 $this->addFieldError($errors, 'cv_file', 'Le CV doit etre un fichier PDF.');
             } else {
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $fileName = 'cv_' . $user->getId() . '_' . time() . '.' . $extension;
-                $targetPath = $this->uploadsPath('cv/' . $fileName);
-
-                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                    if ($user->getCvUrl()) {
-                        $oldFile = $this->projectPath($user->getCvUrl());
-                        if (is_file($oldFile)) {
-                            @unlink($oldFile);
-                        }
-                    }
-                    $newCvPath = 'uploads/cv/' . $fileName;
+                $result = $cloudinary->uploadRaw($file['tmp_name'], 'freelaskill/cv');
+                if ($result['ok']) {
+                    $newCvPath = $result['url'];
                 } else {
-                    $this->addFieldError($errors, 'cv_file', 'Impossible de sauvegarder le CV.');
+                    $this->addFieldError($errors, 'cv_file', 'Cloudinary CV : ' . $result['error']);
                 }
             }
         }
@@ -520,20 +504,11 @@ class UserController {
             } elseif (!in_array($file['type'], $allowedPortfolio, true)) {
                 $this->addFieldError($errors, 'portfolio_file', 'Format non supporte (PDF, ZIP ou DOCX).');
             } else {
-                $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-                $fileName = 'portfolio_' . $user->getId() . '_' . time() . '.' . $extension;
-                $targetPath = $this->uploadsPath('portfolio/' . $fileName);
-
-                if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-                    if ($user->getPortfolioUrl()) {
-                        $oldFile = $this->projectPath($user->getPortfolioUrl());
-                        if (is_file($oldFile)) {
-                            @unlink($oldFile);
-                        }
-                    }
-                    $newPortfolioPath = 'uploads/portfolio/' . $fileName;
+                $result = $cloudinary->uploadRaw($file['tmp_name'], 'freelaskill/portfolio');
+                if ($result['ok']) {
+                    $newPortfolioPath = $result['url'];
                 } else {
-                    $this->addFieldError($errors, 'portfolio_file', 'Impossible de sauvegarder le Portfolio.');
+                    $this->addFieldError($errors, 'portfolio_file', 'Cloudinary Portfolio : ' . $result['error']);
                 }
             }
         }
