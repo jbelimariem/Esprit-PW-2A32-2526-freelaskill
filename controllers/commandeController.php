@@ -16,14 +16,12 @@ class CommandeController {
     // Base de données : CRUD
     // -------------------------------------------------------
     public function getAllData() {
-
         $sql = "SELECT * FROM commande ORDER BY idCommande DESC";
         $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getByIdData($id) {
-
         $sql = "SELECT * FROM commande WHERE idCommande = ?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$id]);
@@ -32,7 +30,6 @@ class CommandeController {
 
     public function getByUser($user_id) {
         $sql = "SELECT * FROM commande WHERE user_id = ? ORDER BY idCommande DESC";
-
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$user_id]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -98,7 +95,7 @@ class CommandeController {
             $sql1 = "DELETE FROM commande_produit WHERE idCommande = ?";
             $stmt1 = $this->pdo->prepare($sql1);
             $stmt1->execute([$id]);
- 
+
             // 2. Supprimer la commande
             $sql2 = "DELETE FROM commande WHERE idCommande = ?";
             $stmt2 = $this->pdo->prepare($sql2);
@@ -111,5 +108,4 @@ class CommandeController {
             return false;
         }
     }
-
 }

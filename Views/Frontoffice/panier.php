@@ -268,7 +268,11 @@ $unreadCount = $notifController->getUnreadCount(1);
 
     // Initialisation Stripe
     var stripe = Stripe('pk_test_your_public_key'); // Elle sera remplacée par la constante PHP ci-dessous
+<<<<<<< HEAD
     <?php require_once __DIR__ . '/../../controllers/config.php'; ?>
+=======
+    <?php require_once __DIR__ . '/../../config.php'; ?>
+>>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
     stripe = Stripe('<?= STRIPE_PUBLIC_KEY ?>');
 
     var btn        = document.getElementById('checkout-btn');

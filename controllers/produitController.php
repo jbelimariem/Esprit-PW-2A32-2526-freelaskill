@@ -88,15 +88,22 @@ class ProduitController {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function getAllFrontData($category_id = null) {
+    public function getAllFrontData($category_id = null, $excludeUserId = null) {
+        $sql = "SELECT * FROM produit WHERE LOWER(TRIM(statut)) = 'disponible'";
+        $params = [];
+
         if ($category_id) {
-            $sql = "SELECT * FROM produit WHERE LOWER(TRIM(statut)) = 'disponible' AND category_id = ?";
-            $stmt = $this->pdo->prepare($sql);
-            $stmt->execute([$category_id]);
-        } else {
-            $sql = "SELECT * FROM produit WHERE LOWER(TRIM(statut)) = 'disponible'";
-            $stmt = $this->pdo->query($sql);
+            $sql .= " AND category_id = ?";
+            $params[] = $category_id;
         }
+
+        if ($excludeUserId) {
+            $sql .= " AND (user_id IS NULL OR user_id <> ?)";
+            $params[] = $excludeUserId;
+        }
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -145,7 +152,6 @@ class ProduitController {
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([$min, $max]);
         }
-
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -185,7 +191,6 @@ class ProduitController {
                 $sql = "INSERT INTO produit 
                         (category_id, nom, description, prix, stock, image, statut, disponibilite, user_id) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute([
                     $data['category_id'],
@@ -196,7 +201,6 @@ class ProduitController {
                     $data['image'],
                     isset($data['statut']) ? trim(strtolower($data['statut'])) : 'pending',
                     $disponibilite,
-
                     $data['user_id']
                 ]);
             } else {
@@ -206,7 +210,6 @@ class ProduitController {
             $sql = "INSERT INTO produit 
                     (category_id, nom, description, prix, stock, image, statut, disponibilite) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-
             $stmt = $this->pdo->prepare($sql);
             $stmt->execute([
                 $data['category_id'],
@@ -217,7 +220,6 @@ class ProduitController {
                 $data['image'],
                 isset($data['statut']) ? trim(strtolower($data['statut'])) : 'pending',
                 $disponibilite
-
             ]);
         }
         return $this->pdo->lastInsertId();
@@ -226,7 +228,6 @@ class ProduitController {
     public function updateData($id, $data) {
         $sql = "UPDATE produit 
                 SET nom=?, description=?, prix=?, stock=?, image=?, category_id=?, statut=?, disponibilite=? 
-
                 WHERE idProduit=?";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([
@@ -238,7 +239,6 @@ class ProduitController {
             $data['category_id'],
             isset($data['statut']) ? trim(strtolower($data['statut'])) : null,
             $this->normalizeDisponibilite($data['disponibilite'] ?? 'Disponible maintenant'),
-
             $id
         ]);
     }
@@ -283,21 +283,18 @@ class ProduitController {
     public function index() {
         $produits    = $this->getAllData();
         $categories  = $this->categoryController->getAllData();
-
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
     public function filterByCategory($category_id) {
         $produits   = $this->getByCategoryData($category_id, 'disponible');
         $categories = $this->categoryController->getAllData();
-
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
     public function filterByPrice($min, $max) {
         $produits   = $this->getByPriceData($min, $max, 'disponible');
         $categories = $this->categoryController->getAllData();
-
         include __DIR__ . '/../Views/Frontoffice/home.php';
     }
 
@@ -312,7 +309,6 @@ class ProduitController {
 
     public function showForm() {
         $categories = $this->categoryController->getAllData();
-
         include __DIR__ . '/../Views/Frontoffice/vendreproduit.php';
     }
 
@@ -358,7 +354,6 @@ class ProduitController {
                     'stock'         => 1,
                     'image'         => $imagePath,
                     'user_id'       => $_SESSION['admin_id'] ?? 1
-
                 ];
                 $new_id = $this->createData($data);
                 header('Location: home.php');
@@ -388,7 +383,6 @@ class ProduitController {
                 'statut'        => 'disponible',
                 'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
                 'stock'         => 1,
-
                 'image'       => $imagePath,
                 'user_id'     => $_SESSION['admin_id'] ?? 1
             ];

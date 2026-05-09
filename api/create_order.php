@@ -9,7 +9,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     exit;
 }
 
+<<<<<<< HEAD
 require_once __DIR__ . '/../controllers/config.php';
+=======
+require_once __DIR__ . '/../config.php';
+>>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
 require_once __DIR__ . '/../controllers/MailController.php';
 
 if (session_status() === PHP_SESSION_NONE) {
