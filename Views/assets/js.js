@@ -1,5 +1,5 @@
 const CART_STORAGE_KEY = 'freelaSkillCart';
-const THEME_STORAGE_KEY = 'freelaSkillTheme';
+const THEME_STORAGE_KEY = 'freelaskill-theme';
 
 // ==========================================
 // Dark Mode / Light Mode Toggle
@@ -15,6 +15,7 @@ function applyTheme(theme) {
     
     if (theme === 'light') {
         html.style.colorScheme = 'light';
+        html.dataset.theme = 'light';
         html.style.filter = 'invert(0)';
         body.classList.add('light-mode');
         body.classList.remove('dark-mode');
@@ -25,6 +26,7 @@ function applyTheme(theme) {
         html.style.setProperty('--border', 'rgba(0, 0, 0, 0.08)');
     } else {
         html.style.colorScheme = 'dark';
+        html.dataset.theme = 'dark';
         html.style.filter = 'invert(0)';
         body.classList.add('dark-mode');
         body.classList.remove('light-mode');
