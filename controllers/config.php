@@ -1,19 +1,15 @@
 <?php
+// controllers/config.php — Configuration centrale de l'application
+// ⚠️ Les clés sensibles sont dans secrets.php (gitignore)
+require_once __DIR__ . '/../secrets.php';
+
 if (!defined('CLOUDINARY_URL')) {
-    define('CLOUDINARY_URL', 'cloudinary://962455564499621:6KCUgBqDWEQCJtuolijK69-jlck@dsimea1nb');
+    define('CLOUDINARY_URL', '');
 }
-
-// STRIPE CONFIGURATION
-define('STRIPE_PUBLIC_KEY', 'pk_test_51TSfkU90r15ENUzNsAFBq4RQqWKfpiWd0bsa7W2Ss9DWq7cutvBba7wlCFuA6kqjYYJvlsLoqTrj6JW5SozN9Adf009vjh6sph');
-define('STRIPE_SECRET_KEY', 'sk_test_51TSfkU' . '90r15ENUzNGkNPM6UqFMEKkse26iuYEcAnGfxH3klenuCuRF1fxxmkM2rtKc5RZ8NymQZs0MrFebXIFTZ900m0eRxoP6');
-
-// GMAIL SMTP CONFIGURATION
-define('GMAIL_USER', getenv('GMAIL_USER') ?: 'acuityacuity23@gmail.com');
-define('GMAIL_PASS', getenv('GMAIL_PASS') ?: 'xrds olbu erwg irzn');
 
 class config
 {
-    private static $pdo = null;
+    private static $pdo      = null;
     private static $settings = null;
 
     private static function loadSettings()
@@ -23,24 +19,14 @@ class config
         }
 
         self::$settings = [
-            'db_host' => 'localhost',
-            'db_name' => 'freelaskill',
-            'db_user' => 'root',
-            'db_password' => '',
-            'groq_api_key' => getenv('GROQ_API_KEY') ?: '',
-            'groq_api_url' => getenv('GROQ_API_URL') ?: 'https://api.groq.com/openai/v1/chat/completions',
-            'groq_model' => getenv('GROQ_MODEL') ?: 'llama-3.1-8b-instant',
+            'db_host'        => 'localhost',
+            'db_name'        => 'freelaskill',
+            'db_user'        => 'root',
+            'db_password'    => '',
+            'groq_api_key'   => defined('GROQ_API_KEY')   ? GROQ_API_KEY   : '',
+            'groq_api_url'   => 'https://api.groq.com/openai/v1/chat/completions',
+            'groq_model'     => 'llama-3.1-8b-instant',
         ];
-
-        $localConfigPath = __DIR__ . '/config.local.php';
-
-        if (is_file($localConfigPath)) {
-            $localSettings = require $localConfigPath;
-
-            if (is_array($localSettings)) {
-                self::$settings = array_merge(self::$settings, $localSettings);
-            }
-        }
 
         return self::$settings;
     }
@@ -70,9 +56,9 @@ class config
     {
         if (!isset(self::$pdo)) {
             $servername = self::get('db_host', 'localhost');
-            $username = self::get('db_user', 'root');
-            $password = self::get('db_password', '');
-            $dbname = self::get('db_name', 'freelaskill');
+            $username   = self::get('db_user', 'root');
+            $password   = self::get('db_password', '');
+            $dbname     = self::get('db_name', 'freelaskill');
 
             try {
                 self::$pdo = new PDO(
