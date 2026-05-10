@@ -38,6 +38,9 @@
             <span data-theme-label>Jour</span>
         </button>
         <div class="nav-avatar">FR</div>
+        <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+        </a>
     </div>
 </nav>
 

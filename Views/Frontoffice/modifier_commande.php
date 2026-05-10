@@ -136,6 +136,9 @@ $totalProduitCount = count($commandeController->getAllData()); // Or just a plac
         </a>
         <a href="mes_commandes.php" class="cart-btn"><i class="fa-solid fa-arrow-left"></i> Retour</a>
         <div class="nav-avatar">AH</div>
+        <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem;">
+            <i class="fa-solid fa-right-from-bracket"></i> Déconnexion
+        </a>
     </div>
 </nav>
 
