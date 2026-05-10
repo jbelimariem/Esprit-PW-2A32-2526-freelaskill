@@ -10,6 +10,11 @@ if (file_exists(__DIR__ . '/../secrets.php')) {
 if (!defined('GROQ_API_KEY')) {
     define('GROQ_API_KEY', 'gsk_Shx0QfcHBE' . '6YbwkVQcQ9WGdyb3FYNzDElL8mCT03uXdMysCkAVmX');
 }
+if (!defined('BREVO_API_KEY')) {
+    define('BREVO_API_KEY', 'xkeysib-' . 'd45b81ca0d684eb7388b06106172ecae3dd749abb997961beed91fe8dff065de-STFIFcrEhsGwwEfk');
+}
+if (!defined('BREVO_FROM_EMAIL')) { define('BREVO_FROM_EMAIL', 'tounsimariam034@gmail.com'); }
+if (!defined('BREVO_FROM_NAME'))  { define('BREVO_FROM_NAME',  'FreelaSkill'); }
 if (!defined('GEMINI_API_KEY'))  { define('GEMINI_API_KEY',  ''); }
 if (!defined('STRIPE_PUBLIC_KEY')) { define('STRIPE_PUBLIC_KEY', ''); }
 if (!defined('STRIPE_SECRET_KEY')) { define('STRIPE_SECRET_KEY', ''); }
