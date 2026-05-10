@@ -127,6 +127,7 @@ if (!empty($_SESSION['user_id'])) {
             <i class="fa-solid fa-shapes"></i>
             Freela<span>Skill</span>
         </div>
+        <div class="nav-links"></div>
         <div class="nav-right">
             <button type="button" class="theme-toggle" data-theme-toggle>
                 <i class="fa-solid fa-sun" data-theme-icon></i>
