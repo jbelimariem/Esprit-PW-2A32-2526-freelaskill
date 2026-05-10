@@ -15,8 +15,8 @@ if (!defined('STRIPE_PUBLIC_KEY')) { define('STRIPE_PUBLIC_KEY', ''); }
 if (!defined('STRIPE_SECRET_KEY')) { define('STRIPE_SECRET_KEY', ''); }
 if (!defined('CLOUDINARY_URL'))    { define('CLOUDINARY_URL', ''); }
 
-
-class config {
+class config
+{
     private static $pdo = null;
 
     public static function getConnexion() {
