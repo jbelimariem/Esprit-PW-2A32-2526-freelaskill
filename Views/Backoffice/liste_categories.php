@@ -29,6 +29,7 @@ $categoriesPagines = array_slice($categories, $startIndex, $itemsPerPage);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Liste des Catégories | FreelaSkill</title>
     <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -37,50 +38,56 @@ $categoriesPagines = array_slice($categories, $startIndex, $itemsPerPage);
     <div class="hero-glow-2" style="z-index: 0; position: fixed; left: 20%; bottom: -150px; top: auto;"></div>
 
     <div class="admin-layout" style="position: relative; z-index: 1;">
-        <aside class="admin-sidebar">
-            <div class="logo">
-                <i class="fa-solid fa-shapes"></i>
-                Freela<span>Skill</span>
-            </div>
-
-            <div class="admin-nav">
-                <a href="./dashboard.php" class="admin-nav-item">
-                    <i class="fa-solid fa-house"></i> Dashboard
-                </a>
-                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
-                    Marketplace
+                                        <aside class="sidebar">
+            <div style="padding: 0 0.5rem; margin-bottom: 2rem;">
+                <div class="logo">
+                    <i class="fa-solid fa-shapes" style="color: #3b82f6;"></i>
+                    Freela<span>Skill</span>
                 </div>
-                <a href="ajouter_produit.php" class="admin-nav-item">
-                    <i class="fa-solid fa-plus"></i> Ajouter Produit
+                <p style="font-size: 0.75rem; color: #475569; margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v1.0</p>
+            </div>
+            
+            <a href="users_dashboard.php" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
+            <div class="nav-item"><i class="fa-solid fa-network-wired"></i> Flux de Missions</div>
+            
+            <div class="nav-item-wrapper">
+                <a href="dashboard.php" class="nav-item" style="text-decoration:none;">
+                    <i class="fa-solid fa-store"></i> Marketplace
+                    <i class="fa-solid fa-chevron-right" style="margin-left:auto; font-size:0.7rem; opacity:0.5;"></i>
                 </a>
-                <a href="produits.php" class="admin-nav-item">
-                    <i class="fa-solid fa-list"></i> Liste des Produits
-                </a>
-                <a href="./pending_products.php" class="admin-nav-item">
-                    <i class="fa-solid fa-clock"></i> Validation produits
-                </a>
-                <a href="./ajouter_categorie.php" class="admin-nav-item">
-                    <i class="fa-solid fa-plus"></i> Ajouter Catégorie
-                </a>
-                <a href="./liste_categories.php" class="admin-nav-item active">
-                    <i class="fa-solid fa-list"></i> Liste des Catégories
-                </a>
-                <a href="./mes_achats.php" class="admin-nav-item">
-                    <i class="fa-solid fa-bag-shopping"></i> Mes Achats
-                </a>
-                <a href="./liste_commandes.php" class="admin-nav-item">
-                    <i class="fa-solid fa-cart-shopping"></i> Commandes
-                </a>
-                <a href="./notification.php" class="admin-nav-item">
-                    <i class="fa-solid fa-bell"></i> Notifications
-                    <span style="margin-left:auto; background:#ef4444; color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:10px;"><?= isset($pendingProducts) ? count($pendingProducts) + 2 : 3 ?></span>
-                </a>
-
+                <div class="submenu">
+                    <div class="submenu-title">Marketplace Admin</div>
+                    <a href="dashboard.php" class="submenu-item">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="produits.php" class="submenu-item">
+                        <i class="fa-solid fa-box"></i> Gestion Produits
+                    </a>
+                    <a href="pending_products.php" class="submenu-item">
+                        <i class="fa-solid fa-clock"></i> Validation Produits
+                    </a>
+                    <a href="ajouter_produit.php" class="submenu-item">
+                        <i class="fa-solid fa-plus"></i> Ajouter Produit
+                    </a>
+                    <a href="liste_categories.php" class="submenu-item">
+                        <i class="fa-solid fa-list"></i> Liste Catégories
+                    </a>
+                    <a href="ajouter_categorie.php" class="submenu-item">
+                        <i class="fa-solid fa-folder-plus"></i> Ajouter Catégorie
+                    </a>
+                    <a href="liste_commandes.php" class="submenu-item">
+                        <i class="fa-solid fa-cart-shopping"></i> Commandes
+                    </a>
+                </div>
             </div>
 
-            <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <a href="dashboard.php" class="admin-nav-item" style="color: #ef4444; padding: 0.75rem;">
-                    <i class="fa-solid fa-arrow-left"></i> Retour au dashboard
+            <div class="nav-item"><i class="fa-solid fa-shield-halved"></i> Securite</div>
+            <div class="nav-item"><i class="fa-solid fa-comments"></i> Messagerie</div>
+
+            <div style="margin-top: auto; padding-top: 2rem;">
+                <a href="../frontoffice/home.php" class="btn btn-outline"
+                   style="width:100%;font-size:.85rem;padding:.75rem;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:.5rem; color: #ef4444; border-color: rgba(239,68,68,0.2);">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Retour au Hub
                 </a>
             </div>
         </aside>

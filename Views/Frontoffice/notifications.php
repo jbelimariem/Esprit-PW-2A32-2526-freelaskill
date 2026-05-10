@@ -1,15 +1,20 @@
 <?php
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
 $notifController = new NotificationController();
-$user_id = 1; // Default user for now
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) {
+    header('Location: login.php');
+    exit;
+}
 
 if (isset($_GET['mark_read'])) {
-    $notifController->markAsRead((int)$_GET['mark_read']);
+    $notifController->markAsRead((int)$_GET['mark_read'], $user_id);
     header('Location: notifications.php');
     exit();
 }

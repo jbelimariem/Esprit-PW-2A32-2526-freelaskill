@@ -2,9 +2,34 @@
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
+
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$user = null;
+$hasAvatar = false;
+$avatarUrl = '';
+$initials = '';
+
+if (!empty($_SESSION['user_id'])) {
+    $userController = new UserController();
+    $user = $userController->getById((int)$_SESSION['user_id']);
+    if ($user) {
+        $initials = strtoupper(mb_substr($user->getPrenom(), 0, 1) . mb_substr($user->getNom(), 0, 1));
+        $avatar = trim((string)$user->getAvatar());
+        if ($avatar !== '') {
+            if (strpos($avatar, 'http') === 0) {
+                $avatarUrl = $avatar;
+            } else {
+                $avatarUrl = '../../' . ltrim(str_replace('\\', '/', $avatar), '/');
+            }
+            $hasAvatar = true;
+        }
+    }
+}
 
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1); // Default user
+$currentUserId = $_SESSION['user_id'] ?? null;
+$unreadCount = $currentUserId ? $notifController->getUnreadCount($currentUserId) : 0;
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
@@ -12,10 +37,12 @@ $categoryController = new Category_prodController();
 $selectedCategoryId = isset($_GET['category']) ? (int)$_GET['category'] : null;
 
 if ($selectedCategoryId) {
-    $produits = $produitController->getAllFrontData($selectedCategoryId);
+    $produits = $produitController->getAllFrontData($selectedCategoryId, $currentUserId);
 } else {
-    $produits = $produitController->getAllFrontData();
+    $produits = $produitController->getAllFrontData(null, $currentUserId);
 }
+
+// DEBUG: echo "<!-- DEBUG: ID=$currentUserId | Count=".count($produits)." -->";
 
 $categories         = $categoryController->getAllData();
 
@@ -45,9 +72,11 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Marketplace — FreelaSkill</title>
     <meta name="description" content="Parcourez notre marketplace FreelaSkill — équipements tech, licences logiciels, accessoires créatifs.">
+    <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../assets/style.css?v=6">
+    <link rel="stylesheet" href="../assets/style.css?v=7">
+    <script src="../assets/theme.js" defer></script>
 <style>
 /* • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • 
    ARIA AI ADVISOR — Widget Styles
@@ -524,25 +553,43 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <ul class="nav-links">
         <li><a href="#">Accueil</a></li>
         <li><a href="#">Missions</a></li>
-        <li><a href="#" class="active">Marketplace</a></li>
+        <li><a href="home.php" class="active">Marketplace</a></li>
         <li><a href="#">Freelancers</a></li>
+        <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
+        </button>
         
-        <div class="theme-toggle-btn" style="cursor: pointer; margin-right: 15px; font-size: 1.2rem; color: var(--text-muted); display: flex; align-items: center;" title="Basculer le thème">
-            <i class="fa-regular fa-moon"></i>
-        </div>
-        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px;">
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px; color: var(--text-muted);">
             <i class="fa-solid fa-bell"></i>
             <?php if($unreadCount > 0): ?>
                 <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
             <?php endif; ?>
         </a>
-        <a href="panier.php" class="cart-btn" style="position: relative;">
-            <i class="fa-solid fa-bag-shopping"></i> Panier
+        <a href="panier.php" class="cart-btn" style="position: relative; margin-right: 15px; color: var(--text-muted);">
+            <i class="fa-solid fa-bag-shopping"></i>
             <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);">0</span>
         </a>
-        <div class="nav-avatar">AH</div>
+
+        <?php if ($user): ?>
+            <div class="nav-avatar<?php echo $hasAvatar ? ' has-image' : ''; ?>" title="<?php echo htmlspecialchars($user->getPrenom() . ' ' . $user->getNom()); ?>">
+                <?php if ($hasAvatar): ?>
+                    <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Photo de profil" class="nav-avatar-image">
+                <?php else: ?>
+                    <?php echo $initials; ?>
+                <?php endif; ?>
+            </div>
+            <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem; margin-left: 10px;" title="Déconnexion">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-primary" style="font-size:0.82rem; padding:0.45rem 1rem;">
+                Connexion
+            </a>
+        <?php endif; ?>
     </div>
 </nav>
 
@@ -600,7 +647,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                 <div class="mkt-nav-label">Catégorie</div>
                 <a href="home.php" class="filter-option <?= !$selectedCategoryId ? 'active' : '' ?>" style="text-decoration:none; color:inherit;">
                     <span>Tous les produits</span>
-                    <span class="filter-count"><?= count($produitController->getAllFrontData()) ?></span>
+                    <span class="filter-count"><?= $totalProduitCount ?></span>
                 </a>
                 <?php foreach ($categories as $category): ?>
                     <a href="?category=<?= $category['idCategory'] ?>" class="filter-option <?= $selectedCategoryId == $category['idCategory'] ? 'active' : '' ?>" style="text-decoration:none; color:inherit;">
@@ -635,9 +682,9 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                     <div class="price-inputs">
                         <input class="price-input" type="number" placeholder="Min" value="0">
                         <span class="price-sep">—</span>
-                        <input class="price-input" type="number" placeholder="Max" value="1000000">
+                        <input class="price-input" type="number" placeholder="Max" value="10000000">
                     </div>
-                    <input type="range" min="0" max="1000000" value="1000000">
+                    <input type="range" min="0" max="10000000" value="10000000">
                 </div>
             </div>
 
@@ -730,7 +777,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                     $priceStr   = number_format($produit['prix'], 0, ',', ' ');
                     $desc       = htmlspecialchars(mb_strimwidth($produit['description'], 0, 70, 'â€¦'));
                 ?>
-                    <div class="product-card" data-id="<?= $produit['idProduit'] ?>" data-dispo="<?= htmlspecialchars($dispoValue) ?>" style="<?= $opStyle ?>">
+                    <div class="product-card" data-id="<?= $produit['idProduit'] ?>" data-owner-id="<?= (int)($produit['user_id'] ?? 0) ?>" data-dispo="<?= htmlspecialchars($dispoValue) ?>" style="<?= $opStyle ?>">
                         <div class="card-image">
                             <div class="card-compare-overlay">
                                 <button class="card-compare-btn" onclick="toggleBattle(<?= $produit['idProduit'] ?>, '<?= addslashes($produit['nom']) ?>', '<?= $produit['image'] ?>', this.closest('.product-card'))">

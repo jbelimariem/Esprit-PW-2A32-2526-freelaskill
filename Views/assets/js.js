@@ -107,6 +107,7 @@ function updateCartCount() {
 
 function getCardProductData(card) {
     const id = card.dataset.id || '';
+    const ownerId = card.dataset.ownerId || '';
     const title = card.querySelector('.card-title')?.textContent.trim() || '';
     const priceText = card.querySelector('.price-main')?.textContent.trim() || '0';
     const price = parseInt(priceText.replace(/[^\d]/g, ''), 10) || 0;
@@ -118,7 +119,7 @@ function getCardProductData(card) {
     const imageSrc = imgEl ? imgEl.getAttribute('src') : '';
 
     const badge = card.querySelector('.card-badge')?.textContent.trim() || '';
-    return { id, title, price, category, icon, imageSrc, badge };
+    return { id, ownerId, title, price, category, icon, imageSrc, badge };
 }
 
 function addToCart(product) {
@@ -430,6 +431,7 @@ function initializeFilters() {
 function applyFilters() {
     const grid = document.querySelector('.products-grid');
     if (!grid) return;
+    const isSellerPage = document.body.dataset.page === 'mes-ventes';
     
     // Sort logic
     const sortSelect = document.querySelector('.sort-select');
@@ -472,7 +474,7 @@ function applyFilters() {
             matchesSearch = searchWords.some(word => title.includes(word) || category.includes(word));
         }
 
-        const matchesPrice = price >= currentMinPrice && price <= currentMaxPrice;
+        const matchesPrice = isSellerPage || (price >= currentMinPrice && price <= currentMaxPrice);
         
         let matchesStock = true;
         if (currentAvailability !== 'all') {

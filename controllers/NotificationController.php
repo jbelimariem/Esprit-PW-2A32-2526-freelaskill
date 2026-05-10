@@ -25,15 +25,13 @@ class NotificationController {
     }
 
     public function getByUserPaginated($user_id, $limit, $offset) {
-        $sql = "SELECT * FROM notification WHERE user_id = ? ORDER BY date_notif DESC LIMIT :limit OFFSET :offset";
+        $sql = "SELECT * FROM notification WHERE user_id = :user_id ORDER BY date_notif DESC LIMIT :limit OFFSET :offset";
         $stmt = $this->pdo->prepare($sql);
-        $stmt->bindValue(':user_id', $user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':user_id', (int)$user_id, PDO::PARAM_INT);
         $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
         $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
-        
-        // Comme bindValue peut être chiant avec execute([$id]), je refais proprement :
-        $sql = "SELECT * FROM notification WHERE user_id = $user_id ORDER BY date_notif DESC LIMIT $limit OFFSET $offset";
-        return $this->pdo->query($sql)->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getTotalCount($user_id) {
@@ -50,10 +48,15 @@ class NotificationController {
         return $stmt->fetchColumn();
     }
 
-    public function markAsRead($idNotification) {
+    public function markAsRead($idNotification, $user_id = null) {
         $sql = "UPDATE notification SET is_read = 1 WHERE idNotification = ?";
+        $params = [$idNotification];
+        if ($user_id !== null) {
+            $sql .= " AND user_id = ?";
+            $params[] = $user_id;
+        }
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$idNotification]);
+        $stmt->execute($params);
     }
 
     public function markAllAsRead($user_id) {
@@ -68,3 +71,4 @@ class NotificationController {
         $stmt->execute([$idNotification]);
     }
 }
+

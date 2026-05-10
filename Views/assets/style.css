@@ -176,6 +176,17 @@
         body.light-mode .theme-toggle-btn:hover {
             color: #2563eb;
         }
+
+        body.light-mode .theme-toggle {
+            background: rgba(37, 99, 235, 0.06);
+            border-color: rgba(37, 99, 235, 0.14);
+            color: #475569;
+        }
+
+        body.light-mode .theme-toggle:hover {
+            background: rgba(37, 99, 235, 0.1);
+            color: #2563eb;
+        }
         
         body.light-mode .chip {
             background: #ffffff;
@@ -210,9 +221,10 @@
             position: sticky;
             top: 0;
             z-index: 100;
-            display: flex;
+            display: grid;
+            grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr);
             align-items: center;
-            justify-content: space-between;
+            gap: 1.5rem;
             padding: 0 4rem;
             height: 75px;
             background: rgba(2, 6, 23, 0.7);
@@ -229,6 +241,7 @@
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            justify-self: start;
         }
         .logo i { color: var(--tunisian-red); }
         .logo span { color: var(--tech-blue); }
@@ -236,8 +249,12 @@
         .nav-links {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 2rem;
             list-style: none;
+            min-width: 0;
+            white-space: nowrap;
+            justify-self: center;
         }
         .nav-links a {
             font-size: 0.9rem;
@@ -256,7 +273,37 @@
             border-radius: 2px;
         }
 
-        .nav-right { display: flex; align-items: center; gap: 1rem; }
+        .nav-right {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+            min-width: 0;
+            justify-self: end;
+        }
+
+        .theme-toggle {
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.9rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-full);
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-muted);
+            font: 600 0.82rem 'Space Grotesk', sans-serif;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .theme-toggle:hover {
+            color: white;
+            border-color: var(--border-hover);
+            background: rgba(59, 130, 246, 0.1);
+        }
 
         .cart-btn {
             display: flex;
@@ -295,6 +342,21 @@
             display: flex; align-items: center; justify-content: center;
             font-size: 0.75rem; font-weight: 700;
             cursor: pointer;
+        }
+
+        .nav-avatar.has-image {
+            padding: 0;
+            overflow: hidden;
+            background: rgba(15,23,42,0.95);
+            flex: 0 0 36px;
+        }
+
+        .nav-avatar-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 50%;
         }
 
         /* ── HERO BANNER ── */

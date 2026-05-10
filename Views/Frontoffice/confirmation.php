@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../controllers/commandeController.php';
 require_once __DIR__ . '/../../controllers/CommandeProduitController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/MailRecipientHelper.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
@@ -36,9 +37,10 @@ if ($session_id) {
         ]);
 
         // 2. Ajouter les produits
+        $resolvedCart = [];
         foreach ($orderData['cart'] as $item) {
             $pdo = config::getConnexion();
-            $stockStmt = $pdo->prepare("SELECT nom, stock, disponibilite FROM produit WHERE idProduit = ?");
+            $stockStmt = $pdo->prepare("SELECT nom, stock, disponibilite, user_id FROM produit WHERE idProduit = ?");
             $stockStmt->execute([$item['idProduit']]);
             $productStock = $stockStmt->fetch();
 
@@ -56,6 +58,14 @@ if ($session_id) {
 
             $updateStock = $pdo->prepare("UPDATE produit SET stock = GREATEST(stock - ?, 0), disponibilite = CASE WHEN GREATEST(stock - ?, 0) <= 0 THEN 'Non disponible' ELSE disponibilite END WHERE idProduit = ?");
             $updateStock->execute([(int)$item['quantite'], (int)$item['quantite'], $item['idProduit']]);
+
+            $resolvedCart[] = [
+                'idProduit' => (int)$item['idProduit'],
+                'nom' => $productStock['nom'] ?? ($item['nom'] ?? 'Produit'),
+                'prix' => (float)($item['prix'] ?? 0),
+                'quantite' => (int)$item['quantite'],
+                'owner_id' => isset($productStock['user_id']) ? (int)$productStock['user_id'] : null,
+            ];
         }
 
         // 3. Notification
@@ -65,25 +75,12 @@ if ($session_id) {
         require_once __DIR__ . '/../../controllers/MailController.php';
         $mailController = new MailController();
         
-        $userEmail = null;
-        try {
-            $pdo = config::getConnexion();
-            foreach (['idUser', 'id'] as $column) {
-                try {
-                    $stmt = $pdo->prepare("SELECT email FROM user WHERE $column = ? LIMIT 1");
-                    $stmt->execute([$orderData['user_id']]);
-                    $user = $stmt->fetch();
-                    if ($user && !empty($user['email']) && filter_var($user['email'], FILTER_VALIDATE_EMAIL)) {
-                        $userEmail = $user['email'];
-                        break;
-                    }
-                } catch (Exception $e) {}
-            }
-        } catch (Exception $e) {}
+        $pdo = config::getConnexion();
+        $userEmail = MailRecipientHelper::getUserEmail($pdo, $orderData['user_id']);
 
         // Envoi au client
         if ($userEmail) {
-            $mail_sent = $mailController->sendOrderConfirmation($userEmail, $idCommande, $orderData['total'], $orderData['cart']);
+            $mail_sent = $mailController->sendOrderConfirmation($userEmail, $idCommande, $orderData['total'], $resolvedCart);
             if (!$mail_sent) {
                 $mail_error = $mailController->getLastError();
                 error_log('[TalentBridge SMTP] ' . $mail_error);
@@ -92,6 +89,21 @@ if ($session_id) {
             $mail_error = "Aucun email valide trouve pour l'utilisateur #" . $orderData['user_id'] . ".";
             error_log('[TalentBridge SMTP] ' . $mail_error);
         }
+
+        // Envoi aux vendeurs concernes
+        $seller_mail_sent = true;
+        $sellerItemsByEmail = MailRecipientHelper::groupSellerItemsByEmail($pdo, $resolvedCart, $orderData['user_id']);
+        foreach ($sellerItemsByEmail as $sellerEmail => $sellerItems) {
+            $sentToSeller = $mailController->sendSellerOrderNotification($sellerEmail, $idCommande, $orderData['total'], $sellerItems);
+            if (!$sentToSeller) {
+                $seller_mail_sent = false;
+                $sellerError = $mailController->getLastError();
+                $mail_error = trim(($mail_error ? $mail_error . ' | ' : '') . "Vendeur $sellerEmail: $sellerError");
+                error_log('[TalentBridge SMTP] Vendeur ' . $sellerEmail . ': ' . $sellerError);
+            }
+        }
+
+        $mail_sent = $mail_sent && $seller_mail_sent;
 
         $order_created = true;
         unset($_SESSION['pending_order']); // On nettoie

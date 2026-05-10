@@ -3,8 +3,15 @@ require_once __DIR__ . '/../../controllers/commandeController.php';
 require_once __DIR__ . '/../../controllers/CommandeProduitController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
 
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$currentUserId = $_SESSION['user_id'] ?? null;
+if (!$currentUserId) {
+    header('Location: login.php');
+    exit;
+}
+
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1);
+$unreadCount = $notifController->getUnreadCount($currentUserId);
 
 $commandeController = new CommandeController();
 $cpController = new CommandeProduitController();
@@ -12,7 +19,7 @@ $cpController = new CommandeProduitController();
 $orderId = isset($_GET['id']) ? intval($_GET['id']) : 0;
 $order = $commandeController->getByIdData($orderId);
 
-if (!$order) {
+if (!$order || (int)($order['user_id'] ?? 0) !== (int)$currentUserId) {
     header('Location: mes_commandes.php');
     exit();
 }
@@ -55,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit();
 }
 
-$unreadCount = $notifController->getUnreadCount(1);
+$unreadCount = $notifController->getUnreadCount($currentUserId);
 $totalProduitCount = count($commandeController->getAllData()); // Or just a placeholder
 
 ?>

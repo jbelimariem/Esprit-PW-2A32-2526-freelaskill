@@ -1,10 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
-<<<<<<< HEAD
 require_once __DIR__ . '/../controllers/config.php';
-=======
-require_once __DIR__ . '/../config.php';
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
 require_once __DIR__ . '/../controllers/AIController.php';
 
 $input = json_decode(file_get_contents('php://input'), true);

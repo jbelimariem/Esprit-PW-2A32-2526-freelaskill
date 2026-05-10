@@ -3,8 +3,15 @@ require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
 
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$currentUserId = $_SESSION['user_id'] ?? null;
+if (!$currentUserId) {
+    header('Location: login.php');
+    exit;
+}
+
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1);
+$unreadCount = $notifController->getUnreadCount($currentUserId);
 
 $produitController = new ProduitController();
 $categoryController = new Category_prodController();
@@ -17,7 +24,7 @@ if (!isset($_GET['id'])) {
 $idProduit = (int)$_GET['id'];
 $produit = $produitController->getByIdData($idProduit);
 
-if (!$produit) {
+if (!$produit || (int)($produit['user_id'] ?? 0) !== (int)$currentUserId) {
     header('Location: mes_ventes.php');
     exit;
 }

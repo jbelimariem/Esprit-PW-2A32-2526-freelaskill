@@ -2,9 +2,34 @@
 require_once __DIR__ . '/../../controllers/produitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
+
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$user = null;
+$hasAvatar = false;
+$avatarUrl = '';
+$initials = '';
+
+if (!empty($_SESSION['user_id'])) {
+    $userController = new UserController();
+    $user = $userController->getById((int)$_SESSION['user_id']);
+    if ($user) {
+        $initials = strtoupper(mb_substr($user->getPrenom(), 0, 1) . mb_substr($user->getNom(), 0, 1));
+        $avatar = trim((string)$user->getAvatar());
+        if ($avatar !== '') {
+            if (strpos($avatar, 'http') === 0) {
+                $avatarUrl = $avatar;
+            } else {
+                $avatarUrl = '../../' . ltrim(str_replace('\\', '/', $avatar), '/');
+            }
+            $hasAvatar = true;
+        }
+    }
+}
 
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1);
+$currentUserId = $_SESSION['user_id'] ?? null;
+$unreadCount = $currentUserId ? $notifController->getUnreadCount($currentUserId) : 0;
 
 
 $produitController = new ProduitController();
@@ -16,6 +41,7 @@ $stockText = 'Indisponible';
 $priceFormatted = '0';
 $similarProducts = [];
 $canOrder = false;
+$isOwnProduct = false;
 
 if (!empty($_GET['id'])) {
     $produit = $produitController->getByIdData((int) $_GET['id']);
@@ -33,10 +59,12 @@ if (!empty($_GET['id'])) {
             $stockText = 'En stock';
             $stockClass = 'in-stock';
         }
-        $canOrder = ($produit['disponibilite'] ?? 'Disponible maintenant') !== 'Non disponible' && (int)$produit['stock'] > 0;
+        $isOwnProduct = $currentUserId && isset($produit['user_id']) && (int)$produit['user_id'] === (int)$currentUserId;
+        $canOrder = !$isOwnProduct && ($produit['disponibilite'] ?? 'Disponible maintenant') !== 'Non disponible' && (int)$produit['stock'] > 0;
         $similarProducts = array_values(array_filter(
             $produitController->getByCategoryData($produit['category_id'], 'disponible'),
             fn($p) => (int)$p['idProduit'] !== (int)$produit['idProduit']
+                && (!$currentUserId || !isset($p['user_id']) || (int)$p['user_id'] !== (int)$currentUserId)
         ));
         $similarProducts = array_slice($similarProducts, 0, 3);
     }
@@ -48,9 +76,11 @@ if (!empty($_GET['id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= htmlspecialchars($produit['nom'] ?? 'Détail produit') ?> — FreelaSkill</title>
+    <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=6">
+    <script src="../assets/theme.js" defer></script>
     <style>
         .detail-actions { display:flex; flex-wrap:wrap; gap:.75rem; margin-top:1rem; }
         .detail-actions .btn-cart, .detail-actions .cart-btn { justify-content:center; width:auto; min-height:44px; }
@@ -74,19 +104,46 @@ if (!empty($_GET['id'])) {
         <i class="fa-solid fa-shapes"></i>
         Freela<span>Skill</span>
     </div>
+    <ul class="nav-links">
+        <li><a href="#">Accueil</a></li>
+        <li><a href="#">Missions</a></li>
+        <li><a href="home.php" class="active">Marketplace</a></li>
+        <li><a href="#">Freelancers</a></li>
+        <li><a href="profile.php">Mon Profil</a></li>
+    </ul>
     <div class="nav-right">
-        <button class="theme-toggle-btn" style="background: none; border: none; color: #e2e8f0; cursor: pointer; font-size: 1.2rem; padding: 0.5rem; display: flex; align-items: center; justify-content: center; transition: color 0.3s ease;" title="Toggle dark/light mode">
-            <i class="fa-regular fa-moon"></i>
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
         </button>
-        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px;">
+        
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px; color: var(--text-muted);">
             <i class="fa-solid fa-bell"></i>
             <?php if($unreadCount > 0): ?>
                 <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
             <?php endif; ?>
         </a>
-        <a href="home.php" class="cart-btn" style="background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); color: white;">
-            <i class="fa-solid fa-arrow-left"></i> Boutique
+        <a href="panier.php" class="cart-btn" style="position: relative; margin-right: 15px; color: var(--text-muted);">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);">0</span>
         </a>
+
+        <?php if ($user): ?>
+            <div class="nav-avatar<?php echo $hasAvatar ? ' has-image' : ''; ?>" title="<?php echo htmlspecialchars($user->getPrenom() . ' ' . $user->getNom()); ?>">
+                <?php if ($hasAvatar): ?>
+                    <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Photo de profil" class="nav-avatar-image">
+                <?php else: ?>
+                    <?php echo $initials; ?>
+                <?php endif; ?>
+            </div>
+            <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem; margin-left: 10px;" title="Déconnexion">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-primary" style="font-size:0.82rem; padding:0.45rem 1rem;">
+                Connexion
+            </a>
+        <?php endif; ?>
     </div>
 </nav>
 
@@ -198,7 +255,7 @@ if (!empty($_GET['id'])) {
 
         <?php if ($produit): ?>
             <div class="products-grid" style="grid-template-columns: 1fr;">
-                <div class="product-card" data-id="<?= (int)$produit['idProduit'] ?>" style="animation-delay: 0.05s; opacity: 1;">
+                <div class="product-card" data-id="<?= (int)$produit['idProduit'] ?>" data-owner-id="<?= (int)($produit['user_id'] ?? 0) ?>" style="animation-delay: 0.05s; opacity: 1;">
                     <div class="card-image" style="background: linear-gradient(135deg, #0d1117, #1e3a5f); position: relative; overflow: hidden;">
                         <?php if (!empty($produit['image'])): ?>
                             <img src="<?= htmlspecialchars($produit['image']) ?>" alt="<?= htmlspecialchars($produit['nom']) ?>" style="width:100%; height:100%; object-fit: cover; display:block;" />
@@ -227,7 +284,9 @@ if (!empty($_GET['id'])) {
                             </div>
                         </div>
                         <div class="detail-actions">
-                            <?php if ($canOrder): ?>
+                            <?php if ($isOwnProduct): ?>
+                                <button class="btn-cart" disabled><i class="fa-solid fa-user-lock"></i> Votre produit</button>
+                            <?php elseif ($canOrder): ?>
                                 <button class="btn-cart"><i class="fa-solid fa-cart-plus"></i> Ajouter au panier</button>
                             <?php else: ?>
                                 <button class="btn-cart" disabled><i class="fa-solid fa-ban"></i> Indisponible</button>

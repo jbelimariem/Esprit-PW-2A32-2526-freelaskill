@@ -12,10 +12,7 @@ class Commande {
     private $montant_total;
 
     public function __construct($user_id = null, $date_commande = '', $statut = '', $adresse_livraison = '', $montant_total = 0, $mode_paiement = '', $mode_livraison = '') {
-<<<<<<< HEAD
 
-=======
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
         $this->user_id = $user_id;
         $this->date_commande = $date_commande;
         $this->statut = $statut;
@@ -23,11 +20,8 @@ class Commande {
         $this->montant_total = $montant_total;
         $this->mode_paiement = $mode_paiement;
         $this->mode_livraison = $mode_livraison;
-<<<<<<< HEAD
         require_once __DIR__ . '/../controllers/config.php';
 
-=======
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
     }
 
     public function getIdCommande() { return $this->idCommande; }
@@ -51,10 +45,7 @@ class Commande {
     public function getModeLivraison() { return $this->mode_livraison; }
     public function setModeLivraison($mode) { $this->mode_livraison = $mode; }
 
-<<<<<<< HEAD
 
-=======
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
     public function getMontantTotal() { return $this->montant_total; }
     public function setMontantTotal($montant) { $this->montant_total = $montant; }
 }

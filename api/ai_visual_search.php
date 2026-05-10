@@ -4,12 +4,11 @@
  */
 
 header('Content-Type: application/json; charset=utf-8');
-<<<<<<< HEAD
 require_once __DIR__ . '/../controllers/config.php';
-=======
-require_once __DIR__ . '/../config.php';
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
 require_once __DIR__ . '/../controllers/AIController.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     echo json_encode(["error" => "POST required"]); exit;
@@ -30,6 +29,7 @@ if (empty($description) || strpos($description, 'Erreur') === 0) {
 
 try {
     $pdo = config::getConnexion();
+    $currentUserId = $_SESSION['user_id'] ?? null;
     
     // Nettoyage et extraction des mots-clés
     $cleanDesc = mb_strtolower(preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $description), 'UTF-8');
@@ -50,9 +50,10 @@ try {
             ) as relevance
             FROM produit p 
             LEFT JOIN category_prod c ON p.category_id = c.idCategory 
-            WHERE p.statut != 'vendu'";
+            WHERE p.statut != 'vendu'
+              AND (? IS NULL OR p.user_id IS NULL OR p.user_id <> ?)";
 
-    $params = ["%$mainWord%", "%$mainWord%", "%$mainWord%"];
+    $params = ["%$mainWord%", "%$mainWord%", "%$mainWord%", $currentUserId, $currentUserId];
     
     $whereParts = [];
     foreach ($allWords as $w) {

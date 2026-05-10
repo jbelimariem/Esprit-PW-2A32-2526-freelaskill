@@ -20,12 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-<<<<<<< HEAD
 require_once __DIR__ . '/../controllers/config.php';
-=======
-require_once __DIR__ . '/../config.php';
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
 require_once __DIR__ . '/../controllers/AIController.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $input = json_decode(file_get_contents('php://input'), true);
 $question = trim($input['question'] ?? '');
@@ -38,9 +37,10 @@ if (empty($question)) {
 // ── 1. RÉCUPÉRER TOUS LES PRODUITS DISPONIBLES DEPUIS LA BDD ──────────────
 try {
     $pdo = config::getConnexion();
+    $currentUserId = $_SESSION['user_id'] ?? null;
 
     // On récupère les produits avec leurs catégories
-    $stmt = $pdo->query("
+    $stmt = $pdo->prepare("
         SELECT 
             p.idProduit,
             p.nom,
@@ -53,8 +53,10 @@ try {
         FROM produit p
         LEFT JOIN category_prod c ON p.category_id = c.idCategory
         WHERE LOWER(TRIM(p.statut)) = 'disponible'
+          AND (? IS NULL OR p.user_id IS NULL OR p.user_id <> ?)
         ORDER BY p.prix ASC
     ");
+    $stmt->execute([$currentUserId, $currentUserId]);
     $produits = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 } catch (Exception $e) {

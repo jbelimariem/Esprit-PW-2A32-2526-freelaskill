@@ -2,11 +2,7 @@
 // controllers/CommandeProduitController.php
 
 require_once __DIR__ . '/../Models/CommandeProduit.php';
-<<<<<<< HEAD
 require_once __DIR__ . '/config.php';
-=======
-require_once __DIR__ . '/../config.php';
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
 
 class CommandeProduitController {
 

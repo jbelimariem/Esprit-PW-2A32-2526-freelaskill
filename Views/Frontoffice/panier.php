@@ -1,7 +1,32 @@
 <?php
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
+
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$user = null;
+$hasAvatar = false;
+$avatarUrl = '';
+$initials = '';
+
+if (!empty($_SESSION['user_id'])) {
+    $userController = new UserController();
+    $user = $userController->getById((int)$_SESSION['user_id']);
+    if ($user) {
+        $initials = strtoupper(mb_substr($user->getPrenom(), 0, 1) . mb_substr($user->getNom(), 0, 1));
+        $avatar = trim((string)$user->getAvatar());
+        if ($avatar !== '') {
+            if (strpos($avatar, 'http') === 0) {
+                $avatarUrl = $avatar;
+            } else {
+                $avatarUrl = '../../' . ltrim(str_replace('\\', '/', $avatar), '/');
+            }
+            $hasAvatar = true;
+        }
+    }
+}
+
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1);
+$unreadCount = !empty($_SESSION['user_id']) ? $notifController->getUnreadCount((int)$_SESSION['user_id']) : 0;
 ?>
 <!DOCTYPE html>
 <html lang="fr" style="color-scheme: dark;">
@@ -9,9 +34,11 @@ $unreadCount = $notifController->getUnreadCount(1);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panier — FreelaSkill</title>
+    <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=6">
+    <script src="../assets/theme.js" defer></script>
     <style>
         .address-block { margin-top: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
         .address-block label { font-size: 0.78rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -69,14 +96,43 @@ $unreadCount = $notifController->getUnreadCount(1);
     <ul class="nav-links">
         <li><a href="#">Accueil</a></li>
         <li><a href="#">Missions</a></li>
-        <li><a href="home.php">Marketplace</a></li>
+        <li><a href="home.php" class="active">Marketplace</a></li>
         <li><a href="#">Freelancers</a></li>
+        <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
-        <a href="home.php" class="cart-btn">
-            <i class="fa-solid fa-arrow-left"></i> Boutique
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
+        </button>
+        
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px; color: var(--text-muted);">
+            <i class="fa-solid fa-bell"></i>
+            <?php if($unreadCount > 0): ?>
+                <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
+            <?php endif; ?>
         </a>
-        <div class="nav-avatar">AH</div>
+        <a href="panier.php" class="cart-btn" style="position: relative; margin-right: 15px; color: var(--text-muted);">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);">0</span>
+        </a>
+
+        <?php if ($user): ?>
+            <div class="nav-avatar<?php echo $hasAvatar ? ' has-image' : ''; ?>" title="<?php echo htmlspecialchars($user->getPrenom() . ' ' . $user->getNom()); ?>">
+                <?php if ($hasAvatar): ?>
+                    <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Photo de profil" class="nav-avatar-image">
+                <?php else: ?>
+                    <?php echo $initials; ?>
+                <?php endif; ?>
+            </div>
+            <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem; margin-left: 10px;" title="Déconnexion">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-primary" style="font-size:0.82rem; padding:0.45rem 1rem;">
+                Connexion
+            </a>
+        <?php endif; ?>
     </div>
 </nav>
 
@@ -268,11 +324,7 @@ $unreadCount = $notifController->getUnreadCount(1);
 
     // Initialisation Stripe
     var stripe = Stripe('pk_test_your_public_key'); // Elle sera remplacée par la constante PHP ci-dessous
-<<<<<<< HEAD
     <?php require_once __DIR__ . '/../../controllers/config.php'; ?>
-=======
-    <?php require_once __DIR__ . '/../../config.php'; ?>
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
     stripe = Stripe('<?= STRIPE_PUBLIC_KEY ?>');
 
     var btn        = document.getElementById('checkout-btn');

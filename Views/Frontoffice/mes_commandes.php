@@ -3,10 +3,38 @@ require_once __DIR__ . '/../../controllers/commandeController.php';
 require_once __DIR__ . '/../../controllers/CommandeProduitController.php';
 require_once __DIR__ . '/../../controllers/Category_prodController.php';
 require_once __DIR__ . '/../../controllers/NotificationController.php';
+require_once __DIR__ . '/../../controllers/UserController.php';
+
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+$user = null;
+$hasAvatar = false;
+$avatarUrl = '';
+$initials = '';
+
+if (!empty($_SESSION['user_id'])) {
+    $userController = new UserController();
+    $user = $userController->getById((int)$_SESSION['user_id']);
+    if ($user) {
+        $initials = strtoupper(mb_substr($user->getPrenom(), 0, 1) . mb_substr($user->getNom(), 0, 1));
+        $avatar = trim((string)$user->getAvatar());
+        if ($avatar !== '') {
+            if (strpos($avatar, 'http') === 0) {
+                $avatarUrl = $avatar;
+            } else {
+                $avatarUrl = '../../' . ltrim(str_replace('\\', '/', $avatar), '/');
+            }
+            $hasAvatar = true;
+        }
+    }
+}
 
 $notifController = new NotificationController();
-$unreadCount = $notifController->getUnreadCount(1);
-$user_id = 1; // Utilisateur par défaut
+$user_id = $_SESSION['user_id'] ?? null;
+if (!$user_id) {
+    header('Location: login.php');
+    exit;
+}
+$unreadCount = $notifController->getUnreadCount($user_id);
 
 $commandeController = new CommandeController();
 $cpController = new CommandeProduitController();
@@ -14,7 +42,10 @@ $categoryController = new Category_prodController();
 
 // Traitement de la suppression
 if (isset($_GET['delete_id'])) {
-    $commandeController->deleteData((int)$_GET['delete_id']);
+    $targetOrder = $commandeController->getByIdData((int)$_GET['delete_id']);
+    if ($targetOrder && (int)($targetOrder['user_id'] ?? 0) === (int)$user_id) {
+        $commandeController->deleteData((int)$_GET['delete_id']);
+    }
     header('Location: mes_commandes.php');
     exit;
 }
@@ -38,9 +69,11 @@ $commandes = $commandeController->getByUserPaginated($user_id, $itemsPerPage, $o
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mes Commandes — FreelaSkill</title>
+    <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=6">
+    <script src="../assets/theme.js" defer></script>
     <style>
         .order-card {
             background: rgba(255,255,255,0.03);
@@ -135,9 +168,41 @@ $commandes = $commandeController->getByUserPaginated($user_id, $itemsPerPage, $o
         <li><a href="#">Missions</a></li>
         <li><a href="home.php" class="active">Marketplace</a></li>
         <li><a href="#">Freelancers</a></li>
+        <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
-        <div class="nav-avatar">AH</div>
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
+        </button>
+        
+        <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px; color: var(--text-muted);">
+            <i class="fa-solid fa-bell"></i>
+            <?php if($unreadCount > 0): ?>
+                <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#3b82f6;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);"><?= $unreadCount ?></span>
+            <?php endif; ?>
+        </a>
+        <a href="panier.php" class="cart-btn" style="position: relative; margin-right: 15px; color: var(--text-muted);">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-count" style="position:absolute;top:-6px;right:-6px;background:#ef4444;color:white;border-radius:50%;font-size:.7rem;font-weight:700;display:flex;align-items:center;justify-content:center;width:18px;height:18px;border:2px solid var(--bg-dark);">0</span>
+        </a>
+
+        <?php if ($user): ?>
+            <div class="nav-avatar<?php echo $hasAvatar ? ' has-image' : ''; ?>" title="<?php echo htmlspecialchars($user->getPrenom() . ' ' . $user->getNom()); ?>">
+                <?php if ($hasAvatar): ?>
+                    <img src="<?php echo htmlspecialchars($avatarUrl); ?>" alt="Photo de profil" class="nav-avatar-image">
+                <?php else: ?>
+                    <?php echo $initials; ?>
+                <?php endif; ?>
+            </div>
+            <a href="logout.php" class="btn btn-outline" style="font-size:0.82rem; padding:0.45rem 1rem; margin-left: 10px;" title="Déconnexion">
+                <i class="fa-solid fa-right-from-bracket"></i>
+            </a>
+        <?php else: ?>
+            <a href="login.php" class="btn btn-primary" style="font-size:0.82rem; padding:0.45rem 1rem;">
+                Connexion
+            </a>
+        <?php endif; ?>
     </div>
 </nav>
 

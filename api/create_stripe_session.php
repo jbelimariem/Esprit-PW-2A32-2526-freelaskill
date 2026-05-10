@@ -6,11 +6,7 @@ ini_set('display_errors', 0);
 error_reporting(E_ALL);
 
 try {
-<<<<<<< HEAD
     require_once __DIR__ . '/../controllers/config.php';
-=======
-    require_once __DIR__ . '/../config.php';
->>>>>>> e50c4cf (Mise a jour locale avant synchronisation)
     if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
     // Récupération des données du panier
@@ -22,15 +18,19 @@ try {
     }
 
     $pdo = config::getConnexion();
+    $currentUserId = $_SESSION['user_id'] ?? null;
     foreach ($input['items'] as $item) {
         $idProduit = (int)($item['idProduit'] ?? 0);
         $quantite = max(1, (int)($item['quantite'] ?? 1));
         if ($idProduit <= 0) {
             throw new Exception('Produit invalide dans le panier.');
         }
-        $stmt = $pdo->prepare("SELECT nom, stock, disponibilite FROM produit WHERE idProduit = ?");
+        $stmt = $pdo->prepare("SELECT nom, stock, disponibilite, user_id FROM produit WHERE idProduit = ?");
         $stmt->execute([$idProduit]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($currentUserId && $product && isset($product['user_id']) && (int)$product['user_id'] === (int)$currentUserId) {
+            throw new Exception('Vous ne pouvez pas acheter un produit que vous avez publie.');
+        }
         if (!$product || ($product['disponibilite'] ?? '') === 'Non disponible' || (int)$product['stock'] < $quantite) {
             $name = $product['nom'] ?? ('Produit #' . $idProduit);
             throw new Exception($name . ' est indisponible ou en stock insuffisant.');
@@ -43,7 +43,7 @@ try {
         'cart'    => $input['items'],
         'adresse' => $input['adresse'] ?? 'Non spécifiée',
         'total'   => (float)($input['total'] ?? 0),
-        'user_id' => $input['user_id'] ?? 1
+        'user_id' => $_SESSION['user_id'] ?? ($input['user_id'] ?? 1)
     ];
 
     $line_items = [];
