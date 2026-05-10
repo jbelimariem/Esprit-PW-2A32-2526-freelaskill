@@ -114,6 +114,9 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                     <a href="produits.php" class="submenu-item">
                         <i class="fa-solid fa-box"></i> Gestion Produits
                     </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
+                    </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
                     </a>
@@ -267,7 +270,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                                 $opacityStyle = 'opacity:0.6;';
                             } elseif ($dispoValue === 'Disponible maintenant') {
                                 $stockClass = 'in-stock';
-                                $stockText = 'Dispo. maintenant';
+                                $stockText = 'Stock: ' . $stockQty;
                                 $badgeColor = '#10b981'; // Vert
                                 $badgeText = 'EN STOCK';
                                 $opacityStyle = '';
@@ -280,7 +283,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                             } else {
                                 // Cas "Dans 2 semaines" ou "Dans 1 mois"
                                 $stockClass = 'low-stock';
-                                $stockText = $dispoValue;
+                                $stockText = $dispoValue . ' · Stock: ' . $stockQty;
                                 $badgeColor = '#f59e0b'; // Orange
                                 $badgeText = 'COMMANDE';
                                 $opacityStyle = '';

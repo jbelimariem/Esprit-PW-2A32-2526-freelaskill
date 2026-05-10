@@ -4,8 +4,10 @@ require_once __DIR__ . '/../../controllers/produitController.php';
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-if (!isset($_SESSION['admin_id'])) {
-    $_SESSION['admin_id'] = 1;
+$adminId = (int)($_SESSION['admin_id'] ?? $_SESSION['user_id'] ?? 0);
+if ($adminId <= 0) {
+    header('Location: ../Frontoffice/login.php');
+    exit();
 }
 
 $produitController = new ProduitController();
@@ -13,13 +15,16 @@ $pendingProducts = $produitController->getByStatutData('pending');
 
 // Gestion de la suppression
 if (isset($_GET['delete_id'])) {
-    $produitController->deleteData($_GET['delete_id'], $_SESSION['admin_id']);
+    $productToDelete = $produitController->getByIdData((int)$_GET['delete_id']);
+    if ($productToDelete && (int)($productToDelete['user_id'] ?? 0) === $adminId) {
+        $produitController->deleteData((int)$_GET['delete_id'], $adminId);
+    }
     header('Location: mes_achats.php');
     exit();
 }
 
 // On récupère les PRODUITS de l'admin (et non les commandes, comme souhaité par l'utilisateur)
-$mesProduits = $produitController->getAllAdminData($_SESSION['admin_id']);
+$mesProduits = $produitController->getAllAdminData($adminId);
 
 // Pagination
 $itemsPerPage = 10;
@@ -35,7 +40,7 @@ $mesProduitsPagines = array_slice($mesProduits, $startIndex, $itemsPerPage);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mes Achats (Mes Produits) | FreelaSkill</title>
+    <title>Mes produits admin | FreelaSkill</title>
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="stylesheet" href="admin.css">
     <link rel="stylesheet" href="css.css">
@@ -70,6 +75,9 @@ $mesProduitsPagines = array_slice($mesProduits, $startIndex, $itemsPerPage);
                     </a>
                     <a href="produits.php" class="submenu-item">
                         <i class="fa-solid fa-box"></i> Gestion Produits
+                    </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
                     </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
@@ -120,7 +128,7 @@ $mesProduitsPagines = array_slice($mesProduits, $startIndex, $itemsPerPage);
 
             <div class="admin-content">
                 <div class="admin-header-row">
-                    <h1 class="admin-page-title">Mes Achats (Mes Produits)</h1>
+                    <h1 class="admin-page-title">Mes produits admin</h1>
                 </div>
 
                 <div class="admin-grid" style="display: block;">

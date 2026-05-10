@@ -363,7 +363,7 @@ class ProduitController {
                     'category_id'   => $_POST['category'],
                     'statut'        => 'pending',
                     'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
-                    'stock'         => 1,
+                    'stock'         => max(0, (int)($_POST['stock'] ?? 0)),
                     'image'         => $imagePath,
                     'user_id'       => $_SESSION['user_id'] ?? ($_SESSION['admin_id'] ?? 1)
 
@@ -388,6 +388,7 @@ class ProduitController {
             }
 
             $price = max(1, (int) $_POST['price']);
+            $stock = max(0, (int) ($_POST['stock'] ?? 0));
             $data = [
                 'nom'           => $_POST['title'],
                 'description'   => $_POST['description'],
@@ -395,10 +396,10 @@ class ProduitController {
                 'category_id'   => $_POST['category'],
                 'statut'        => 'disponible',
                 'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
-                'stock'         => 1,
+                'stock'         => $stock,
 
                 'image'       => $imagePath,
-                'user_id'     => $_SESSION['admin_id'] ?? 1
+                'user_id'     => $_SESSION['admin_id'] ?? ($_SESSION['user_id'] ?? 1)
             ];
             $new_id = $this->createData($data);
             header('Location: produits.php');

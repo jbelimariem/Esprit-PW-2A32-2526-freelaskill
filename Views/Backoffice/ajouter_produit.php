@@ -53,6 +53,9 @@ $categories = $categoryController->getAllData();
                     <a href="produits.php" class="submenu-item">
                         <i class="fa-solid fa-box"></i> Gestion Produits
                     </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
+                    </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
                     </a>
@@ -130,7 +133,10 @@ $categories = $categoryController->getAllData();
                                 <label for="price" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Prix (DT)</label>
                                 <input id="price" name="price" type="number" min="1" class="price-input" style="width:100%;">
                             </div>
-                            <div></div>
+                            <div>
+                                <label for="stock" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Stock</label>
+                                <input id="stock" name="stock" type="number" min="0" step="1" class="price-input" style="width:100%;">
+                            </div>
                         </div>
 
                         <div>

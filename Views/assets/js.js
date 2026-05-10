@@ -270,6 +270,7 @@ function validateProductForm(form) {
     const title = form.querySelector('#title');
     const category = form.querySelector('#category');
     const price = form.querySelector('#price');
+    const stock = form.querySelector('#stock');
     const description = form.querySelector('#description');
     const availability = form.querySelector('#availability');
     const imageInput = form.querySelector('#product-image, #image');
@@ -289,6 +290,14 @@ function validateProductForm(form) {
         const parsedPrice = Number(price.value);
         if (price.value.trim() === '' || Number.isNaN(parsedPrice) || parsedPrice <= 0) {
             addFormError(price, 'Entrez un prix valide supérieur à 0.');
+            valid = false;
+        }
+    }
+
+    if (stock) {
+        const parsedStock = Number(stock.value);
+        if (stock.value.trim() === '' || Number.isNaN(parsedStock) || parsedStock < 0 || !Number.isInteger(parsedStock)) {
+            addFormError(stock, 'Entrez un stock valide de 0 ou plus.');
             valid = false;
         }
     }

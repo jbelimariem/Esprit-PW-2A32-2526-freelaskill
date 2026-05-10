@@ -82,39 +82,64 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
    ARIA AI ADVISOR — Widget Styles
 • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • • */
 #aria-fab {
-    position: fixed; bottom: 32px; right: 32px; z-index: 99999;
-    width: 58px; height: 58px; border-radius: 50%; border: none; cursor: pointer;
-    background: var(--tech-blue);
-    box-shadow: 0 4px 20px rgba(59,130,246,.5);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.4rem; color: #fff; transition: transform .25s ease;
-    animation: aria-pulse 2.5s infinite;
+    position: fixed; bottom: 1.4rem; right: 1.4rem; z-index: 99999;
+    min-width: 142px; height: 54px; padding: 0 1.2rem;
+    border: 1px solid rgba(59, 130, 246, 0.45);
+    border-radius: 999px; cursor: pointer;
+    background:
+        radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.22), transparent 34%),
+        linear-gradient(135deg, #0f172a, #1d4ed8);
+    box-shadow: 0 18px 44px rgba(2, 6, 23, 0.46), 0 0 30px rgba(59, 130, 246, 0.28);
+    display: inline-flex; align-items: center; justify-content: center; gap: 0.65rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1rem; font-weight: 600; color: #fff;
+    overflow: hidden;
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
 }
-#aria-fab:hover { transform: scale(1.1); }
-#aria-fab .aria-badge {
-    position: absolute; top: -4px; right: -4px;
-    background: #10b981; color: #fff; border-radius: 50%;
-    width: 20px; height: 20px; font-size: 9px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid #0f172a; letter-spacing: 0;
+#aria-fab:hover {
+    transform: translateY(-2px);
+    border-color: rgba(96, 165, 250, 0.8);
+    box-shadow: 0 24px 55px rgba(2, 6, 23, 0.52), 0 0 42px rgba(59, 130, 246, 0.36);
 }
-@keyframes aria-pulse {
-    0%,100% { box-shadow: 0 4px 20px rgba(59,130,246,.5); }
-    60%     { box-shadow: 0 4px 30px rgba(59,130,246,.0); }
+#aria-fab i,
+#aria-fab span:not(.aria-toggle-halo) {
+    position: relative;
+    z-index: 1;
+}
+.aria-toggle-halo {
+    position: absolute;
+    inset: -30% auto auto -20%;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(16, 185, 129, 0.36);
+    filter: blur(22px);
+    animation: aria-toggle-glow 4s ease-in-out infinite alternate;
+}
+@keyframes aria-toggle-glow {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(24px, 10px) scale(1.2); }
 }
 
 /* Widget panel */
 #aria-panel {
-    position: fixed; bottom: 110px; right: 32px; z-index: 99998;
-    width: 420px; max-height: 620px;
-    background: #0f172a;
-    border: 1px solid rgba(59,130,246,.2);
+    position: fixed; bottom: calc(1.4rem + 70px); right: 1.4rem; z-index: 99998;
+    width: min(390px, calc(100vw - 2rem));
+    max-height: min(680px, calc(100vh - 7rem));
+    background:
+        radial-gradient(circle at 15% 0%, rgba(59, 130, 246, 0.22), transparent 34%),
+        radial-gradient(circle at 95% 20%, rgba(16, 185, 129, 0.16), transparent 28%),
+        rgba(2, 6, 23, 0.92);
+    border: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     border-radius: 24px;
-    box-shadow: 0 32px 80px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04);
+    box-shadow: 0 28px 70px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     display: flex; flex-direction: column; overflow: hidden;
-    transform: translateY(20px) scale(.96); opacity: 0;
+    transform: translateY(18px) scale(.96); opacity: 0;
+    transform-origin: bottom right;
     pointer-events: none;
-    transition: all .3s cubic-bezier(.34,1.56,.64,1);
+    transition: opacity .25s ease, transform .25s ease;
 }
 #aria-panel.open {
     transform: translateY(0) scale(1); opacity: 1; pointer-events: all;
@@ -122,61 +147,63 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 
 /* Header */
 .aria-header {
-    background: rgba(59,130,246,.06);
-    padding: 18px 20px; display: flex; align-items: center; gap: 14px;
-    border-bottom: 1px solid rgba(255,255,255,.07);
+    padding: 1.15rem 1.2rem 1rem; display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+    border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.1));
     position: relative;
 }
-.aria-avatar {
-    width: 46px; height: 46px; border-radius: 50%;
-    background: var(--tech-blue);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 1.3rem; flex-shrink: 0;
-    box-shadow: 0 0 16px rgba(59,130,246,.4);
+.aria-kicker {
+    margin: 0 0 .2rem;
+    color: var(--tech-blue, #3b82f6);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
 }
-@keyframes aria-glow {
-    0%,100% { box-shadow: 0 0 12px rgba(59,130,246,.4); }
-    50%     { box-shadow: 0 0 24px rgba(59,130,246,.7); }
+.aria-title {
+    margin: 0;
+    color: #fff;
+    font-size: 1.05rem;
+    line-height: 1.2;
 }
-.aria-header-info .aria-name { font-weight: 700; font-size: 1rem; color: #f1f5f9; }
-.aria-header-info .aria-status {
-    font-size: .75rem; color: #10b981;
-    display: flex; align-items: center; gap: 5px;
-}
-.aria-status-dot {
-    width: 7px; height: 7px; border-radius: 50%; background: #10b981;
-    animation: blink 1.5s infinite;
-}
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 .aria-close-btn {
-    margin-left: auto; background: rgba(255,255,255,.07); border: none;
-    color: #94a3b8; width: 32px; height: 32px; border-radius: 50%;
+    margin-left: auto; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+    color: #cbd5e1; width: 34px; height: 34px; border-radius: 50%;
     cursor: pointer; font-size: 1rem; display: flex;
     align-items: center; justify-content: center; transition: all .2s;
 }
-.aria-close-btn:hover { background: rgba(239,68,68,.2); color: #ef4444; }
+.aria-close-btn:hover { background: rgba(255,255,255,.12); color: #fff; transform: rotate(6deg); }
 
 /* Quick suggestions */
 .aria-suggestions {
     display: flex; gap: 8px; flex-wrap: wrap;
-    padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,.06);
+    padding: 0; border-bottom: 0;
 }
 .aria-chip {
     background: rgba(59,130,246,.1); border: 1px solid rgba(59,130,246,.25);
-    color: var(--tech-blue); font-size: .72rem; font-weight: 500;
-    padding: 5px 12px; border-radius: 20px; cursor: pointer;
+    color: #bfdbfe; font-size: .78rem; font-weight: 500;
+    padding: .45rem .7rem; border-radius: 999px; cursor: pointer;
     transition: all .2s; white-space: nowrap;
 }
 .aria-chip:hover {
-    background: rgba(59,130,246,.2); color: #fff;
-    border-color: rgba(59,130,246,.5); transform: translateY(-1px);
+    background: rgba(59,130,246,.18); color: #fff;
+    border-color: rgba(96,165,250,.48); transform: translateY(-1px);
 }
 
 /* Messages */
+.aria-body {
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .9rem;
+    padding: 1rem;
+    overflow: hidden;
+}
 .aria-messages {
-    flex: 1; overflow-y: auto; padding: 16px;
+    min-height: 120px;
+    max-height: 300px;
+    overflow-y: auto; padding-right: .2rem;
     display: flex; flex-direction: column; gap: 14px;
-    scrollbar-width: thin; scrollbar-color: rgba(59,130,246,.25) transparent;
+    scrollbar-width: thin; scrollbar-color: rgba(59,130,246,.55) transparent;
 }
 .aria-messages::-webkit-scrollbar { width: 4px; }
 .aria-messages::-webkit-scrollbar-thumb {
@@ -184,7 +211,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 }
 
 .msg-bubble {
-    max-width: 88%; animation: msgIn .3s ease;
+    max-width: 86%; animation: msgIn .3s ease;
 }
 @keyframes msgIn { from { opacity:0; transform: translateY(8px); } }
 .msg-bubble.user { align-self: flex-end; }
@@ -193,17 +220,24 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 .aria-msg { align-self: flex-start; }
 
 .msg-content {
-    padding: 11px 15px; border-radius: 16px;
-    font-size: .875rem; line-height: 1.55; color: #e2e8f0;
+    padding: .78rem .92rem; border-radius: 18px;
+    font-size: .9rem; line-height: 1.5; color: #e2e8f0;
+    word-break: break-word;
+    text-align: left;
 }
 .msg-bubble.user .msg-content, .user-msg .msg-content {
-    background: var(--tech-blue);
-    border-radius: 16px 16px 4px 16px;
+    color: #fff;
+    background: linear-gradient(135deg, #2563eb, #0ea5e9);
+    border-radius: 18px;
+    border-bottom-right-radius: 6px;
+    box-shadow: 0 10px 26px rgba(37, 99, 235, .24);
 }
 .msg-bubble.aria .msg-content, .aria-msg .msg-content {
-    background: rgba(255,255,255,.06);
-    border: 1px solid rgba(255,255,255,.08);
-    border-radius: 16px 16px 16px 4px;
+    color: #dbeafe;
+    background: rgba(15, 23, 42, .78);
+    border: 1px solid rgba(59, 130, 246, .22);
+    border-radius: 18px;
+    border-bottom-left-radius: 6px;
 }
 .msg-time { font-size: .68rem; color: #475569; margin-top: 4px; text-align: right; }
 .msg-bubble.aria .msg-time, .aria-msg .msg-time { text-align: left; }
@@ -252,6 +286,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 /* Input area */
 .aria-input-area {
     padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.07);
+    background: rgba(2, 6, 23, 0.58);
     display: flex; gap: 10px; align-items: flex-end;
 }
 .aria-input {
@@ -264,23 +299,26 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 .aria-input::placeholder { color: #475569; }
 .aria-input:focus { border-color: rgba(99,102,241,.5); }
 .aria-send-btn {
-    width: 42px; height: 42px; border-radius: 12px; border: none;
-    background: var(--tech-blue); color: #fff;
+    width: 42px; height: 42px; border-radius: 50%; border: none;
+    background: linear-gradient(135deg, var(--tech-blue, #3b82f6), #0ea5e9); color: #fff;
     cursor: pointer; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 24px rgba(59, 130, 246, 0.22);
     font-size: 1rem; flex-shrink: 0; transition: transform .2s, opacity .2s;
 }
-.aria-send-btn:hover { transform: scale(1.08); }
+.aria-send-btn:hover { transform: translateY(-1px); }
 .aria-send-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 
 /* Intro message card */
-.aria-intro { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 8px 0; }
-.aria-intro-icon { font-size: 2.5rem; margin-bottom: 8px; }
-.aria-intro-title { font-weight: 700; font-size: 1rem; color: #f1f5f9; margin-bottom: 6px; }
-.aria-intro-sub { font-size: .8rem; color: #64748b; line-height: 1.5; }
+.aria-intro { display: block; text-align: left; padding: 0; }
+.aria-intro-icon { display: none; }
+.aria-intro-title { font-weight: 700; font-size: .95rem; color: #f8fafc; margin-bottom: .25rem; }
+.aria-intro-sub { font-size: .9rem; color: #dbeafe; line-height: 1.5; }
+.aria-intro-sub br { display: none; }
 
 @media (max-width: 480px) {
-    #aria-panel { width: calc(100vw - 24px); right: 12px; bottom: 90px; }
-    #aria-fab { bottom: 20px; right: 20px; }
+    #aria-panel { width: calc(100vw - 1.4rem); right: .7rem; bottom: calc(1rem + 66px); border-radius: 20px; }
+    #aria-fab { bottom: 1rem; right: 1rem; min-width: 54px; width: 54px; padding: 0; }
+    #aria-fab span:not(.aria-toggle-halo) { display: none; }
 }
 
 .card-image { position: relative; overflow: hidden; }
@@ -764,13 +802,13 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
                         $stockText = 'Rupture de stock';
                     } elseif ($dispoValue === 'Disponible maintenant') {
                         $stockClass = 'in-stock';
-                        $stockText = 'Dispo. maintenant';
+                        $stockText = 'Stock: ' . $stockCount;
                     } elseif ($dispoValue === 'Non disponible') {
                         $stockClass = 'out-stock';
                         $stockText = 'Non disponible';
                     } else {
                         $stockClass = 'low-stock';
-                        $stockText = $dispoValue;
+                        $stockText = $dispoValue . ' · Stock: ' . $stockCount;
                     }
                     
                     $opStyle    = $dispoValue === 'Non disponible' ? 'opacity:0.6;' : '';
@@ -851,48 +889,46 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 
 <script src="../assets/js.js?v=7"></script>
 
-<button id="aria-fab" onclick="toggleAria()" title="Conseiller IA">
-    <i class="fa-solid fa-robot"></i>
-    <span class="aria-badge">AI</span>
+<button type="button" id="aria-fab" onclick="toggleAria()" title="Assistant" aria-label="Ouvrir assistant">
+    <span class="aria-toggle-halo"></span>
+    <i class="fa-solid fa-comments"></i>
+    <span>Assistant</span>
 </button>
 
 <div id="aria-panel">
     <div class="aria-header">
-        <div class="aria-avatar"><i class="fa-solid fa-robot"></i></div>
         <div class="aria-header-info">
-            <div class="aria-name">ARIA</div>
-            <div class="aria-status">
-                <div class="aria-status-dot"></div>
-                Conseillère IA · En ligne
-            </div>
+            <p class="aria-kicker">FreelaSkill AI</p>
+            <h2 class="aria-title">Besoin d'aide ?</h2>
         </div>
         <button class="aria-close-btn" onclick="toggleAria()" title="Fermer">
             <i class="fa-solid fa-xmark"></i>
         </button>
     </div>
 
-    <!-- Quick suggestions -->
-    <div class="aria-suggestions" id="aria-chips">
-        <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-wallet"></i> Budget 200 DT</span>
-        <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-laptop"></i> Meilleur laptop</span>
-        <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-gamepad"></i> Gaming</span>
-        <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-star"></i> Rapport qualité/prix</span>
-    </div>
-
-    <div class="aria-messages" id="aria-messages">
-        <div class="msg-bubble aria-msg">
-            <div class="msg-content">
-                <div class="aria-intro">
-                    <div class="aria-intro-icon"><i class="fa-solid fa-sparkles" style="color:var(--tech-blue)"></i></div>
-                    <div class="aria-intro-title">Bonjour ! Je suis ARIA</div>
-                    <div class="aria-intro-sub">
-                        Votre conseillère shopping IA.<br>
-                        Dites-moi votre <strong>budget</strong> et votre <strong>besoin</strong>,
-                        je trouve le produit parfait pour vous.
+    <div class="aria-body">
+        <div class="aria-messages" id="aria-messages">
+            <div class="msg-bubble aria-msg">
+                <div class="msg-content">
+                    <div class="aria-intro">
+                        <div class="aria-intro-icon"><i class="fa-solid fa-sparkles" style="color:var(--tech-blue)"></i></div>
+                        <div class="aria-intro-title">Bonjour ! Je suis ARIA</div>
+                        <div class="aria-intro-sub">
+                            Votre conseillere shopping IA.<br>
+                            Dites-moi votre <strong>budget</strong> et votre <strong>besoin</strong>,
+                            je trouve le produit parfait pour vous.
+                        </div>
                     </div>
                 </div>
+                <div class="msg-time">Maintenant</div>
             </div>
-            <div class="msg-time">Maintenant</div>
+        </div>
+
+        <div class="aria-suggestions" id="aria-chips">
+            <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-wallet"></i> Budget 200 DT</span>
+            <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-laptop"></i> Meilleur laptop</span>
+            <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-gamepad"></i> Gaming</span>
+            <span class="aria-chip" onclick="sendChip(this)"><i class="fa-solid fa-star"></i> Rapport qualite/prix</span>
         </div>
     </div>
     <div class="aria-input-area">

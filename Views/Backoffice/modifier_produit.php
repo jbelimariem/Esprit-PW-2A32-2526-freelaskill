@@ -30,8 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $price = (int) $_POST['price'];
+    $stock = (int) ($_POST['stock'] ?? -1);
     if ($price <= 0) {
         $errors[] = 'Le prix doit être supérieur à 0.';
+    }
+
+    if ($stock < 0) {
+        $errors[] = 'Le stock doit etre superieur ou egal a 0.';
     }
 
     if (empty($errors)) {
@@ -42,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'category_id' => $_POST['category'],
             'statut'      => $_POST['statut'] ?? $produit['statut'],
             'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
-            'stock'       => $produit['stock'],
+            'stock'       => $stock,
             'image'       => $imagePath
         ];
 
@@ -94,6 +99,9 @@ $categories = $categoryController->getAllData();
                     </a>
                     <a href="produits.php" class="submenu-item">
                         <i class="fa-solid fa-box"></i> Gestion Produits
+                    </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
                     </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
@@ -183,6 +191,10 @@ $categories = $categoryController->getAllData();
                                 <input id="price" name="price" type="number" min="1" value="<?= htmlspecialchars($produit['prix']) ?>" class="price-input" style="width:100%;">
                             </div>
                             <div>
+                                <label for="stock" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Stock</label>
+                                <input id="stock" name="stock" type="number" min="0" step="1" value="<?= htmlspecialchars($produit['stock']) ?>" class="price-input" style="width:100%;">
+                            </div>
+                            <div>
                                 <label for="disponibilite" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Disponibilité actuelle</label>
                                 <select id="disponibilite" name="disponibilite" class="price-input" style="width:100%;">
                                     <option value="Disponible maintenant" <?= ($produit['disponibilite'] ?? '') === 'Disponible maintenant' ? 'selected' : '' ?>>Disponible maintenant</option>
@@ -211,9 +223,9 @@ $categories = $categoryController->getAllData();
                             </div>
                             <div style="display:flex; flex-direction:column; gap:1rem;">
                                 <div style="background: rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius: 1rem; padding: 1rem;">
-                                    <p style="color:#94A3B8; margin:0 0 .75rem 0;">Stock actuel</p>
+                                    <p style="color:#94A3B8; margin:0 0 .75rem 0;">Stock enregistre</p>
                                     <div style="font-weight:700; font-size:1.5rem; color:white;"><?= htmlspecialchars($produit['stock']) ?></div>
-                                    <p style="color:var(--text-muted); margin-top:.5rem;">Le stock n’est pas modifiable ici pour éviter des erreurs de quantité.</p>
+                                    <p style="color:var(--text-muted); margin-top:.5rem;">Modifiez la quantite avec le champ Stock du formulaire.</p>
                                 </div>
                                 <div style="display:flex; gap:1rem; flex-wrap:wrap;">
                                     <button type="submit" class="admin-btn" style="flex:1; min-width:160px;">Enregistrer</button>

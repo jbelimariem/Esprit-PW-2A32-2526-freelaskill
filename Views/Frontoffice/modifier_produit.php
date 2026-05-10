@@ -40,6 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     $price = max(1, (int) $_POST['price']);
+    $stock = max(0, (int) ($_POST['stock'] ?? 0));
     $data = [
         'nom'         => $_POST['title'],
         'description' => $_POST['description'],
@@ -47,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'category_id' => $_POST['category'],
         'statut'      => $produit['statut'],
         'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
-        'stock'       => $produit['stock'],
+        'stock'       => $stock,
         'image'       => $imagePath
     ];
     
@@ -167,6 +168,11 @@ $categories = $categoryController->getAllData();
                         <label for="price" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Prix (DT)</label>
                         <input id="price" name="price" type="number" min="1" value="<?= htmlspecialchars($produit['prix']) ?>" class="price-input" style="width: 100%;">
                     </div>
+
+                    <div>
+                        <label for="stock" style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Stock</label>
+                        <input id="stock" name="stock" type="number" min="0" step="1" value="<?= htmlspecialchars($produit['stock']) ?>" class="price-input" style="width: 100%;">
+                    </div>
                     
                     <div style="grid-column: 1 / -1; margin-bottom: 0.5rem;">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 0.5rem;">
@@ -236,6 +242,7 @@ $categories = $categoryController->getAllData();
     </div>
 </div>
 
+<script src="../assets/js.js?v=6"></script>
 <script>
 const imageInput = document.getElementById('product-image');
 const imageDropzone = document.getElementById('image-dropzone');

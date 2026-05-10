@@ -446,7 +446,7 @@ try {
                             $opacityStyle = 'opacity:0.6;';
                         } elseif ($dispoValue === 'Disponible maintenant') {
                             $stockClass = 'in-stock';
-                            $stockText = 'Dispo. maintenant';
+                            $stockText = 'Stock: ' . $stockQty;
                             $opacityStyle = '';
                         } elseif ($dispoValue === 'Non disponible') {
                             $stockClass = 'out-stock';
@@ -454,7 +454,7 @@ try {
                             $opacityStyle = 'opacity:0.6;';
                         } else {
                             $stockClass = 'low-stock';
-                            $stockText = $dispoValue;
+                            $stockText = $dispoValue . ' · Stock: ' . $stockQty;
                             $opacityStyle = '';
                         }
 

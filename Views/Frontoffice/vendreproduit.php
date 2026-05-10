@@ -53,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $description = trim($_POST['description'] ?? '');
     $category = $_POST['category'] ?? '';
     $price = max(0, (int) ($_POST['price'] ?? 0));
+    $stock = (int) ($_POST['stock'] ?? -1);
 
     if ($title === '') {
         $errors[] = 'Le titre du produit est obligatoire.';
@@ -67,6 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Le prix doit être supérieur à 0.';
     }
 
+    if ($stock < 0) {
+        $errors[] = 'Le stock doit etre superieur ou egal a 0.';
+    }
+
     if (empty($errors)) {
         $data = [
             'nom' => $title,
@@ -75,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'category_id' => $category,
             'statut' => 'pending',
             'disponibilite' => $_POST['disponibilite'] ?? 'Disponible maintenant',
-            'stock' => 1,
+            'stock' => $stock,
             'image' => $imagePath,
             'user_id' => $currentUserId
         ];
@@ -276,6 +281,14 @@ $categories = $categoryController->getAllData();
                                 style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Prix
                                 (DT)</label>
                             <input id="price" name="price" type="number" min="1" placeholder="Ex. 1450"
+                                class="price-input" style="width: 100%;">
+                        </div>
+
+                        <div>
+                            <label for="stock"
+                                style="display:block; margin-bottom:.5rem; color:#94A3B8; font-size:.9rem; font-weight: 500;">Stock</label>
+                            <input id="stock" name="stock" type="number" min="0" step="1" placeholder="Ex. 3"
+                                value="<?= htmlspecialchars($_POST['stock'] ?? '') ?>"
                                 class="price-input" style="width: 100%;">
                         </div>
 

@@ -286,6 +286,9 @@
                     <a href="produits.php" class="submenu-item">
                         <i class="fa-solid fa-box"></i> Gestion Produits
                     </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
+                    </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
                     </a>
