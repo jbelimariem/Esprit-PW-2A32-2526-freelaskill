@@ -27,7 +27,7 @@ try {
 
     $nom = trim($_POST['nom'] ?? '');
     $prenom = trim($_POST['prenom'] ?? '');
-    $role = trim($_POST['role'] ?? 'freelancer');
+    $role = trim($_POST['user_role'] ?? 'freelancer');
     $existingBio = trim($_POST['bio'] ?? '');
 
     $fullName = trim($prenom . ' ' . $nom);

@@ -590,11 +590,11 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     </div>
     <ul class="nav-links">
         <li><a href="#">Accueil</a></li>
-        <?php if (empty($_SESSION['role']) || $_SESSION['role'] !== 'freelancer'): ?>
+        <?php if (empty($_SESSION['user_role']) || $_SESSION['user_role'] !== 'freelancer'): ?>
         <li><a href="#">Missions</a></li>
         <?php endif; ?>
         <li><a href="home.php" class="active">Marketplace</a></li>
-        <?php if (empty($_SESSION['role']) || $_SESSION['role'] !== 'client'): ?>
+        <?php if (empty($_SESSION['user_role']) || $_SESSION['user_role'] !== 'client'): ?>
         <li><a href="#">Freelancers</a></li>
         <?php endif; ?>
         <li><a href="profile.php">Mon Profil</a></li>
