@@ -610,9 +610,13 @@
     </div>
     <ul class="nav-links">
         <li><a href="#">Accueil</a></li>
+        <?php if (empty($_SESSION['role']) || $_SESSION['role'] !== 'freelancer'): ?>
         <li><a href="#">Missions</a></li>
+        <?php endif; ?>
         <li><a href="home.php">Marketplace</a></li>
+        <?php if (empty($_SESSION['role']) || $_SESSION['role'] !== 'client'): ?>
         <li><a href="#">Freelancers</a></li>
+        <?php endif; ?>
         <li><a href="profile.php" class="active">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
