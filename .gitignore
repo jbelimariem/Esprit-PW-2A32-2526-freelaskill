@@ -1,5 +1,3 @@
-controllers/config.local.php
-controllers/email_config.local.php
 uploads/
 local_emails/
 test_*.php
