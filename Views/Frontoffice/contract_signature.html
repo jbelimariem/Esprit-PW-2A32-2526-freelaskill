@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Signature du Contrat - FreelaSkill</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="engagements.html">Mes Engagements</a></li>
+        <li><a href="contract_creation.html">Nouveau Contrat</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="card-futuristic">
+        <div class="card-content">
+          <span class="badge-tunisia">Signature du Contrat</span>
+          <h2 class="card-title">Contrat #123 - Développement Web</h2>
+          <p class="card-desc">Veuillez lire attentivement le contrat avant de signer.</p>
+
+          <div class="contract-preview">
+            <h3>Aperçu du contrat</h3>
+            <div class="contract-text">
+              <p><strong>Parties concernées :</strong></p>
+              <p>Client : TechCorp</p>
+              <p>Freelance : DevPro</p>
+              <p><strong>Description :</strong> Création d'un site e-commerce complet...</p>
+              <p><strong>Budget :</strong> 5000€</p>
+              <p><strong>Durée :</strong> Du 01/10/2023 au 01/12/2023</p>
+              <p><strong>Conditions :</strong> Paiement par jalons, confidentialité...</p>
+            </div>
+          </div>
+
+          <div class="signature-section">
+            <h3>Signature électronique</h3>
+            <div class="form-group">
+              <label for="signature-name">Nom complet</label>
+              <input class="form-control" type="text" id="signature-name" placeholder="Votre nom complet">
+            </div>
+            <div class="form-group">
+              <label for="signature-email">Email</label>
+              <input class="form-control" type="email" id="signature-email" placeholder="votre.email@example.com">
+            </div>
+            <div class="form-group">
+              <label for="signature-date">Date</label>
+              <input class="form-control" type="date" id="signature-date">
+            </div>
+            <div class="checkbox-group">
+              <input type="checkbox" id="accept-terms">
+              <label for="accept-terms">J'accepte les termes et conditions du contrat</label>
+            </div>
+          </div>
+
+          <div class="engagement-actions">
+            <button class="btn btn-secondary" onclick="refuseContract()">Refuser</button>
+            <button class="btn btn-primary" onclick="signContract()">Signer le contrat</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 FreelaSkill. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    function refuseContract() {
+      if (confirm('Êtes-vous sûr de vouloir refuser ce contrat ?')) {
+        alert('Contrat refusé');
+        window.location.href = 'engagements.html';
+      }
+    }
+
+    function signContract() {
+      const name = document.getElementById('signature-name').value;
+      const email = document.getElementById('signature-email').value;
+      const date = document.getElementById('signature-date').value;
+      const accepted = document.getElementById('accept-terms').checked;
+
+      if (!name || !email || !date || !accepted) {
+        alert('Veuillez remplir tous les champs et accepter les termes.');
+        return;
+      }
+
+      // In a real app, this would be sent to the server
+      alert('Contrat signé avec succès !');
+      window.location.href = 'engagements.html';
+    }
+
+    // Set current date
+    document.getElementById('signature-date').valueAsDate = new Date();
+  </script>
+</body>
+</html>
