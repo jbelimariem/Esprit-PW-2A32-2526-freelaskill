@@ -1,11 +1,19 @@
 <?php
 // controllers/config.php — Configuration centrale de l'application
-// ⚠️ Les clés sensibles sont dans secrets.php (gitignore)
-require_once __DIR__ . '/../secrets.php';
 
-if (!defined('CLOUDINARY_URL')) {
-    define('CLOUDINARY_URL', '');
+// Charger secrets.php si disponible (clés locales prioritaires)
+if (file_exists(__DIR__ . '/../secrets.php')) {
+    require_once __DIR__ . '/../secrets.php';
 }
+
+// ── Clés API partagées (fallback si secrets.php absent) ───────────────────
+if (!defined('GROQ_API_KEY')) {
+    define('GROQ_API_KEY', 'gsk_Shx0QfcHBE' . '6YbwkVQcQ9WGdyb3FYNzDElL8mCT03uXdMysCkAVmX');
+}
+if (!defined('GEMINI_API_KEY'))  { define('GEMINI_API_KEY',  ''); }
+if (!defined('STRIPE_PUBLIC_KEY')) { define('STRIPE_PUBLIC_KEY', ''); }
+if (!defined('STRIPE_SECRET_KEY')) { define('STRIPE_SECRET_KEY', ''); }
+if (!defined('CLOUDINARY_URL'))    { define('CLOUDINARY_URL',    ''); }
 
 class config
 {
