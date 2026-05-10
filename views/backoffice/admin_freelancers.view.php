@@ -74,10 +74,17 @@ function statutBadgeApp($s) {
     <div class="admin-layout">
         <!-- SIDEBAR -->
         <aside class="admin-sidebar">
-            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+            <div class="logo-container">
+                <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+                <div class="admin-version">Admin Control v1.0</div>
+            </div>
             <nav class="admin-nav">
-                <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-briefcase"></i> Missions</a>
-                <a href="admin_freelancers.php" class="admin-nav-item active"><i class="fa-solid fa-users"></i> Freelancers</a>
+                <a href="#" class="admin-nav-item"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
+                <a href="dashboard.php" class="admin-nav-item"><i class="fa-solid fa-sitemap"></i> Flux de Missions</a>
+                <a href="admin_freelancers.php" class="admin-nav-item active"><i class="fa-solid fa-user-tie"></i> Freelancers</a>
+                <a href="#" class="admin-nav-item"><i class="fa-solid fa-store"></i> Marketplace <i class="fa-solid fa-chevron-right arrow"></i></a>
+                <a href="#" class="admin-nav-item"><i class="fa-solid fa-shield-halved"></i> Securite</a>
+                <a href="#" class="admin-nav-item"><i class="fa-solid fa-comment-dots"></i> Messagerie</a>
             </nav>
             <div class="admin-sidebar-user">
                 <div class="avatar">A</div>

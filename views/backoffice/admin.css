@@ -5,18 +5,19 @@
     --tech-blue-hover: #2563eb;
     --tech-green: #10b981;
     --tunisian-red: #ef4444;
-    --text-muted: #94a3b8;
-    --text-light: #cbd5e1;
-    --bg-dark: #020617;
+    --text-muted: #64748b;
+    --text-light: #94a3b8;
+    --bg-dark: #050811;
+    --bg-sidebar: #050811;
     --bg-card: rgba(255, 255, 255, 0.03);
-    --border: rgba(255, 255, 255, 0.08);
+    --border: rgba(255, 255, 255, 0.05);
     --border-hover: rgba(59, 130, 246, 0.4);
     --radius-sm: 8px;
     --radius-md: 12px;
     --radius-lg: 18px;
     --radius-full: 9999px;
-    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    --neon-blue: 0 0 32px rgba(59, 130, 246, 0.4);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --neon-blue: 0 0 32px rgba(59, 130, 246, 0.2);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,33 +39,44 @@ body {
 /* ── SIDEBAR ── */
 .admin-sidebar {
     width: 280px;
-    background: rgba(2, 6, 23, 0.6);
-    backdrop-filter: blur(30px);
-    -webkit-backdrop-filter: blur(30px);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border);
     position: fixed;
     top: 0; bottom: 0; left: 0;
     z-index: 100;
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
 }
 
+.admin-sidebar .logo-container {
+    padding: 2.5rem 2rem 1.5rem;
+}
 .admin-sidebar .logo {
-    padding: 2rem 1.5rem;
-    font-size: 1.6rem;
-    font-weight: 700;
+    font-size: 1.8rem;
+    font-weight: 800;
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: white;
+    letter-spacing: -0.5px;
 }
 .admin-sidebar .logo i { 
-    color: var(--tech-blue); 
-    filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.5));
+    color: var(--tunisian-red); /* Using red icon from image */
+    font-size: 1.4rem;
 }
-.admin-sidebar .logo span { color: white; }
+.admin-sidebar .logo span { 
+    color: var(--tech-blue); 
+    font-weight: 500;
+    margin-left: 4px;
+}
+.admin-sidebar .admin-version {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 0.5rem;
+    font-weight: 500;
+    opacity: 0.7;
+}
 
 .admin-nav {
     padding: 1.5rem 1rem;
@@ -81,43 +93,48 @@ body {
 .admin-nav-item {
     display: flex;
     align-items: center;
-    gap: 1rem;
-    padding: 0.9rem 1.2rem;
+    gap: 1.2rem;
+    padding: 0.9rem 1.5rem;
     border-radius: var(--radius-md);
-    color: var(--text-muted);
-    font-weight: 500;
+    color: var(--text-light);
+    font-weight: 600;
     transition: var(--transition);
     text-decoration: none;
     font-size: 0.95rem;
-    position: relative;
-    overflow: hidden;
+    margin: 0 0.5rem;
 }
 
 .admin-nav-item i {
-    width: 22px;
+    width: 24px;
     text-align: center;
-    font-size: 1.15rem;
-    transition: transform 0.3s ease;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
 }
 
 .admin-nav-item:hover {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.03);
     color: white;
 }
 
 .admin-nav-item:hover i {
-    transform: scale(1.1);
+    color: white;
 }
 
 .admin-nav-item.active {
-    background: linear-gradient(90deg, rgba(59, 130, 246, 0.15) 0%, transparent 100%);
+    background: #1e293b;
     color: white;
-    border-left: 3px solid var(--tech-blue);
-    box-shadow: inset 20px 0 20px -20px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 .admin-nav-item.active i {
-    color: var(--tech-blue);
+    color: white;
+}
+
+.admin-nav-item .arrow {
+    margin-left: auto;
+    font-size: 0.8rem;
+    opacity: 0.4;
 }
 
 /* ── SIDEBAR USER PROFILE ── */
