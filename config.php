@@ -13,9 +13,10 @@ class config {
             $dbname     = "freelaskill";
             try {
                 self::$pdo = new PDO(
-                    "mysql:host=$servername;dbname=$dbname;charset=utf8",
+                    "mysql:host=$servername;dbname=$dbname;charset=utf8mb4",
                     $username,
-                    $password
+                    $password,
+                    [PDO::MYSQL_ATTR_INIT_COMMAND => "SET NAMES utf8mb4"]
                 );
                 self::$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
                 self::$pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);

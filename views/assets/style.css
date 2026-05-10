@@ -1,4 +1,4 @@
-﻿        :root {
+        :root {
             --tech-blue: #3b82f6;
             --tech-blue-hover: #2563eb;
             --tech-green: #10b981;
@@ -1517,7 +1517,7 @@
             top: 0;
             left: 0;
             bottom: 0;
-            width: 300px;
+            width: 260px;
             background: rgba(2, 6, 23, 0.7);
             backdrop-filter: blur(24px);
             -webkit-backdrop-filter: blur(24px);
@@ -1636,7 +1636,7 @@
         /* â”€â”€ Main panel â”€â”€ */
         .mkt-main {
             flex: 1;
-            margin-left: 300px; /* same as sidebar width */
+            margin-left: 260px; /* same as sidebar width */
             padding: 0 2rem 4rem;
             min-width: 0;
             display: flex;
@@ -2032,3 +2032,120 @@
             }
             .fs-trl-tooltip { display: none; }
         }
+        
+/* ──────────────── Job Cards ──────────────── */
+.job-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.job-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+.job-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--border-hover);
+    box-shadow: var(--neon-blue);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.job-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.job-icon {
+    font-size: 1.5rem;
+}
+
+.job-titre {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    line-height: 1.4;
+}
+
+.job-competences {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.job-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.job-meta span {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.job-budget {
+    font-weight: 700;
+    color: var(--tech-green);
+    font-size: 1rem;
+}
+
+.job-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn-action {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.65rem;
+    border-radius: var(--radius-md);
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition);
+    border: 1px solid transparent;
+}
+
+.btn-view {
+    background: rgba(59, 130, 246, 0.1);
+    color: var(--tech-blue);
+    border-color: rgba(59, 130, 246, 0.2);
+}
+.btn-view:hover { background: var(--tech-blue); color: white; }
+
+.btn-edit {
+    background: rgba(245, 158, 11, 0.1);
+    color: #F59E0B;
+    border-color: rgba(245, 158, 11, 0.2);
+}
+.btn-edit:hover { background: #F59E0B; color: white; }
+
+.btn-delete {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--tunisian-red);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+.btn-delete:hover { background: var(--tunisian-red); color: white; }
+

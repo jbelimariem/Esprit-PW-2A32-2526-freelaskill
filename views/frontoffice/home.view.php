@@ -21,16 +21,6 @@ function statutBadge($statut) {
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=<?= time() ?>">
     <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
-    <!-- Librairies PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-    <style>
-        .job-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
-    <!-- Librairies PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
@@ -40,30 +30,70 @@ function statutBadge($statut) {
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             gap: 1.25rem;
         }
+
+        /* MODAL CSS */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+        .modal-text { color: #94a3b8; line-height: 1.6; margin-bottom: 2rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: center; }
+        .btn-modal { padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-modal-cancel { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-modal-confirm { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        .btn-modal-confirm:hover { background: #dc2626; transform: translateY(-2px); }
     </style>
 </head>
 <body class="page-anim home-page">
 
-<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
-            <div class="logo">
-                <i class="fa-solid fa-shapes"></i>
-                Freela<span>Skill</span>
-            </div>
-            <ul class="nav-links">
-                <li><a href="home.php">Accueil</a></li>
-                <li><a href="home.php" class="active">Client</a></li>
-                <li><a href="freelancer_home.php">Freelancer</a></li>
-                <li><a href="#">Messagerie</a></li>
-            </ul>
-            <div class="nav-right">
-                <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <div class="nav-avatar">CL</div>
-            </div>
-        </nav>
-
-
+<nav>
+    <div class="logo">
+        <i class="fa-solid fa-shapes"></i>
+        Freela<span>Skill</span>
+    </div>
+    <ul class="nav-links">
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'missions.php') ? 'active' : '' ?>">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'freelancer_home.php') ? 'active' : '' ?>">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
+    </ul>
+    <div class="nav-right">
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
+        </button>
+        <div class="nav-avatar">CL</div>
+    </div>
+</nav>
 
 <?php $success = $_GET['success'] ?? ''; ?>
 <?php if ($success): ?>
@@ -104,7 +134,7 @@ function statutBadge($statut) {
         <div class="mkt-sidebar-card">
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
-                <a href="home.php" class="nav-item active">
+                <a href="missions.php" class="nav-item <?= (basename($_SERVER['PHP_SELF']) == 'missions.php') ? 'active' : '' ?>">
                     <i class="fa-solid fa-list-ul"></i> Mes Offres
                 </a>
                 <a href="add_job.php" class="nav-item ">
@@ -134,7 +164,7 @@ function statutBadge($statut) {
 
         <!-- SEARCH FORM -->
         <div style="display:flex; justify-content:center; width:100%; margin-top:2.5rem;">
-            <form method="GET" action="home.php" style="width:100%; max-width:700px;" novalidate>
+            <form method="GET" action="missions.php" style="width:100%; max-width:700px;" novalidate>
                 <div class="search-container" style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: var(--radius-full); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px;">
                     <div class="search-wrap" style="flex:2;">
                         <i class="fa-solid fa-magnifying-glass"></i>
@@ -148,7 +178,7 @@ function statutBadge($statut) {
                         <i class="fa-solid fa-magnifying-glass"></i> Rechercher
                     </button>
                     <?php if (!empty($q) || !empty($_GET['budget'])): ?>
-                    <a href="home.php" class="btn-search" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width: 50px; padding: 0; justify-content: center;">
+                    <a href="missions.php" class="btn-search" style="background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); width: 50px; padding: 0; justify-content: center;">
                         <i class="fa-solid fa-xmark"></i>
                     </a>
                     <?php endif; ?>
@@ -159,9 +189,6 @@ function statutBadge($statut) {
 </section>
 
 <!-- PAGE BODY -->
-<div class="page-body" style="display: block; max-width: 1100px; margin: 0 auto; padding: 2rem 1rem;">
-
-    <!-- HORIZONTAL TABS FILTERS -->
     <!-- OFFRES AREA -->
     <div class="products-area">
         <div class="products-toolbar">
@@ -203,14 +230,13 @@ function statutBadge($statut) {
                 <div class="job-actions">
                     <a href="detail_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-view"><i class="fa-solid fa-eye"></i> Voir</a>
                     <a href="edit_job.php?id=<?= $offre->getId() ?>" class="btn-action btn-edit"><i class="fa-solid fa-pen"></i> Modifier</a>
-                    <a href="home.php?action=delete&id=<?= $offre->getId() ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre->getTitre()) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                    <a href="missions.php?action=delete&id=<?= $offre->getId() ?>" class="btn-action btn-delete js-delete" data-title="<?= htmlspecialchars($offre->getTitre()) ?>"><i class="fa-solid fa-trash"></i> Supprimer</a>
                 </div>
             </div>
             <?php endforeach; ?>
             <?php endif; ?>
         </div>
     </div>
-</div>
 
 <!-- CUSTOM MODAL -->
 <div class="modal-overlay" id="delete-modal">
@@ -242,12 +268,48 @@ document.querySelectorAll('.js-delete').forEach(btn => {
 confirmCancel.addEventListener('click', () => deleteModal.classList.remove('active'));
 confirmOk.addEventListener('click', () => { if (deleteUrl) window.location.href = deleteUrl; });
 
-document.getElementById('download-pdf-home')?.addEventListener('click', async function() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const rows = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getStatut(), $o->getDateCreation()], $offres)) ?>;
-    doc.autoTable({ head: [["Mission", "Budget", "Délai", "Statut", "Date"]], body: rows });
-    saveAs(doc.output('blob'), 'liste_missions.pdf');
+document.getElementById('download-pdf-home')?.addEventListener('click', async function(e) {
+    e.preventDefault();
+    const btn = this;
+    const originalContent = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Génération...';
+        btn.style.pointerEvents = 'none';
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const rows = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getStatut(), $o->getDateCreation()], $offres)) ?>;
+        doc.autoTable({ head: [["Mission", "Budget", "Délai", "Statut", "Date"]], body: rows });
+        
+        const pdfBlob = doc.output('blob');
+        const formData = new FormData();
+        formData.append('pdf', pdfBlob, 'liste_missions.pdf');
+
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin"></i> Cloud upload...';
+        
+        const response = await fetch('../../api/upload_pdf.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            // Open the Cloudinary URL in a new tab
+            window.open(result.url, '_blank');
+            // Also trigger local download for the user
+            saveAs(pdfBlob, 'liste_missions.pdf');
+        } else {
+            alert("Erreur Cloudinary : " + result.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Une erreur est survenue lors de l'export : " + err.message);
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.style.pointerEvents = 'all';
+    }
 });
 </script>
     </div>

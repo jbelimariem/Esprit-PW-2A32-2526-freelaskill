@@ -4,9 +4,25 @@
 
 class CloudinaryService {
 
-    private string $cloudName  = 'dr5rqqmhm';
-    private string $apiKey     = '413485291534265';
-    private string $apiSecret  = 'nEWOHvnRgVmspaoKKpCjWkdaFMw';
+    private string $cloudName;
+    private string $apiKey;
+    private string $apiSecret;
+
+    public function __construct() {
+        if (defined('CLOUDINARY_URL') && !empty(CLOUDINARY_URL)) {
+            $parsed = parse_url(CLOUDINARY_URL);
+            if ($parsed && isset($parsed['user'], $parsed['pass'], $parsed['host'])) {
+                $this->cloudName = $parsed['host'];
+                $this->apiKey    = $parsed['user'];
+                $this->apiSecret = $parsed['pass'];
+                return;
+            }
+        }
+        // Fallback or default
+        $this->cloudName  = 'dr5rqqmhm';
+        $this->apiKey     = '413485291534265';
+        $this->apiSecret  = 'nEWOHvnRgVmspaoKKpCjWkdaFMw';
+    }
 
     // ──────────────────────────────────────────────────────
     // Upload any file from a tmp path to Cloudinary

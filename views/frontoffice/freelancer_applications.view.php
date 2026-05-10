@@ -20,6 +20,7 @@ function getStatusLabel($s) {
     <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         /* ── Job Grid & Cards Styling ── */
         .job-grid {
@@ -28,6 +29,52 @@ function getStatusLabel($s) {
             gap: 1.2rem;
             margin-top: 1rem;
         }
+
+        /* MODAL CSS */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-card {
+            background: #1a1a2e;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2.5rem;
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            animation: modalPop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes modalPop { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-title { font-size: 1.5rem; font-weight: 700; color: white; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+        .modal-text { color: #94a3b8; line-height: 1.6; margin-bottom: 2rem; }
+        .modal-actions { display: flex; gap: 1rem; justify-content: center; }
+        .btn-modal { padding: 0.8rem 2rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; }
+        .btn-modal-cancel { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1); }
+        .btn-modal-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-modal-confirm { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
+        .btn-modal-confirm:hover { background: #dc2626; transform: translateY(-2px); }
+
+        /* Styles pour la modale de modification spécifique */
+        #edit-modal .modal-card { max-width: 650px; text-align: left; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-label { display: block; font-size: 0.88rem; font-weight: 600; color: #94a3b8; margin-bottom: 0.5rem; }
+        .form-input, .form-textarea { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.75rem 1rem; color: white; font-family: inherit; transition: all 0.2s; }
+        .form-input:focus, .form-textarea:focus { outline: none; border-color: #3b82f6; background: rgba(59,130,246,0.05); box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
+        .btn-submit-modal { width: 100%; background: #3b82f6; color: white; border: none; padding: 1rem; border-radius: 14px; font-weight: 700; cursor: pointer; transition: all 0.25s; display: flex; align-items: center; justify-content: center; gap: 0.6rem; margin-top: 1.5rem; }
+        .btn-submit-modal:hover { background: #2563eb; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4); }
         .job-card {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -194,18 +241,19 @@ function getStatusLabel($s) {
 </head>
 <body class="page-anim">
 
-<nav style="position:sticky;top:0;width:100%;z-index:100;padding:0 2rem;">
+<nav>
     <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
     <ul class="nav-links">
-        <li><a href="home.php">Accueil</a></li>
-        <li><a href="home.php">Client</a></li>
-        <li><a href="freelancer_home.php" class="active">Freelancer</a></li>
-        <li><a href="#">Messagerie</a></li>
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php" class="active">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
-        <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-            <i class="fa-solid fa-moon"></i>
-        </button>
         <div class="nav-avatar">FR</div>
     </div>
 </nav>
@@ -495,17 +543,50 @@ cvInput.addEventListener('change', () => {
 });
 
 // ── PDF Export ──
-document.getElementById('export-pdf').addEventListener('click', function(e) {
+document.getElementById('export-pdf').addEventListener('click', async function(e) {
     e.preventDefault();
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(22); doc.setTextColor(37, 99, 235);
-    doc.text("Mes Candidatures — FreelaSkill", 14, 20);
-    doc.setFontSize(10); doc.setTextColor(100);
-    doc.text("Généré le : " + new Date().toLocaleDateString(), 14, 30);
-    const data = <?= json_encode(array_map(fn($app) => [$app['job_title'], date('d/m/Y H:i', strtotime($app['created_at'])), ucfirst($app['status'])], $applications)) ?>;
-    doc.autoTable({ startY:40, head:[['Mission','Date','Statut']], body:data, theme:'striped', headStyles:{fillStyle:[37,99,235]} });
-    doc.save("mes_candidatures.pdf");
+    const btn = this;
+    const originalContent = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Génération...';
+        btn.style.pointerEvents = 'none';
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(22); doc.setTextColor(37, 99, 235);
+        doc.text("Mes Candidatures — FreelaSkill", 14, 20);
+        doc.setFontSize(10); doc.setTextColor(100);
+        doc.text("Généré le : " + new Date().toLocaleDateString(), 14, 30);
+        const data = <?= json_encode(array_map(fn($app) => [$app['job_title'], date('d/m/Y H:i', strtotime($app['created_at'])), ucfirst($app['status'])], $applications)) ?>;
+        doc.autoTable({ startY:40, head:[['Mission','Date','Statut']], body:data, theme:'striped', headStyles:{fillStyle:[37,99,235]} });
+        
+        const pdfBlob = doc.output('blob');
+        const formData = new FormData();
+        formData.append('pdf', pdfBlob, 'mes_candidatures.pdf');
+
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin"></i> Cloud upload...';
+        
+        const response = await fetch('../../api/upload_pdf.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            window.open(result.url, '_blank');
+            saveAs(pdfBlob, 'mes_candidatures.pdf');
+        } else {
+            alert("Erreur Cloudinary : " + result.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Une erreur est survenue lors de l'export : " + err.message);
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.style.pointerEvents = 'all';
+    }
 });
 </script>
 

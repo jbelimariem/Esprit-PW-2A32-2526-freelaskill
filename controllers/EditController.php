@@ -9,7 +9,7 @@ class EditController {
 
     public function execute($id) {
         $offre = $this->model->getById($id);
-        if (!$offre) { header('Location: home.php'); exit; }
+        if (!$offre) { header('Location: missions.php'); exit; }
 
         $errors = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -20,7 +20,7 @@ class EditController {
             $offre->setDelai(trim($_POST['delai'] ?? ''));
             
             $this->model->update($offre);
-            header('Location: home.php?success=updated'); exit;
+            header('Location: missions.php?success=updated'); exit;
         }
         include __DIR__ . '/../views/frontoffice/edit_job.view.php';
     }

@@ -19,22 +19,23 @@ class AddController {
     }
 
     public function execute() {
+        if (session_status() === PHP_SESSION_NONE) session_start();
         $errors = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $data = [
-                'titre' => trim($_POST['titre'] ?? ''),
+                'titre'       => trim($_POST['titre'] ?? ''),
                 'description' => trim($_POST['description'] ?? ''),
                 'competences' => trim($_POST['competences'] ?? ''),
-                'budget' => $_POST['budget'] ?? '',
-                'delai' => trim($_POST['delai'] ?? ''),
-                'statut' => 'pending',
-                'client_id' => 1
+                'budget'      => $_POST['budget'] ?? '',
+                'delai'       => trim($_POST['delai'] ?? ''),
+                'statut'      => 'pending',
+                'client_id'   => $_SESSION['user_id'] ?? null
             ];
             $errors = $this->validate($data);
             if (empty($errors)) {
                 $offre = new JobOffer($data);
                 $this->model->save($offre);
-                header('Location: home.php?success=added'); exit;
+                header('Location: missions.php?success=added'); exit;
             }
         }
         include __DIR__ . '/../views/frontoffice/add_job.view.php';

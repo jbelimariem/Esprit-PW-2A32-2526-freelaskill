@@ -9,10 +9,19 @@ class AdminDashboardController {
         $q = $_GET['titre'] ?? '';
         $d = $_GET['date'] ?? '';
         
-        if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['id'])) {
-            $model->delete($_GET['id']);
-            header('Location: dashboard.php?success=deleted');
-            exit;
+        if (isset($_GET['action']) && isset($_GET['id'])) {
+            $id = (int)$_GET['id'];
+            switch ($_GET['action']) {
+                case 'approve':
+                    $model->updateStatut($id, 'approved');
+                    header('Location: admin_missions.php?success=approved'); exit;
+                case 'reject':
+                    $model->updateStatut($id, 'rejected');
+                    header('Location: admin_missions.php?success=rejected'); exit;
+                case 'delete':
+                    $model->delete($id);
+                    header('Location: admin_missions.php?success=deleted'); exit;
+            }
         }
 
         if (!empty($q) || !empty($d)) { 

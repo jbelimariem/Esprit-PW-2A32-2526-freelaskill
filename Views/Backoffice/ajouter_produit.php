@@ -38,7 +38,7 @@ $categories = $categoryController->getAllData();
             </div>
             
             <a href="users_dashboard.php" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
-            <div class="nav-item"><i class="fa-solid fa-network-wired"></i> Flux de Missions</div>
+            <a href="admin_missions.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
             
             <div class="nav-item-wrapper">
                 <a href="dashboard.php" class="nav-item" style="text-decoration:none;">

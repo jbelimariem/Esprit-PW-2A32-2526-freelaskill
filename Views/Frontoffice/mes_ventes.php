@@ -186,7 +186,7 @@ try {
             Freela<span>Skill</span>
         </div>
         <ul class="nav-links">
-            <li><a href="home.php">Client</a></li>
+            <li><a href="missions.php">Client</a></li>
             <li><a href="freelancer_home.php">Freelancer</a></li>
             <li><a href="home.php" class="active">Marketplace</a></li>
             <li><a href="profile.php">Mon Profil</a></li>

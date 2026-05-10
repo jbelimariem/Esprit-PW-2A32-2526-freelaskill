@@ -164,14 +164,9 @@ $commandes = $commandeController->getByUserPaginated($user_id, $itemsPerPage, $o
         Freela<span>Skill</span>
     </div>
     <ul class="nav-links">
-        <li><a href="#">Accueil</a></li>
-        <?php if (empty($_SESSION['user_role']) || $_SESSION['user_role'] !== 'freelancer'): ?>
-        <li><a href="#">Missions</a></li>
-        <?php endif; ?>
+        <li><a href="missions.php">Client</a></li>
+        <li><a href="freelancer_home.php">Freelancer</a></li>
         <li><a href="home.php" class="active">Marketplace</a></li>
-        <?php if (empty($_SESSION['user_role']) || $_SESSION['user_role'] !== 'client'): ?>
-        <li><a href="#">Freelancers</a></li>
-        <?php endif; ?>
         <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">

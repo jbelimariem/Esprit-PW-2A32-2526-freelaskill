@@ -57,6 +57,12 @@ class AdminDashboard {
         return $stmt->fetchColumn();
     }
 
+    // Met à jour le statut d'une offre (approved / rejected / pending)
+    public function updateStatut($id, $statut) {
+        $stmt = $this->pdo->prepare("UPDATE offres_emploi SET statut = ? WHERE id = ?");
+        return $stmt->execute([$statut, $id]);
+    }
+
     // Supprime définitivement une offre de la BDD par son ID
     public function delete($id) {
         $stmt = $this->pdo->prepare("DELETE FROM offres_emploi WHERE id = ?");

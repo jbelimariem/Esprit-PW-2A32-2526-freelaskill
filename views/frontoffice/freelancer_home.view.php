@@ -13,24 +13,33 @@
     <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 </head>
 <body class="page-anim">
 
-<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
-            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-            <ul class="nav-links">
-                <li><a href="home.php">Accueil</a></li>
-                <li><a href="home.php">Client</a></li>
-                <li><a href="freelancer_home.php" class="active">Freelancer</a></li>
-                <li><a href="#">Messagerie</a></li>
-            </ul>
-            <div class="nav-right">
-                <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <div class="nav-avatar">FR</div>
-            </div>
-        </nav>
+<nav>
+    <div class="logo">
+        <i class="fa-solid fa-shapes"></i>
+        Freela<span>Skill</span>
+    </div>
+    <ul class="nav-links">
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'missions.php') ? 'active' : '' ?>">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'freelancer_home.php') ? 'active' : '' ?>">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
+    </ul>
+    <div class="nav-right">
+        <button type="button" class="theme-toggle" data-theme-toggle>
+            <i class="fa-solid fa-sun" data-theme-icon></i>
+            <span data-theme-label>Jour</span>
+        </button>
+        <div class="nav-avatar">FR</div>
+    </div>
+</nav>
 
 
 
@@ -97,7 +106,7 @@
     </div>
 </section>
 
-<div class="page-body" style="display: block; max-width: 1100px; margin: 0 auto; padding: 2rem 1rem;">
+
     <!-- HORIZONTAL FILTERS INSTEAD OF SIDEBAR FOR CLEANER LOOK -->
     <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border); border-radius:var(--radius-md); padding:1.5rem; margin-bottom:2.5rem; display:flex; align-items:center; justify-content:space-between; gap:2rem;">
         <form method="GET" action="freelancer_home.php" style="display:flex; align-items:center; gap:1.5rem; flex:1;" onsubmit="return validateBudgetSubmit(event)">
@@ -173,34 +182,66 @@
             <?php endforeach; ?>
         <?php endif; ?>
     </div>
-</div>
+
 
 <script>
     // PDF Export Logic
-    document.getElementById('export-pdf').addEventListener('click', function(e) {
+    document.getElementById('export-pdf').addEventListener('click', async function(e) {
         e.preventDefault();
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const btn = this;
+        const originalContent = btn.innerHTML;
         
-        doc.setFontSize(22);
-        doc.setTextColor(37, 99, 235);
-        doc.text("Liste des Missions — FreelaSkill", 14, 20);
-        
-        doc.setFontSize(10);
-        doc.setTextColor(100);
-        doc.text("Généré le : " + new Date().toLocaleDateString(), 14, 30);
+        try {
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Génération...';
+            btn.style.pointerEvents = 'none';
 
-        const data = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getCompetences()], $offres)) ?>;
-        
-        doc.autoTable({
-            startY: 40,
-            head: [['Titre', 'Budget', 'Délai', 'Compétences']],
-            body: data,
-            theme: 'striped',
-            headStyles: { fillStyle: [37, 99, 235] }
-        });
-        
-        doc.save("missions_freelancer.pdf");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFontSize(22);
+            doc.setTextColor(37, 99, 235);
+            doc.text("Liste des Missions — FreelaSkill", 14, 20);
+            
+            doc.setFontSize(10);
+            doc.setTextColor(100);
+            doc.text("Généré le : " + new Date().toLocaleDateString(), 14, 30);
+
+            const data = <?= json_encode(array_map(fn($o) => [$o->getTitre(), $o->getBudget() . " DT", $o->getDelai(), $o->getCompetences()], $offres)) ?>;
+            
+            doc.autoTable({
+                startY: 40,
+                head: [['Titre', 'Budget', 'Délai', 'Compétences']],
+                body: data,
+                theme: 'striped',
+                headStyles: { fillStyle: [37, 99, 235] }
+            });
+            
+            const pdfBlob = doc.output('blob');
+            const formData = new FormData();
+            formData.append('pdf', pdfBlob, 'missions_freelancer.pdf');
+
+            btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin"></i> Cloud upload...';
+            
+            const response = await fetch('../../api/upload_pdf.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.ok) {
+                window.open(result.url, '_blank');
+                saveAs(pdfBlob, 'missions_freelancer.pdf');
+            } else {
+                alert("Erreur Cloudinary : " + result.error);
+            }
+        } catch (err) {
+            console.error("Export PDF failed:", err);
+            alert("Une erreur est survenue lors de l'export : " + err.message);
+        } finally {
+            btn.innerHTML = originalContent;
+            btn.style.pointerEvents = 'all';
+        }
     });
 </script>
 

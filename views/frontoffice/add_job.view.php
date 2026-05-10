@@ -38,20 +38,22 @@
 </head>
 <body class="page-anim">
 
-<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
-            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-            <ul class="nav-links">
-                <li><a href="home.php">Accueil</a></li>
-                <li><a href="home.php" class="active">Client</a></li>
-                <li><a href="freelancer_home.php">Freelancers</a></li>
-            </ul>
-            <div class="nav-right">
-                <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <div class="nav-avatar">CL</div>
-            </div>
-        </nav>
+<nav>
+    <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+    <ul class="nav-links">
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php">Mon Profil</a></li>
+    </ul>
+    <div class="nav-right">
+        <div class="nav-avatar">CL</div>
+    </div>
+</nav>
 
 
 <div class="marketplace-layout">
@@ -80,7 +82,7 @@
         <div class="mkt-sidebar-card">
             <div class="mkt-sidebar-section">
                 <div class="mkt-nav-label">Navigation</div>
-                <a href="home.php" class="nav-item ">
+                <a href="missions.php" class="nav-item ">
                     <i class="fa-solid fa-list-ul"></i> Mes Offres
                 </a>
                 <a href="add_job.php" class="nav-item active">
@@ -148,7 +150,7 @@
 
                     <div style="display:flex; gap:1rem; border-top:1px solid var(--border); padding-top:2rem; margin-top:1rem;">
                         <button type="submit" class="btn-cart" style="width:auto; padding:1rem 3rem;">Publier l'offre</button>
-                        <a href="home.php" class="btn-cart" style="width:auto; padding:1rem 2rem; background:rgba(255,255,255,0.05); color:white; text-decoration:none; display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">Annuler</a>
+                        <a href="missions.php" class="btn-cart" style="width:auto; padding:1rem 2rem; background:rgba(255,255,255,0.05); color:white; text-decoration:none; display:flex; align-items:center; justify-content:center; border:1px solid var(--border);">Annuler</a>
                     </div>
                 </form>
             </div>

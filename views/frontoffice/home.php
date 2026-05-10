@@ -581,7 +581,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
 }
 </style>
 </head>
-<body class="page-anim home-page">
+<body>
 
 <nav>
     <div class="logo">
@@ -589,16 +589,21 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
         Freela<span>Skill</span>
     </div>
     <ul class="nav-links">
-        <li><a href="home.php">Client</a></li>
-        <li><a href="freelancer_home.php">Freelancer</a></li>
-        <li><a href="home.php" class="active">Marketplace</a></li>
-        <li><a href="profile.php">Mon Profil</a></li>
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'home.php') ? 'active' : '' ?>">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
         <button type="button" class="theme-toggle" data-theme-toggle>
             <i class="fa-solid fa-sun" data-theme-icon></i>
             <span data-theme-label>Jour</span>
         </button>
+        
         
         <a href="notifications.php" class="cart-btn" style="position: relative; margin-right: 10px; color: var(--text-muted);">
             <i class="fa-solid fa-bell"></i>

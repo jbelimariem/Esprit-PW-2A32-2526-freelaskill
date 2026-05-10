@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="../assets/style.css">
     <link rel="stylesheet" href="../assets/theme-light.css?v=<?= time() ?>">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         /* ── Modal Overlay ── */
         .modal-overlay {
@@ -124,18 +126,19 @@
 </head>
 <body class="page-anim">
 
-<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
+<nav>
     <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
     <ul class="nav-links">
-        <li><a href="home.php">Accueil</a></li>
-        <li><a href="home.php">Client</a></li>
-        <li><a href="freelancer_home.php" class="active">Freelancer</a></li>
-        <li><a href="#">Messagerie</a></li>
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php" class="active">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
-        <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-            <i class="fa-solid fa-moon"></i>
-        </button>
         <div class="nav-avatar">FR</div>
     </div>
 </nav>
@@ -429,21 +432,55 @@ dropZone.addEventListener('drop', e => {
 });
 
 // ── PDF download ──
-document.getElementById('download-job-pdf').addEventListener('click', function() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(22); doc.setTextColor(37, 99, 235);
-    doc.text("Détails de la Mission", 14, 20);
-    doc.setFontSize(16); doc.setTextColor(0);
-    doc.text("<?= addslashes($offre->getTitre()) ?>", 14, 35);
-    doc.setFontSize(12);
-    doc.text("Budget: <?= $offre->getBudget() ?> DT", 14, 50);
-    doc.text("Délai: <?= addslashes($offre->getDelai()) ?>", 14, 60);
-    doc.text("Compétences: <?= addslashes($offre->getCompetences()) ?>", 14, 70);
-    doc.text("Description:", 14, 85);
-    const splitDesc = doc.splitTextToSize("<?= addslashes(str_replace(["\r","\n"],' ',$offre->getDescription())) ?>", 180);
-    doc.text(splitDesc, 14, 95);
-    doc.save("mission_<?= $offre->getId() ?>.pdf");
+document.getElementById('download-job-pdf').addEventListener('click', async function(e) {
+    e.preventDefault();
+    const btn = this;
+    const originalContent = btn.innerHTML;
+    
+    try {
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Génération...';
+        btn.style.pointerEvents = 'none';
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(22); doc.setTextColor(37, 99, 235);
+        doc.text("Détails de la Mission", 14, 20);
+        doc.setFontSize(16); doc.setTextColor(0);
+        doc.text("<?= addslashes($offre->getTitre()) ?>", 14, 35);
+        doc.setFontSize(12);
+        doc.text("Budget: <?= $offre->getBudget() ?> DT", 14, 50);
+        doc.text("Délai: <?= addslashes($offre->getDelai()) ?>", 14, 60);
+        doc.text("Compétences: <?= addslashes($offre->getCompetences()) ?>", 14, 70);
+        doc.text("Description:", 14, 85);
+        const splitDesc = doc.splitTextToSize("<?= addslashes(str_replace(["\r","\n"],' ',$offre->getDescription())) ?>", 180);
+        doc.text(splitDesc, 14, 95);
+        
+        const pdfBlob = doc.output('blob');
+        const formData = new FormData();
+        formData.append('pdf', pdfBlob, 'mission_<?= $offre->getId() ?>.pdf');
+
+        btn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up fa-spin"></i> Cloud upload...';
+        
+        const response = await fetch('../../api/upload_pdf.php', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        
+        if (result.ok) {
+            window.open(result.url, '_blank');
+            saveAs(pdfBlob, 'mission_<?= $offre->getId() ?>.pdf');
+        } else {
+            alert("Erreur Cloudinary : " + result.error);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Une erreur est survenue lors de l'export : " + err.message);
+    } finally {
+        btn.innerHTML = originalContent;
+        btn.style.pointerEvents = 'all';
+    }
 });
 
 document.getElementById('export-pdf').addEventListener('click', function(e) {

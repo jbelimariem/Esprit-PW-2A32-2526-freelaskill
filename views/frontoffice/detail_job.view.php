@@ -61,20 +61,22 @@ $appStatutConfig = [
 </head>
 <body class="page-anim">
 
-<nav style="position: sticky; top: 0; width: 100%; z-index: 100; padding: 0 2rem;">
-            <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
-            <ul class="nav-links">
-                <li><a href="home.php">Accueil</a></li>
-                <li><a href="home.php" class="active">Client</a></li>
-                <li><a href="freelancer_home.php">Freelancer</a></li>
-            </ul>
-            <div class="nav-right">
-                <button class="theme-toggle-btn" title="Mode Nuit/Clair" style="margin-right: 1rem;">
-                    <i class="fa-solid fa-moon"></i>
-                </button>
-                <div class="nav-avatar">CL</div>
-            </div>
-        </nav>
+<nav>
+    <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+    <ul class="nav-links">
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php">Mon Profil</a></li>
+    </ul>
+    <div class="nav-right">
+        <div class="nav-avatar">CL</div>
+    </div>
+</nav>
 
 
 

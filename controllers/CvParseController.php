@@ -20,8 +20,8 @@ class CvParseController {
         $prompt .= "  \"cover_letter\": \"Rédige un très court texte de présentation (2 à 3 phrases) très professionnel, écrit à la 1ère personne ('Je'), basé sur les expériences du CV pour postuler à une mission générique.\"\n";
         $prompt .= "}";
 
-        // 3. Appel de l'API Gemini 2.5 Flash avec InlineData
-        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-lite-latest:generateContent?key=' . GEMINI_API_KEY;
+        // 3. Appel de l'API Gemini 3.1 Flash Lite (Détecté via diagnostic)
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=' . rawurlencode(trim(GEMINI_API_KEY));
         
         $data = [
             "contents" => [
@@ -36,10 +36,6 @@ class CvParseController {
                         ]
                     ]
                 ]
-            ],
-            "generationConfig" => [
-                "temperature" => 0.1,
-                "responseMimeType" => "application/json"
             ]
         ];
 
@@ -52,16 +48,30 @@ class CvParseController {
         
         $response = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlErr  = curl_error($ch);
         curl_close($ch);
 
+        if ($curlErr) {
+            error_log("CURL Error CV Parsing: " . $curlErr);
+            return ['error' => "CURL Error: " . $curlErr];
+        }
+
         if ($httpCode !== 200 || !$response) {
-            error_log("Erreur API CV Parsing: " . $response);
-            return null;
+            $errData = json_decode($response, true);
+            $msg = $errData['error']['message'] ?? "HTTP $httpCode";
+            error_log("Erreur API CV Parsing ($httpCode): " . $response);
+            return ['error' => $msg];
         }
 
         $responseData = json_decode($response, true);
         if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             $jsonText = $responseData['candidates'][0]['content']['parts'][0]['text'];
+            
+            // Nettoyage si Markdown présent
+            $jsonText = preg_replace('/^```json\s*/', '', $jsonText);
+            $jsonText = preg_replace('/\s*```$/', '', $jsonText);
+            $jsonText = trim($jsonText);
+
             return json_decode($jsonText, true);
         }
 

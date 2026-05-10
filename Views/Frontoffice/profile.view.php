@@ -8,11 +8,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil — FreelaSkill</title>
     <meta name="description" content="Gérez votre profil FreelaSkill — informations personnelles, sécurité et préférences.">
-    <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/style.css?v=7">
-    <script src="../assets/theme.js" defer></script>
     <style>
         .profile-layout {
             display: grid;
@@ -600,7 +598,7 @@
         .btn-ai-pwd i { font-size: 0.75rem; }
     </style>
 </head>
-<body class="page-anim">
+<body>
 
 <!-- NAVBAR -->
 <nav>
@@ -609,10 +607,14 @@
         Freela<span>Skill</span>
     </div>
     <ul class="nav-links">
-        <li><a href="home.php">Client</a></li>
-        <li><a href="freelancer_home.php">Freelancer</a></li>
-        <li><a href="home.php">Marketplace</a></li>
-        <li><a href="profile.php" class="active">Mon Profil</a></li>
+        <li><span style="color:var(--text-muted);cursor:default;">Accueil</span></li>
+        <li><a href="home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'home.php') ? 'active' : '' ?>">Marketplace</a></li>
+        <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
+            <li><a href="missions.php">Missions</a></li>
+        <?php else: ?>
+            <li><a href="freelancer_home.php">Freelancers</a></li>
+        <?php endif; ?>
+        <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
         <button type="button" class="theme-toggle" data-theme-toggle>

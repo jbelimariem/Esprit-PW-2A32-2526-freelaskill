@@ -11,9 +11,14 @@ class ListModel {
         $this->pdo = config::getConnexion();
     }
 
-    // Retourne toutes les offres (tous statuts) triées par date de création décroissante
-    public function getAll() {
-        $stmt = $this->pdo->query("SELECT * FROM offres_emploi ORDER BY date_creation DESC");
+    // Retourne les offres filtrées par client_id (si fourni) triées par date de création décroissante
+    public function getAll($clientId = null) {
+        if ($clientId) {
+            $stmt = $this->pdo->prepare("SELECT * FROM offres_emploi WHERE client_id = ? ORDER BY date_creation DESC");
+            $stmt->execute([$clientId]);
+        } else {
+            $stmt = $this->pdo->query("SELECT * FROM offres_emploi ORDER BY date_creation DESC");
+        }
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $offres = [];
         foreach ($results as $row) {
@@ -22,8 +27,8 @@ class ListModel {
         return $offres;
     }
 
-    // Retourne les offres filtrées dynamiquement par mot-clé (titre/description), date exacte et/ou budget maximum
-    public function search($q, $d, $maxBudget = null) {
+    // Retourne les offres filtrées dynamiquement par mot-clé (titre/description), date exacte, budget maximum et/ou client_id
+    public function search($q, $d, $maxBudget = null, $clientId = null) {
         $sql = "SELECT * FROM offres_emploi WHERE 1=1";
         $params = [];
         if (!empty($q)) {
@@ -37,6 +42,10 @@ class ListModel {
         if (!empty($maxBudget)) {
             $sql .= " AND budget <= ?";
             $params[] = $maxBudget;
+        }
+        if ($clientId) {
+            $sql .= " AND client_id = ?";
+            $params[] = $clientId;
         }
         $sql .= " ORDER BY date_creation DESC";
         $stmt = $this->pdo->prepare($sql);

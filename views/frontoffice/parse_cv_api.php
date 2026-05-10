@@ -28,12 +28,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['cv_file'])) {
     $extractedData = $controller->parsePdfCv($file['tmp_name']);
 
     if ($extractedData && is_array($extractedData)) {
-        echo json_encode([
-            'status' => 'success',
-            'data' => $extractedData
-        ]);
+        if (isset($extractedData['error'])) {
+            echo json_encode(['status' => 'error', 'message' => $extractedData['error']]);
+        } else {
+            echo json_encode([
+                'status' => 'success',
+                'data' => $extractedData
+            ]);
+        }
     } else {
-        echo json_encode(['status' => 'error', 'message' => "Impossible d'extraire les informations du CV."]);
+        echo json_encode(['status' => 'error', 'message' => "Impossible d'extraire les informations du CV (Réponse vide)."]);
     }
     exit;
 }
