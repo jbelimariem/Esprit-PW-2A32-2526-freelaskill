@@ -29,6 +29,15 @@ function applyTheme(theme) {
     document.documentElement.dataset.theme = resolvedTheme;
     document.documentElement.style.colorScheme = resolvedTheme;
 
+    // Toggle body classes for the new style.css compatibility
+    if (resolvedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        document.body.classList.remove('dark-mode');
+    } else {
+        document.body.classList.add('dark-mode');
+        document.body.classList.remove('light-mode');
+    }
+
     document.querySelectorAll('[data-theme-toggle]').forEach((button) => {
         const icon = button.querySelector('[data-theme-icon]');
         const label = button.querySelector('[data-theme-label]');
