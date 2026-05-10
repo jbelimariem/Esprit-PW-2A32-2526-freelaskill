@@ -2,7 +2,13 @@
 
 class AIController
 {
-    private $groqToken = "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";
+    private $groqToken;
+
+    public function __construct()
+    {
+        require_once __DIR__ . '/config.php';
+        $this->groqToken = config::getGroqApiKey();
+    }
 
     public function generateDescription($prompt)
     {
