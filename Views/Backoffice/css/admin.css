@@ -27,7 +27,7 @@
     --transition:      all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     --shadow-card:     0 4px 24px rgba(0, 0, 0, 0.3);
     --neon-blue:       0 0 20px rgba(37, 99, 235, 0.3);
-    --sidebar-width:   280px;
+    --sidebar-width:   240px;
 }
 
 /* ── LIGHT MODE ── */

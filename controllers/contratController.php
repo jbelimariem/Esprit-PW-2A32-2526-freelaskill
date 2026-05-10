@@ -110,17 +110,22 @@ function getContratById(int $id) {
 function createContrat(array $data) {
     $pdo = config::getConnexion();
     $stmt = $pdo->prepare(
-        'INSERT INTO contrat (titre, description, budget, delai, statut, date_creation, freelance_info, signature_client, signature_freelance) VALUES (:titre, :description, :budget, :delai, :statut, NOW(), :freelance_info, :signature_client, :signature_freelance)'
+        'INSERT INTO contrat (titre, description, budget, delai, statut, date_creation, freelance_info,
+         job_offer_id, job_application_id, signature_client, signature_freelance)
+         VALUES (:titre, :description, :budget, :delai, :statut, NOW(), :freelance_info,
+         :job_offer_id, :job_application_id, :signature_client, :signature_freelance)'
     );
     $success = $stmt->execute([
-        'titre' => $data['titre'],
-        'description' => $data['description'],
-        'budget' => $data['budget'],
-        'delai' => $data['delai'],
-        'statut' => $data['statut'],
-        'freelance_info' => $data['freelance_info'],
-        'signature_client' => $data['signature_client'],
-        'signature_freelance' => $data['signature_freelance']
+        'titre'              => $data['titre'],
+        'description'        => $data['description'],
+        'budget'             => $data['budget'],
+        'delai'              => $data['delai'],
+        'statut'             => $data['statut'],
+        'freelance_info'     => $data['freelance_info'],
+        'job_offer_id'       => $data['job_offer_id']       ?? null,
+        'job_application_id' => $data['job_application_id'] ?? null,
+        'signature_client'   => $data['signature_client'],
+        'signature_freelance'=> $data['signature_freelance']
     ]);
     if ($success) {
         $newId = $pdo->lastInsertId();
@@ -130,16 +135,25 @@ function createContrat(array $data) {
             $emailSvc = new EmailService($pdo);
             $contrat  = getContratById((int)$newId);
             if ($contrat) {
-                // Extraire email du freelancer depuis freelance_info
-                preg_match('/[\w.+-]+@[\w-]+\.[a-z]{2,}/i', $data['freelance_info'] ?? '', $m);
-                $freelancerEmail = $m[0] ?? '';
-                $freelancerName  = trim(preg_split('/[-–|,]/', $data['freelance_info'] ?? 'Freelancer')[0]);
-                if ($freelancerEmail) {
-                    $emailSvc->notifyContratCreated($contrat, $freelancerEmail, $freelancerName);
-                } else {
-                    // Simuler même sans email réel
-                    $emailSvc->notifyContratCreated($contrat, 'demo@freelaskill.com', $freelancerName);
+                // Récupérer l'email du freelancer depuis job_applications si disponible
+                $freelancerEmail = '';
+                $freelancerName  = 'Freelancer';
+                if (!empty($data['job_application_id'])) {
+                    $stmtApp = $pdo->prepare('SELECT email, name FROM job_applications WHERE id = :id');
+                    $stmtApp->execute(['id' => $data['job_application_id']]);
+                    $app = $stmtApp->fetch();
+                    if ($app) {
+                        $freelancerEmail = $app['email'];
+                        $freelancerName  = $app['name'];
+                    }
                 }
+                // Fallback : extraire depuis freelance_info
+                if (!$freelancerEmail) {
+                    preg_match('/[\w.+-]+@[\w-]+\.[a-z]{2,}/i', $data['freelance_info'] ?? '', $m);
+                    $freelancerEmail = $m[0] ?? 'demo@freelaskill.com';
+                    $freelancerName  = trim(preg_split('/[-–|,]/', $data['freelance_info'] ?? 'Freelancer')[0]);
+                }
+                $emailSvc->notifyContratCreated($contrat, $freelancerEmail, $freelancerName);
             }
         } catch (Exception $e) { /* silencieux */ }
         return $newId;
@@ -189,6 +203,7 @@ function updateContrat(int $id, array $data) {
     $stmt = $pdo->prepare(
         'UPDATE contrat SET titre = :titre, description = :description, budget = :budget,
          delai = :delai, statut = :statut, freelance_info = :freelance_info,
+         job_offer_id = :job_offer_id, job_application_id = :job_application_id,
          signature_client = :signature_client, signature_freelance = :signature_freelance
          WHERE id_contrat = :id'
     );
@@ -199,6 +214,8 @@ function updateContrat(int $id, array $data) {
         'delai'               => $data['delai'],
         'statut'              => $data['statut'],
         'freelance_info'      => $data['freelance_info'],
+        'job_offer_id'        => $data['job_offer_id']       ?? null,
+        'job_application_id'  => $data['job_application_id'] ?? null,
         'signature_client'    => $data['signature_client'],
         'signature_freelance' => $data['signature_freelance'],
         'id'                  => $id,
@@ -225,9 +242,78 @@ function assignRulesToContrat($contratId, $ruleIds) {
 
 function getAvailableRulesForContrat($contratId = null) {
     $pdo = config::getConnexion();
-    // Retourne toutes les règles (sans filtre sur id_contrat qui n'existe plus)
     $stmt = $pdo->query('SELECT * FROM rules ORDER BY date_creation DESC');
     return $stmt->fetchAll();
+}
+
+// ── Récupérer les offres de job approuvées ────────────────────────────
+function getApprovedJobOffers(): array {
+    $pdo = config::getConnexion();
+    try {
+        $stmt = $pdo->query(
+            "SELECT id, titre, budget, delai, competences
+             FROM job_offer WHERE statut = 'approved'
+             ORDER BY date_creation DESC"
+        );
+        return $stmt->fetchAll();
+    } catch (PDOException $e) { return []; }
+}
+
+// ── Récupérer les candidatures approuvées pour une offre ─────────────
+function getApprovedApplicationsForOffer(int $jobOfferId): array {
+    $pdo = config::getConnexion();
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT ja.id, ja.name, ja.email, ja.job_title, ja.cv_path,
+                    u.id as user_id, u.nom, u.prenom, u.avatar
+             FROM job_applications ja
+             LEFT JOIN users u ON ja.user_id = u.id
+             WHERE ja.job_id = :job_id AND ja.status = 'approved'
+             ORDER BY ja.created_at DESC"
+        );
+        $stmt->execute(['job_id' => $jobOfferId]);
+        return $stmt->fetchAll();
+    } catch (PDOException $e) { return []; }
+}
+
+// ── Récupérer toutes les candidatures approuvées ──────────────────────
+function getAllApprovedApplications(): array {
+    $pdo = config::getConnexion();
+    try {
+        $stmt = $pdo->query(
+            "SELECT ja.id, ja.name, ja.email, ja.job_title, ja.cv_path,
+                    ja.job_id, jo.titre as job_titre, jo.budget as job_budget,
+                    u.id as user_id, u.nom, u.prenom, u.avatar
+             FROM job_applications ja
+             LEFT JOIN job_offer jo ON ja.job_id = jo.id
+             LEFT JOIN users u ON ja.user_id = u.id
+             WHERE ja.status = 'approved'
+             ORDER BY ja.created_at DESC"
+        );
+        return $stmt->fetchAll();
+    } catch (PDOException $e) { return []; }
+}
+
+// ── Récupérer contrat avec infos complètes (jointures) ───────────────
+function getContratWithDetails(int $id): ?array {
+    $pdo = config::getConnexion();
+    try {
+        $stmt = $pdo->prepare(
+            "SELECT c.*,
+                    jo.titre as job_offer_titre, jo.competences as job_competences,
+                    ja.name as freelancer_name, ja.email as freelancer_email,
+                    ja.cv_path as freelancer_cv, ja.job_title as freelancer_poste,
+                    u.nom as user_nom, u.prenom as user_prenom, u.avatar as user_avatar
+             FROM contrat c
+             LEFT JOIN job_offer jo ON c.job_offer_id = jo.id
+             LEFT JOIN job_applications ja ON c.job_application_id = ja.id
+             LEFT JOIN users u ON ja.user_id = u.id
+             WHERE c.id_contrat = :id"
+        );
+        $stmt->execute(['id' => $id]);
+        $row = $stmt->fetch();
+        return $row ?: null;
+    } catch (PDOException $e) { return null; }
 }
 
 
@@ -249,6 +335,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $signature_client = filter_var(trim($_POST['signature_client'] ?? ''), FILTER_SANITIZE_STRING);
     $signature_freelance = filter_var(trim($_POST['signature_freelance'] ?? ''), FILTER_SANITIZE_STRING);
     $selected_rules = $_POST['selected_rules'] ?? [];
+    $job_offer_id       = !empty($_POST['job_offer_id'])       ? intval($_POST['job_offer_id'])       : null;
+    $job_application_id = !empty($_POST['job_application_id']) ? intval($_POST['job_application_id']) : null;
     
     if (empty($statut)) {
         $statut = 'brouillon'; // Statut par défaut
@@ -315,14 +403,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         $data = [
-            'titre' => htmlspecialchars($titre, ENT_QUOTES, 'UTF-8'),
-            'description' => htmlspecialchars($description, ENT_QUOTES, 'UTF-8'),
-            'budget' => floatval($budget),
-            'delai' => intval($delai),
-            'statut' => $statut,
-            'freelance_info' => htmlspecialchars($freelance_info, ENT_QUOTES, 'UTF-8'),
-            'signature_client' => htmlspecialchars($signature_client, ENT_QUOTES, 'UTF-8'),
-            'signature_freelance' => htmlspecialchars($signature_freelance, ENT_QUOTES, 'UTF-8')
+            'titre'              => htmlspecialchars($titre, ENT_QUOTES, 'UTF-8'),
+            'description'        => htmlspecialchars($description, ENT_QUOTES, 'UTF-8'),
+            'budget'             => floatval($budget),
+            'delai'              => intval($delai),
+            'statut'             => $statut,
+            'freelance_info'     => htmlspecialchars($freelance_info, ENT_QUOTES, 'UTF-8'),
+            'job_offer_id'       => $job_offer_id,
+            'job_application_id' => $job_application_id,
+            'signature_client'   => htmlspecialchars($signature_client, ENT_QUOTES, 'UTF-8'),
+            'signature_freelance'=> htmlspecialchars($signature_freelance, ENT_QUOTES, 'UTF-8')
         ];
 
         if (!empty($_POST['id_contrat'])) {

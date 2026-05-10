@@ -15,12 +15,30 @@ if (isset($_GET['action']) && $_GET['action'] === 'edit' && !empty($_GET['id']))
     else { $errors['general'] = "Contrat introuvable."; }
 }
 
+// ── Récupérer les offres et candidatures pour les selects ────────────
+$jobOffers    = getApprovedJobOffers();
+$applications = getAllApprovedApplications();
+
 $availableRules  = getAvailableRulesForContrat($isEdit ? $id : null);
 $selectedRuleIds = [];
 if ($isEdit && !empty($currentContrat)) {
     foreach ($availableRules as $r) {
         if (!empty($r['titre_contrat']) && $r['titre_contrat'] === $currentContrat['titre'])
             $selectedRuleIds[] = $r['id_rule'];
+    }
+}
+
+// Pré-remplir depuis job_offer si passé en GET
+if (!$isEdit && isset($_GET['job_offer_id'])) {
+    $preJobOfferId = intval($_GET['job_offer_id']);
+    foreach ($jobOffers as $jo) {
+        if ($jo['id'] == $preJobOfferId) {
+            $currentContrat = $currentContrat ?? [];
+            $currentContrat['titre']        = $jo['titre'];
+            $currentContrat['budget']       = $jo['budget'];
+            $currentContrat['job_offer_id'] = $jo['id'];
+            break;
+        }
     }
 }
 
@@ -32,6 +50,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
         'delai'              => $_POST['delai'] ?? '',
         'statut'             => $_POST['statut'] ?? 'brouillon',
         'freelance_info'     => $_POST['freelance_info'] ?? '',
+        'job_offer_id'       => $_POST['job_offer_id'] ?? null,
+        'job_application_id' => $_POST['job_application_id'] ?? null,
         'signature_client'   => $_POST['signature_client'] ?? '',
         'signature_freelance'=> $_POST['signature_freelance'] ?? '',
         'id_contrat'         => $_POST['id_contrat'] ?? null,
@@ -110,7 +130,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
         <div class="form-section animate-in delay-1">
             <div class="form-section-title"><i class="fa-solid fa-circle-info"></i> Informations générales</div>
 
-            <!-- Barre d'outils API -->
+            <!-- Lien avec Job Offer + Freelancer -->
+            <?php if (!empty($jobOffers)): ?>
+            <div style="background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:12px;padding:1rem;margin-bottom:1.25rem;">
+                <div style="font-size:0.75rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:0.75rem;">
+                    <i class="fa-solid fa-link"></i> Lier à une offre de job (optionnel)
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Offre de job associée</label>
+                        <select name="job_offer_id" id="job_offer_id" class="form-select" onchange="prefillFromJobOffer(this)">
+                            <option value="">— Aucune offre —</option>
+                            <?php foreach ($jobOffers as $jo): ?>
+                                <option value="<?php echo $jo['id']; ?>"
+                                        data-titre="<?php echo htmlspecialchars($jo['titre'], ENT_QUOTES); ?>"
+                                        data-budget="<?php echo $jo['budget']; ?>"
+                                        <?php echo ($currentContrat['job_offer_id'] ?? '') == $jo['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($jo['titre'], ENT_QUOTES, 'UTF-8'); ?>
+                                    (<?php echo number_format($jo['budget'], 0, ',', ' '); ?> DT)
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Freelancer (candidature approuvée)</label>
+                        <select name="job_application_id" id="job_application_id" class="form-select" onchange="prefillFromApplication(this)">
+                            <option value="">— Sélectionner un freelancer —</option>
+                            <?php foreach ($applications as $app): ?>
+                                <option value="<?php echo $app['id']; ?>"
+                                        data-name="<?php echo htmlspecialchars($app['name'], ENT_QUOTES); ?>"
+                                        data-email="<?php echo htmlspecialchars($app['email'], ENT_QUOTES); ?>"
+                                        data-poste="<?php echo htmlspecialchars($app['job_title'] ?? '', ENT_QUOTES); ?>"
+                                        data-job="<?php echo $app['job_id']; ?>"
+                                        <?php echo ($currentContrat['job_application_id'] ?? '') == $app['id'] ? 'selected' : ''; ?>>
+                                    <?php echo htmlspecialchars($app['name'], ENT_QUOTES, 'UTF-8'); ?>
+                                    — <?php echo htmlspecialchars($app['job_titre'] ?? '', ENT_QUOTES, 'UTF-8'); ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <?php endif; ?>
+
             <div style="display:flex;flex-wrap:wrap;gap:0.5rem;margin-bottom:1.5rem;padding:0.85rem 1rem;background:rgba(37,99,235,0.05);border:1px solid rgba(37,99,235,0.15);border-radius:12px;align-items:center;">
                 <span style="font-size:0.75rem;font-weight:700;color:#60A5FA;text-transform:uppercase;letter-spacing:0.8px;margin-right:0.5rem;">
                     <i class="fa-solid fa-wand-magic-sparkles"></i> Outils IA
@@ -201,7 +263,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
                     <label class="form-label">Freelancer approuvé (Nom &amp; Poste) <span style="color:#EF4444;">*</span></label>
                     <input type="text" id="freelance_info" name="freelance_info" class="form-input <?php echo isset($errors['freelance_info']) ? 'has-error' : ''; ?>"
                            value="<?php echo htmlspecialchars($currentContrat['freelance_info'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
-                           placeholder="Ex: John Doe - Développeur Web">
+                           placeholder="Ex: John Doe - Développeur Web (ou sélectionnez une candidature ci-dessus)">
                     <?php if (isset($errors['freelance_info'])): ?><span class="field-error"><?php echo htmlspecialchars($errors['freelance_info'], ENT_QUOTES, 'UTF-8'); ?></span><?php endif; ?>
                 </div>
 
@@ -422,6 +484,46 @@ document.addEventListener('DOMContentLoaded', () => {
     // Vérification Bad Words avant soumission
     setupContentCheck('contratForm', ['titre', 'description', 'freelance_info']);
 });
+
+// ── Pré-remplissage depuis Job Offer ──────────────────────────────────
+function prefillFromJobOffer(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    const titre  = opt.dataset.titre;
+    const budget = opt.dataset.budget;
+    if (titre  && document.getElementById('titre').value === '')
+        document.getElementById('titre').value = titre;
+    if (budget && document.getElementById('budget').value === '')
+        document.getElementById('budget').value = budget;
+}
+
+// ── Pré-remplissage depuis candidature approuvée ──────────────────────
+function prefillFromApplication(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    const name  = opt.dataset.name  || '';
+    const poste = opt.dataset.poste || '';
+    const email = opt.dataset.email || '';
+    const jobId = opt.dataset.job   || '';
+
+    // Remplir freelance_info
+    const fi = document.getElementById('freelance_info');
+    if (fi) fi.value = name + (poste ? ' - ' + poste : '') + (email ? ' (' + email + ')' : '');
+
+    // Synchroniser le select job_offer si le job correspond
+    if (jobId) {
+        const joSel = document.getElementById('job_offer_id');
+        if (joSel) {
+            for (let i = 0; i < joSel.options.length; i++) {
+                if (joSel.options[i].value == jobId) {
+                    joSel.selectedIndex = i;
+                    prefillFromJobOffer(joSel);
+                    break;
+                }
+            }
+        }
+    }
+}
 </script>
 </body>
 </html>
