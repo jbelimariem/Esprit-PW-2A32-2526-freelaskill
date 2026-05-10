@@ -559,7 +559,7 @@
         <!-- CUSTOM GOOGLE BUTTON WITH OAUTH REDIRECT -->
         <?php
         $clientId = "512696696631-585q3lbt2rps9g8o81e8vqr9mijdh8tq.apps.googleusercontent.com";
-        $redirectUri = urlencode("http://localhost/projet2222/views/frontoffice/google_callback.php");
+        $redirectUri = urlencode("http://localhost/projet2222/Views/Frontoffice/google_callback.php");
         $googleOAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth?client_id={$clientId}&redirect_uri={$redirectUri}&response_type=id_token&scope=email%20profile&nonce=12345&response_mode=form_post";
         ?>
         <a href="<?php echo $googleOAuthUrl; ?>" class="btn-google" style="margin-top: 1rem;">
