@@ -8,7 +8,7 @@ $frontFiles = [
     'front_contrat_index.php',
     'front_rules_index.php',
 ];
-$baseFront = "c:\\xampp\\htdocs\\freelaskill\\Views\\Frontoffice\\";
+$baseFront = "c:\\xampp\\htdocs\\Esprit-PW-2A32-2526-TalentBridge-job\\Views\\Frontoffice\\";
 
 $adminFiles = [
     'admin_contrat.php',
@@ -22,7 +22,7 @@ $adminFiles = [
     'admin_dashboard.html',
     'admin_litiges.html'
 ];
-$baseAdmin = "c:\\xampp\\htdocs\\freelaskill\\Views\\Backoffice\\";
+$baseAdmin = "c:\\xampp\\htdocs\\Esprit-PW-2A32-2526-TalentBridge-job\\Views\\Backoffice\\";
 
 $blueLogo = <<<HTML
             <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>

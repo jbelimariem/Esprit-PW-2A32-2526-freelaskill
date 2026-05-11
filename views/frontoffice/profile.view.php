@@ -614,7 +614,10 @@
         <?php else: ?>
             <li><a href="freelancer_home.php">Freelancers</a></li>
         <?php endif; ?>
+<<<<<<< HEAD
         <li><a href="<?= (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/freelaskill/messagerie_index.php?page=admin' : '/freelaskill/messagerie_index.php?page=conversations' ?>" class="<?= (strpos($_SERVER['PHP_SELF'], 'essagerie') !== false) ? 'active' : '' ?>">Messagerie</a></li>
+=======
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
         <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
@@ -1467,4 +1470,9 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 </body>
+<<<<<<< HEAD
 </html>
+=======
+</html>
+
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5

@@ -35,7 +35,11 @@ if (isset($_GET['action'], $_GET['id']) && $_GET['action'] === 'delete') {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
+<<<<<<< HEAD
         window.API_BASE = '/freelaskill/controllers/apiController.php';
+=======
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>

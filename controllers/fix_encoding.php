@@ -1,7 +1,7 @@
 <?php
 /**
  * Fix UTF-8 encoding corruption in frontoffice PHP files
- * Run: http://localhost/freelaskill/controllers/fix_encoding.php
+ * Run: http://localhost/Esprit-PW-2A32-2526-TalentBridge-job/controllers/fix_encoding.php
  * Delete this file after running.
  */
 

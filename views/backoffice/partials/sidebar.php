@@ -80,6 +80,7 @@ $currentFile = basename($_SERVER['PHP_SELF']);
             <span class="sidebar-badge" style="background:rgba(99,102,241,0.2);color:#818CF8;">NEW</span>
         </a>
 
+<<<<<<< HEAD
         <a href="admin_rules_list.php" class="sidebar-nav-item <?php echo $activePage === 'rules' ? 'active' : ''; ?>">
             <div class="sidebar-nav-icon" style="background:rgba(239,68,68,0.12);">
                 <i class="fa-solid fa-shield-halved" style="color:#EF4444;"></i>
@@ -103,6 +104,8 @@ $currentFile = basename($_SERVER['PHP_SELF']);
             <span>Messagerie</span>
         </a>
 
+=======
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
         <div class="sidebar-divider-mk"></div>
 
         <!-- Notifications -->
@@ -311,7 +314,11 @@ body.light-mode .sidebar-footer-mk { border-top-color: #e2e8f0; }
 </style>
 
 <script>
+<<<<<<< HEAD
 const NOTIF_API = '/freelaskill/controllers/notificationController.php';
+=======
+const NOTIF_API = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/notificationController.php';
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
 
 async function loadNotifications() {
     try {

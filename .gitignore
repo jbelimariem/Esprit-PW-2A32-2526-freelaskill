@@ -1,0 +1,22 @@
+# ── Secrets & config sensible ──────────────────────────────────────────────
+secrets.php
+
+# ── Fichiers de debug / test ────────────────────────────────────────────────
+test_ai.php
+test_*.php
+
+# ── Uploads utilisateurs ────────────────────────────────────────────────────
+uploads/
+
+# ── Emails locaux ────────────────────────────────────────────────────────────
+local_emails/
+
+# ── Dépendances (si ajout npm/composer un jour) ─────────────────────────────
+node_modules/
+vendor/
+
+# ── OS & éditeurs ───────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

@@ -43,7 +43,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['signature_data'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script>
+<<<<<<< HEAD
         window.API_BASE = '/freelaskill/controllers/apiController.php';
+=======
+        window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>
@@ -432,7 +436,11 @@ function saveSignature(pad, inputId, formId) {
 }
 
 // ── Escrow Actions ────────────────────────────────────────────────────
+<<<<<<< HEAD
 const ESCROW_BASE = '/freelaskill/controllers/escrowController.php';
+=======
+const ESCROW_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/escrowController.php';
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
 
 async function escrowAction(action) {
     const messages = {

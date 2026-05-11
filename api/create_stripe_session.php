@@ -71,8 +71,8 @@ try {
         'payment_method_types' => ['card'],
         'line_items' => $line_items,
         'mode' => 'payment',
-        'success_url' => 'http://localhost/freelaskill/Views/Frontoffice/confirmation.php?session_id={CHECKOUT_SESSION_ID}',
-        'cancel_url' => 'http://localhost/freelaskill/Views/Frontoffice/panier.php',
+        'success_url' => 'http://localhost/Esprit-PW-2A32-2526-TalentBridge/Views/Frontoffice/confirmation.php?session_id={CHECKOUT_SESSION_ID}',
+        'cancel_url' => 'http://localhost/Esprit-PW-2A32-2526-TalentBridge/Views/Frontoffice/panier.php',
     ];
 
     $ch = curl_init('https://api.stripe.com/v1/checkout/sessions');

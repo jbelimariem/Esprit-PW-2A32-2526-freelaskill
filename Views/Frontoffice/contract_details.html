@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Détails du Contrat - FreelaSkill</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="engagements.html">Mes Engagements</a></li>
+        <li><a href="contract_creation.html">Nouveau Contrat</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="section">
+      <div class="card-futuristic">
+        <div class="card-content">
+          <span class="badge-tunisia">Détails du Contrat</span>
+          <h2 class="card-title" id="contract-title">Contrat #123 - Développement Web</h2>
+          <p class="card-desc">Consultez tous les détails, clauses et pièces jointes de ce contrat.</p>
+
+          <div class="split-layout">
+            <div>
+              <h3>Informations générales</h3>
+              <div class="form-group">
+                <label>Client</label>
+                <input class="form-control" type="text" id="client-name" readonly>
+              </div>
+              <div class="form-group">
+                <label>Freelance</label>
+                <input class="form-control" type="text" id="freelance-name" readonly>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Date de début</label>
+                  <input class="form-control" type="date" id="start-date" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Date de fin</label>
+                  <input class="form-control" type="date" id="end-date" readonly>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Budget (€)</label>
+                  <input class="form-control" type="number" id="budget" readonly>
+                </div>
+                <div class="form-group">
+                  <label>Modalités de paiement</label>
+                  <input class="form-control" type="text" id="payment-terms" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <h3>Description & Clauses</h3>
+              <div class="form-group">
+                <label>Description du projet</label>
+                <textarea class="form-control" id="description" rows="6" readonly></textarea>
+              </div>
+              <div class="form-group">
+                <label>Conditions spéciales</label>
+                <textarea class="form-control" id="terms" rows="4" readonly></textarea>
+              </div>
+
+              <h3>Pièces jointes</h3>
+              <div class="form-group">
+                <label>Fichiers attachés</label>
+                <div id="attachments" class="tag-list">
+                  <!-- Attachments will be loaded here -->
+                </div>
+                <button class="btn btn-outline" onclick="addAttachment()">Ajouter pièce jointe</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="engagement-actions">
+            <button class="btn btn-secondary" onclick="editContract()">Modifier</button>
+            <button class="btn btn-accent" onclick="cancelContract()">Annuler</button>
+            <button class="btn btn-primary" onclick="signContract()">Signer le contrat</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 FreelaSkill. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    // Sample contract data
+    const contractData = {
+      id: 123,
+      title: 'Développement Site E-commerce',
+      client: 'TechCorp',
+      freelance: 'DevPro',
+      startDate: '2023-10-01',
+      endDate: '2023-12-01',
+      budget: 5000,
+      paymentTerms: 'Par jalons',
+      description: 'Création d\'un site e-commerce complet avec paiement intégré, catalogue produits, gestion des commandes et interface administrateur.',
+      terms: 'Confidentialité totale, propriété intellectuelle transférée au client, paiements à 30 jours.',
+      attachments: ['cahier-des-charges.pdf', 'maquettes-design.png'],
+      status: 'pending'
+    };
+
+    function loadContractDetails() {
+      document.getElementById('contract-title').textContent = `Contrat #${contractData.id} - ${contractData.title}`;
+      document.getElementById('client-name').value = contractData.client;
+      document.getElementById('freelance-name').value = contractData.freelance;
+      document.getElementById('start-date').value = contractData.startDate;
+      document.getElementById('end-date').value = contractData.endDate;
+      document.getElementById('budget').value = contractData.budget;
+      document.getElementById('payment-terms').value = contractData.paymentTerms;
+      document.getElementById('description').value = contractData.description;
+      document.getElementById('terms').value = contractData.terms;
+
+      const attachmentsDiv = document.getElementById('attachments');
+      contractData.attachments.forEach(file => {
+        const tag = document.createElement('span');
+        tag.className = 'tag';
+        tag.innerHTML = `<i class="fa-solid fa-paperclip"></i> ${file}`;
+        attachmentsDiv.appendChild(tag);
+      });
+    }
+
+    function editContract() {
+      alert('Fonction de modification à implémenter');
+    }
+
+    function cancelContract() {
+      if (confirm('Êtes-vous sûr de vouloir annuler ce contrat ?')) {
+        alert('Contrat annulé');
+      }
+    }
+
+    function signContract() {
+      window.location.href = 'contract_signature.html?id=' + contractData.id;
+    }
+
+    function addAttachment() {
+      alert('Fonction d\'ajout de pièce jointe à implémenter');
+    }
+
+    // Load contract details on page load
+    window.onload = loadContractDetails;
+  </script>
+</body>
+</html>

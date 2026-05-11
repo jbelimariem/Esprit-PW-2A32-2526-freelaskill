@@ -114,7 +114,11 @@ $pendingProductsPagines = array_slice($pendingProducts, $startIndex, $itemsPerPa
             </div>
 
             <div class="nav-item"><i class="fa-solid fa-shield-halved"></i> Securite</div>
+<<<<<<< HEAD
             <a href="/freelaskill/messagerie_index.php?page=admin" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-comments"></i> Messagerie</a>
+=======
+            <div class="nav-item"><i class="fa-solid fa-comments"></i> Messagerie</div>
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
 
             <div style="margin-top: auto; padding-top: 2rem;">
                 <a href="../frontoffice/home.php" class="btn btn-outline"

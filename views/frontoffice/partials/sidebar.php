@@ -89,6 +89,7 @@ try {
             </a>
         <?php endif; ?>
 
+<<<<<<< HEAD
         <!-- Messagerie -->
         <a href="/freelaskill/messagerie_index.php?page=conversations"
            class="front-nav-item <?php echo $activePage === 'messagerie' ? 'active' : ''; ?>">
@@ -98,6 +99,8 @@ try {
             <span>Messagerie</span>
         </a>
 
+=======
+>>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
         <!-- Changer de profil -->
         <a href="front_rules_role.php" class="front-nav-item" style="color:#F87171;">
             <div class="front-nav-icon" style="background:rgba(239,68,68,0.1);">
