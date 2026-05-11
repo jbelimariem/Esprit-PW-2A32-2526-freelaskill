@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Engagements - FreelaSkill</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .engagements-container {
+      max-width: 1200px;
+      margin: 4rem auto;
+      padding: 0 2rem;
+    }
+
+    .engagements-container h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+
+    .engagement-card {
+      background: var(--bg-primary);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .engagement-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .engagement-title {
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--text-primary);
+    }
+
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-completed {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .status-cancelled {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-draft {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .engagement-details {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .detail-label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .engagement-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      margin: 1rem 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--tech-blue);
+      transition: width 0.3s ease;
+    }
+
+    @media (max-width: 768px) {
+      .engagement-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+      }
+
+      .engagement-actions {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+        <li><a href="contract_creation.html">Nouveau Contrat</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="engagements-container">
+      <h2>Mes Engagements</h2>
+
+      <div id="engagements-list">
+        <!-- Engagements will be loaded here -->
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 FreelaSkill. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    // Sample engagements data
+    const engagements = [
+      {
+        id: 1,
+        title: 'Développement Site E-commerce',
+        partner: 'Client: TechCorp',
+        startDate: '2023-10-01',
+        endDate: '2023-12-01',
+        budget: 5000,
+        status: 'active',
+        progress: 65,
+        description: 'Création d\'un site e-commerce complet avec paiement intégré.',
+        history: [
+          { date: '2023-10-01', action: 'Contrat créé', user: 'Client' },
+          { date: '2023-10-02', action: 'Contrat signé par le freelance', user: 'Freelance' },
+          { date: '2023-10-03', action: 'Contrat signé par le client', user: 'Client' },
+          { date: '2023-10-05', action: 'Paiement du premier jalon', user: 'Système' }
+        ]
+      },
+      {
+        id: 2,
+        title: 'Design Logo et Identité Visuelle',
+        partner: 'Client: StartupXYZ',
+        startDate: '2023-09-15',
+        endDate: '2023-10-15',
+        budget: 1200,
+        status: 'completed',
+        progress: 100,
+        description: 'Conception du logo et charte graphique pour une startup.',
+        history: [
+          { date: '2023-09-15', action: 'Contrat créé', user: 'Client' },
+          { date: '2023-09-16', action: 'Contrat signé par les deux parties', user: 'Système' },
+          { date: '2023-10-10', action: 'Livraison finale', user: 'Freelance' },
+          { date: '2023-10-15', action: 'Contrat terminé', user: 'Système' }
+        ]
+      },
+      {
+        id: 3,
+        title: 'Application Mobile iOS',
+        partner: 'Client: AppDev Inc.',
+        startDate: '2023-11-01',
+        endDate: '2024-01-01',
+        budget: 8000,
+        status: 'pending',
+        progress: 10,
+        description: 'Développement d\'une app mobile native pour iOS.',
+        history: [
+          { date: '2023-11-01', action: 'Contrat créé', user: 'Client' },
+          { date: '2023-11-02', action: 'En attente de signature freelance', user: 'Système' }
+        ]
+      },
+      {
+        id: 4,
+        title: 'Refonte Site Web',
+        partner: 'Client: EntrepriseABC',
+        startDate: '2023-08-01',
+        endDate: '2023-09-01',
+        budget: 3000,
+        status: 'cancelled',
+        progress: 0,
+        description: 'Refonte complète du site web existant.',
+        history: [
+          { date: '2023-08-01', action: 'Contrat créé', user: 'Client' },
+          { date: '2023-08-05', action: 'Contrat annulé par accord mutuel', user: 'Client' }
+        ]
+      }
+    ];
+
+    function loadEngagements() {
+      const container = document.getElementById('engagements-list');
+      container.innerHTML = '';
+
+      engagements.forEach(engagement => {
+        const statusClass = `status-${engagement.status}`;
+        const statusText = {
+          'active': 'Actif',
+          'completed': 'Terminé',
+          'pending': 'En attente',
+          'cancelled': 'Annulé',
+          'draft': 'Brouillon'
+        }[engagement.status] || engagement.status;
+
+        const card = document.createElement('div');
+        card.className = 'engagement-card';
+        card.innerHTML = `
+          <div class="engagement-header">
+            <div class="engagement-title">${engagement.title}</div>
+            <span class="status-badge ${statusClass}">${statusText}</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: ${engagement.progress}%"></div>
+          </div>
+          <div class="engagement-details">
+            <div class="detail-item">
+              <div class="detail-label">Partenaire</div>
+              <div class="detail-value">${engagement.partner}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Période</div>
+              <div class="detail-value">${formatDate(engagement.startDate)} - ${formatDate(engagement.endDate)}</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Budget</div>
+              <div class="detail-value">${engagement.budget} €</div>
+            </div>
+            <div class="detail-item">
+              <div class="detail-label">Progression</div>
+              <div class="detail-value">${engagement.progress}%</div>
+            </div>
+          </div>
+          <div class="detail-item" style="grid-column: 1 / -1;">
+            <div class="detail-label">Description</div>
+            <div class="detail-value">${engagement.description}</div>
+          </div>
+          <div class="engagement-actions">
+            <button class="btn btn-secondary" onclick="viewDetails(${engagement.id})">Voir Détails</button>
+            <button class="btn btn-outline" onclick="viewHistory(${engagement.id})">Historique</button>
+            ${engagement.status === 'pending' ? `<button class="btn btn-primary" onclick="signContract(${engagement.id})">Signer</button>` : ''}
+            <button class="btn btn-accent" onclick="contactPartner(${engagement.id})">Contacter</button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('fr-FR');
+    }
+
+    function viewDetails(id) {
+      window.location.href = `contract_details.html?id=${id}`;
+    }
+
+    function viewHistory(id) {
+      const engagement = engagements.find(e => e.id === id);
+      let historyText = `Historique du contrat: ${engagement.title}\n\n`;
+      engagement.history.forEach(entry => {
+        historyText += `${formatDate(entry.date)}: ${entry.action} (${entry.user})\n`;
+      });
+      alert(historyText);
+    }
+
+    function signContract(id) {
+      window.location.href = `contract_signature.html?id=${id}`;
+    }
+
+    function contactPartner(id) {
+      alert('Fonction de messagerie à implémenter');
+    }
+
+    // Load engagements on page load
+    window.onload = loadEngagements;
+  </script>
+</body>
+</html>

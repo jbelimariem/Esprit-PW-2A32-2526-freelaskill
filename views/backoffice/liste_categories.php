@@ -1,0 +1,214 @@
+<?php
+require_once __DIR__ . '/../../controllers/Category_prodController.php';
+require_once __DIR__ . '/../../controllers/produitController.php';
+
+$categoryController = new Category_prodController();
+$productController = new ProduitController();
+$pendingProducts = $productController->getByStatutData('pending');
+
+if (!empty($_GET['action']) && $_GET['action'] === 'delete' && !empty($_GET['id'])) {
+    $categoryController->deleteData((int) $_GET['id']);
+    header('Location: liste_categories.php');
+    exit;
+}
+
+$categories = $categoryController->getAllData();
+
+// Pagination
+$itemsPerPage = 20;
+$currentPage = isset($_GET['page']) ? max(1, intval($_GET['page'])) : 1;
+$totalPages = ceil(count($categories) / $itemsPerPage);
+$currentPage = min($currentPage, $totalPages > 0 ? $totalPages : 1);
+$startIndex = ($currentPage - 1) * $itemsPerPage;
+$categoriesPagines = array_slice($categories, $startIndex, $itemsPerPage);
+?>
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Catégories | FreelaSkill</title>
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="css.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="page-anim">
+    <div class="hero-glow" style="z-index: 0; position: fixed;"></div>
+    <div class="hero-glow-2" style="z-index: 0; position: fixed; left: 20%; bottom: -150px; top: auto;"></div>
+
+    <div class="admin-layout" style="position: relative; z-index: 1;">
+                                        <aside class="sidebar">
+            <div style="padding: 0 0.5rem; margin-bottom: 2rem;">
+                <div class="logo">
+                    <i class="fa-solid fa-shapes" style="color: #3b82f6;"></i>
+                    Freela<span>Skill</span>
+                </div>
+                <p style="font-size: 0.75rem; color: #475569; margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v1.0</p>
+            </div>
+            
+            <a href="users_dashboard.php" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
+            <a href="admin_missions.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
+            
+            <div class="nav-item-wrapper">
+                <a href="dashboard.php" class="nav-item" style="text-decoration:none;">
+                    <i class="fa-solid fa-store"></i> Marketplace
+                    <i class="fa-solid fa-chevron-right" style="margin-left:auto; font-size:0.7rem; opacity:0.5;"></i>
+                </a>
+                <div class="submenu">
+                    <div class="submenu-title">Marketplace Admin</div>
+                    <a href="dashboard.php" class="submenu-item">
+                        <i class="fa-solid fa-chart-line"></i> Dashboard
+                    </a>
+                    <a href="produits.php" class="submenu-item">
+                        <i class="fa-solid fa-box"></i> Gestion Produits
+                    </a>
+                    <a href="mes_achats.php" class="submenu-item">
+                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
+                    </a>
+                    <a href="pending_products.php" class="submenu-item">
+                        <i class="fa-solid fa-clock"></i> Validation Produits
+                    </a>
+                    <a href="ajouter_produit.php" class="submenu-item">
+                        <i class="fa-solid fa-plus"></i> Ajouter Produit
+                    </a>
+                    <a href="liste_categories.php" class="submenu-item">
+                        <i class="fa-solid fa-list"></i> Liste Catégories
+                    </a>
+                    <a href="ajouter_categorie.php" class="submenu-item">
+                        <i class="fa-solid fa-folder-plus"></i> Ajouter Catégorie
+                    </a>
+                    <a href="liste_commandes.php" class="submenu-item">
+                        <i class="fa-solid fa-cart-shopping"></i> Commandes
+                    </a>
+                </div>
+            </div>
+
+            <div class="nav-item"><i class="fa-solid fa-shield-halved"></i> Securite</div>
+            <a href="/freelaskill/messagerie_index.php?page=admin" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-comments"></i> Messagerie</a>
+
+            <div style="margin-top: auto; padding-top: 2rem;">
+                <a href="../frontoffice/home.php" class="btn btn-outline"
+                   style="width:100%;font-size:.85rem;padding:.75rem;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:.5rem; color: #ef4444; border-color: rgba(239,68,68,0.2);">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Retour au Hub
+                </a>
+            </div>
+        </aside>
+
+        <main class="admin-main">
+            <header class="admin-topbar">
+                <div class="admin-search">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                    <input type="text" placeholder="Rechercher une catégorie">
+                </div>
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn theme-toggle-btn" style="cursor:pointer;" title="Basculer thème">
+                        <i class="fa-regular fa-moon"></i>
+                    </div>
+                    <a href="notification.php" class="admin-icon-btn" style="text-decoration:none; position:relative;">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge-dot" style="display:flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; font-size:10px; font-weight:bold; top:-4px; right:-4px;"><?= count($pendingProducts) + 2 ?></span>
+                    </a>
+                    <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
+                </div>
+            </header>
+
+            <div class="admin-content">
+                <div class="admin-header-row">
+                    <h1 class="admin-page-title">Liste des catégories</h1>
+                    <div style="display: flex; gap: 1rem;">
+                        <button onclick="exportToPDF()" class="admin-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); border: none;">
+                            <i class="fa-solid fa-file-pdf"></i> Exporter en PDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="admin-grid" style="display: block;">
+                    <div class="glass-card admin-section">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Nom</th>
+                                    <th>Description</th>
+                                    <th style="min-width: 200px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (empty($categories)): ?>
+                                    <tr><td colspan="4" style="color: var(--text-muted); text-align: center; padding: 2rem;">Aucune catégorie enregistrée.</td></tr>
+                                <?php else: ?>
+                                    <?php foreach ($categoriesPagines as $category): ?>
+                                        <tr>
+                                            <td><?= $category['idCategory'] ?></td>
+                                            <td><strong style="color:white;"><?= htmlspecialchars($category['nom']) ?></strong></td>
+                                            <td><span style="color: var(--text-muted);"><?= htmlspecialchars($category['description']) ?></span></td>
+                                            <td>
+                                                <a href="ajouter_categorie.php?action=edit&id=<?= $category['idCategory'] ?>" class="btn btn-outline" style="padding: 0.4rem 1rem; font-size: 0.85rem;"><i class="fa-solid fa-pen"></i> Modifier</a>
+                                                <a href="liste_categories.php?action=delete&id=<?= $category['idCategory'] ?>" class="btn btn-danger js-delete-link" style="padding: 0.4rem 1rem; font-size: 0.85rem;" onclick="return confirm('Vraiment supprimer cette catégorie ?');"><i class="fa-solid fa-trash"></i> Supprimer</a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" style="margin-top: 2rem;">
+                        <!-- Bouton Précédent -->
+                        <a href="?page=<?= max(1, $currentPage - 1) ?>" class="pag-btn <?= $currentPage <= 1 ? 'disabled' : '' ?>" <?= $currentPage <= 1 ? 'onclick="return false;"' : '' ?>>
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                        
+                        <?php
+                        // Générateur de boutons de pagination
+                        $maxPagesToShow = 5;
+                        $startPage = max(1, $currentPage - 2);
+                        $endPage = min($totalPages, $startPage + $maxPagesToShow - 1);
+                        
+                        if ($endPage - $startPage + 1 < $maxPagesToShow) {
+                            $startPage = max(1, $endPage - $maxPagesToShow + 1);
+                        }
+                        
+                        // Afficher le bouton "1" si nécessaire
+                        if ($startPage > 1): ?>
+                            <a href="?page=1" class="pag-btn">1</a>
+                            <?php if ($startPage > 2): ?>
+                                <span class="pag-btn" style="pointer-events:none; cursor:default;">…</span>
+                            <?php endif; ?>
+                        <?php endif; ?>
+                        
+                        <!-- Boutons de pages -->
+                        <?php for ($i = $startPage; $i <= $endPage; $i++): ?>
+                            <a href="?page=<?= $i ?>" class="pag-btn <?= ($i === $currentPage) ? 'active' : '' ?>">
+                                <?= $i ?>
+                            </a>
+                        <?php endfor; ?>
+                        
+                        <!-- Afficher les derniers boutons si nécessaire -->
+                        <?php if ($endPage < $totalPages): ?>
+                            <?php if ($endPage < $totalPages - 1): ?>
+                                <span class="pag-btn" style="pointer-events:none; cursor:default;">…</span>
+                            <?php endif; ?>
+                            <a href="?page=<?= $totalPages ?>" class="pag-btn">
+                                <?= $totalPages ?>
+                            </a>
+                        <?php endif; ?>
+                        
+                        <!-- Bouton Suivant -->
+                        <a href="?page=<?= min($totalPages, $currentPage + 1) ?>" class="pag-btn <?= $currentPage >= $totalPages ? 'disabled' : '' ?>" <?= $currentPage >= $totalPages ? 'onclick="return false;"' : '' ?>>
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="../assets/pdf_export.js"></script>
+    <script src="../assets/js.js"></script>
+</body>
+</html>
+

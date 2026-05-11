@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Espace Freelancer - Recherche de Missions</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .filter-chip {
+            padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.02); color: var(--text-muted); cursor: pointer; transition: all 0.3s;
+        }
+        .filter-chip:hover, .filter-chip.active {
+            background: rgba(37, 99, 235, 0.2); border-color: var(--tech-blue); color: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR FREELANCER -->
+    <nav class="navbar animate-fade-up">
+        <div class="container" style="display: flex; justify-content: space-between; align-items: center;">
+            <a href="freelancer_jobs.html" class="logo">
+                <i class="fa-solid fa-shapes text-tech-blue" style="color: var(--tech-blue)"></i>
+                Freela<span>Skill</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="freelancer_jobs.html" class="active text-tech-green" style="color: var(--tech-green); text-shadow: var(--glow-green);">Explorer Missions</a></li>
+                <li><a href="front_rules_index.php">Mes Règles</a></li>
+                <li><a href="front_contrat_index.php">Mes Contrats</a></li>
+            </ul>
+            <div class="user-profile" style="display:flex; align-items:center; gap: 10px; color: var(--text-muted);">
+                <i class="fa-solid fa-user-astronaut"></i> <span>Espace Freelance</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SEARCH & FILTER HEADER -->
+    <header style="padding: 6rem 0 3rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); position: relative; overflow: hidden;">
+        <div class="hero-glow-bg" style="opacity: 0.3;"></div>
+        <div class="container animate-fade-up delay-1">
+            <h1 style="font-size: 2.5rem; text-align: center; margin-bottom: 2rem;">Moteur de Recherche Intelligence Artificielle</h1>
+            
+            <div style="max-width: 800px; margin: 0 auto; display: flex; gap: 1rem;">
+                <div style="flex: 1; position: relative;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 1.5rem; top: 1.25rem; color: var(--text-muted);"></i>
+                    <input type="text" placeholder="Rechercher par technologie, rôle (ex: Python, Logo, React)" 
+                           style="width: 100%; padding: 1.2rem 1.2rem 1.2rem 3.5rem; border-radius: 30px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: white; font-size: 1.1rem; outline: none;">
+                </div>
+                <button class="btn btn-primary" style="border-radius: 30px; padding: 0 2rem;">Rechercher</button>
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem; flex-wrap: wrap;">
+                <span class="filter-chip active">Tous les domaines</span>
+                <span class="filter-chip">Développement Web</span>
+                <span class="filter-chip">Art 3D / Design</span>
+                <span class="filter-chip">Rédaction IA</span>
+                <span class="filter-chip">Blockchain / Web3</span>
+                <span class="filter-chip"><i class="fa-solid fa-filter"></i> Budget > 1000 DT</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- JOB LISTINGS -->
+    <main class="container" style="padding: 4rem 1.5rem;">
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+            <p style="color: var(--text-muted);"><strong style="color: white;">145</strong> missions ouvertes correspondent à vos critères</p>
+            <select style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: white; padding: 0.5rem; border-radius: 5px;">
+                <option>Plus récentes</option>
+                <option>Budget croissant</option>
+                <option>Budget décroissant</option>
+            </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 2rem;">
+            
+            <!-- MISSION 1 -->
+            <article class="card-futuristic animate-fade-up delay-2" style="border-color: rgba(34, 197, 94, 0.2);">
+                <div class="card-content">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: var(--tech-green); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;"><i class="fa-solid fa-code"></i> Dev Logiciel</span>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Publié il y a 3h</span>
+                    </div>
+                    
+                    <h3 class="card-title">Intégration API de Paiement (Konnect/Flouci)</h3>
+                    <p class="card-price" style="color: white; font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">450 <span style="font-size: 1rem; color: var(--tech-muted);">DT</span></p>
+                    <p class="card-desc" style="margin-bottom: 1rem;">Startup Tunisienne cherche développeur Laravel/Vue.js pour intégrer une solution locale de paiement. Budget fixe, démarrage dès demain.</p>
+                    
+                    <div class="skills">
+                        <span class="skill-tag">Laravel</span>
+                        <span class="skill-tag">Vue.js</span>
+                        <span class="skill-tag">API REST</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-building"></i> Client vérifié</span>
+                    <a href="job_details.html" class="btn" style="background: rgba(34, 197, 94, 0.1); color: var(--tech-green); border: 1px solid rgba(34, 197, 94, 0.3); text-decoration: none;"><i class="fa-regular fa-eye"></i> Voir plus</a>
+                </div>
+            </article>
+
+            <!-- MISSION 2 -->
+            <article class="card-futuristic animate-fade-up delay-3">
+                <div class="card-content">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: var(--tech-blue); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;"><i class="fa-solid fa-pen-nib"></i> Design Complet</span>
+                        <span style="color: var(--text-muted); font-size: 0.85rem;">Publié il y a 1 jour</span>
+                    </div>
+                    
+                    <h3 class="card-title">Refonte UI/UX Dashboard Analytics</h3>
+                    <p class="card-price" style="color: white; font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">1 200 <span style="font-size: 1rem; color: var(--tech-muted);">DT</span></p>
+                    <p class="card-desc" style="margin-bottom: 1rem;">Besoin d'un designer UI/UX senior pour refondre le tableau de bord d'une application SaaS. Approche Dark Mode / Glassmorphism exigée.</p>
+                    
+                    <div class="skills">
+                        <span class="skill-tag">Figma</span>
+                        <span class="skill-tag">UX/UI</span>
+                        <span class="skill-tag">SaaS</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-building"></i> Client vérifié</span>
+                    <a href="job_details.html" class="btn btn-outline" style="text-decoration: none;"><i class="fa-regular fa-eye"></i> Voir plus</a>
+                </div>
+            </article>
+
+            <!-- MISSION 3 -->
+            <article class="card-futuristic animate-fade-up delay-4" style="border-color: rgba(231, 0, 19, 0.2);">
+                <div class="card-content">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                        <span style="color: var(--tunisian-red); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;"><i class="fa-solid fa-database"></i> DevOps</span>
+                        <span style="color: var(--tunisian-red); font-size: 0.85rem;"><i class="fa-solid fa-fire"></i> Urgent</span>
+                    </div>
+                    
+                    <h3 class="card-title">Migration Serveur AWS vers OVH</h3>
+                    <p class="card-price" style="color: white; font-size: 1.5rem; font-weight: bold; margin: 0.5rem 0;">800 <span style="font-size: 1rem; color: var(--tech-muted);">DT</span></p>
+                    <p class="card-desc" style="margin-bottom: 1rem;">Mission urgente de migration d'infrastructure Docker. Capacité d'intervention immédiate aujourd'hui demandée. Base de données critique.</p>
+                    
+                    <div class="skills">
+                        <span class="skill-tag">Docker</span>
+                        <span class="skill-tag">Linux</span>
+                        <span class="skill-tag">AWS</span>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.9rem; color: var(--text-muted);"><i class="fa-solid fa-star" style="color:#FBBF24;"></i> Client Partenaire</span>
+                    <a href="job_details.html" class="btn" style="background: rgba(231, 0, 19, 0.1); color: var(--tunisian-red); border: 1px solid rgba(231, 0, 19, 0.3); text-decoration: none;"><i class="fa-regular fa-eye"></i> Voir plus</a>
+                </div>
+            </article>
+
+        </div>
+        
+        <div style="text-align: center; margin-top: 4rem;">
+            <button class="btn" style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: white;">Charger plus de missions...</button>
+        </div>
+
+    </main>
+
+</body>
+</html>

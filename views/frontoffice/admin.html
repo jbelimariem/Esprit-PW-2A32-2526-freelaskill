@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="fr" style="color-scheme: dark;">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="FreelaSkill" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+    <!-- Theme CSS -->
+    <link rel="stylesheet" href="../assets/style.css">
+    <title>Dashboard | FreelaSkill</title>
+</head>
+<body class="page-anim">
+    
+    <!-- Glowing background elements from home.php -->
+    <div class="hero-glow" style="z-index: 0; position: fixed;"></div>
+    <div class="hero-glow-2" style="z-index: 0; position: fixed; left: 20%; bottom: -150px; top: auto;"></div>
+
+    <div class="admin-layout" style="position: relative; z-index: 1;">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-shapes"></i>
+                Freela<span>Skill</span>
+            </div>
+            
+            <div class="admin-nav">
+                <a href="#" class="admin-nav-item active">
+                    <i class="fa-solid fa-house"></i> Overview
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-chart-line"></i> Analytics
+                </a>
+                
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Marketplace
+                </div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-box-open"></i> Products
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-tags"></i> Categories
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-cart-shopping"></i> Orders
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-users"></i> Customers
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Users & Roles
+                </div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-user-tie"></i> Freelancers
+                </a>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-user-graduate"></i> Students
+                </a>
+
+                <div style="margin: 1rem 0 0.5rem; font-size: 0.75rem; text-transform: uppercase; color: #475569; padding-left: 1rem; font-weight: 700; letter-spacing: 1px;">
+                    Settings
+                </div>
+                <a href="#" class="admin-nav-item">
+                    <i class="fa-solid fa-gear"></i> General Settings
+                </a>
+            </div>
+            
+            <div style="padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+                <a href="#" class="admin-nav-item" style="color: #ef4444; padding: 0.75rem;">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="admin-main">
+            
+            <!-- TOP NAVBAR -->
+            <header class="admin-topbar">
+                <div class="admin-search">
+                    <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+                    <input type="text" placeholder="Search Entire Dashboard">
+                </div>
+                
+                <div class="admin-top-actions">
+                    <div class="admin-icon-btn">
+                        <i class="fa-regular fa-moon"></i>
+                    </div>
+                    <div class="admin-icon-btn">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="badge-dot"></span>
+                    </div>
+                    <div class="nav-avatar" style="margin-left: 0.5rem;">AH</div>
+                </div>
+            </header>
+
+            <!-- PAGE CONTENT -->
+            <div class="admin-content">
+                
+                <div class="admin-header-row">
+                    <h1 class="admin-page-title">Dashboard</h1>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="admin-btn-outline" style="background: rgba(255,255,255,0.03);">
+                            <i class="fa-regular fa-calendar"></i> Select Date
+                        </button>
+                        <button class="admin-btn">Setting</button>
+                    </div>
+                </div>
+
+                <!-- 4 Metrics Cards -->
+                <div class="admin-grid-4">
+                    <!-- Card 1 -->
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Sales</span>
+                            <div class="stat-card-icon"><i class="fa-solid fa-bag-shopping"></i></div>
+                        </div>
+                        <div class="stat-card-value">$10,800</div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +20.9$ <span style="color: #475569; font-weight: 500; margin-left: 4px;">Number of sales</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Courses</span>
+                            <div class="stat-card-icon" style="color: #a855f7; background: rgba(168, 85, 247, 0.1);"><i class="fa-solid fa-book-open"></i></div>
+                        </div>
+                        <div class="stat-card-value">2,456</div>
+                        <div class="stat-card-trend trend-down">
+                            120+ <span style="color: #475569; font-weight: 500; margin-left: 4px;">Number of pending</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Students</span>
+                            <div class="stat-card-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);"><i class="fa-solid fa-user-group"></i></div>
+                        </div>
+                        <div class="stat-card-value">122,456</div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +1200 <span style="color: #475569; font-weight: 500; margin-left: 4px;">Students</span>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="glass-card flex-col">
+                        <div class="stat-card-header">
+                            <span>Instructor</span>
+                            <div class="stat-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);"><i class="fa-solid fa-user-tie"></i></div>
+                        </div>
+                        <div class="stat-card-value">22,786</div>
+                        <div class="stat-card-trend trend-up">
+                            <i class="fa-solid fa-arrow-trend-up"></i> +200 <span style="color: #475569; font-weight: 500; margin-left: 4px;">Instructor</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Area (2 : 1 grid) -->
+                <div class="admin-grid-2-1">
+                    <div class="glass-card">
+                        <div class="admin-list-header" style="margin-bottom: 0;">
+                            <span class="admin-list-title">Earnings</span>
+                            <div class="admin-icon-btn" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                        <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: #475569;">
+                            <i class="fa-solid fa-chart-area fa-3x" style="opacity: 0.2; margin-right: 1rem;"></i> Chart Placeholder
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card">
+                        <div class="admin-list-header" style="margin-bottom: 0;">
+                            <span class="admin-list-title">Traffic</span>
+                            <div class="admin-icon-btn" style="width: 32px; height: 32px;"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                        <div style="height: 250px; display: flex; align-items: center; justify-content: center; color: #475569;">
+                            <i class="fa-solid fa-chart-pie fa-3x" style="opacity: 0.2; margin-right: 1rem;"></i> Chart Placeholder
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lists Area (3 column grid) -->
+                <div class="admin-grid-3">
+                    
+                    <!-- Popular Instructor -->
+                    <div class="glass-card">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">Popular Instructor</span>
+                            <button class="admin-btn-outline">View all</button>
+                        </div>
+                        
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/avatar/avatar-1.jpg" alt="Rob" class="admin-list-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Rob+P&background=3b82f6&color=fff'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">Rob Percival</div>
+                                <div class="admin-list-meta">
+                                    <span><i class="fa-solid fa-book" style="font-size:0.7rem;"></i> 42</span>
+                                    <span><i class="fa-solid fa-users" style="font-size:0.7rem;"></i> 110k</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/avatar/avatar-2.jpg" alt="Jose" class="admin-list-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Jose+P&background=10b981&color=fff'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">Jose Portilla</div>
+                                <div class="admin-list-meta">
+                                    <span><i class="fa-solid fa-book" style="font-size:0.7rem;"></i> 12</span>
+                                    <span><i class="fa-solid fa-users" style="font-size:0.7rem;"></i> 21k</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/avatar/avatar-3.jpg" alt="Eleanor" class="admin-list-avatar" onerror="this.src='https://ui-avatars.com/api/?name=Eleanor+P&background=a855f7&color=fff'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">Eleanor Pena</div>
+                                <div class="admin-list-meta">
+                                    <span><i class="fa-solid fa-book" style="font-size:0.7rem;"></i> 32</span>
+                                    <span><i class="fa-solid fa-users" style="font-size:0.7rem;"></i> 11k</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Courses -->
+                    <div class="glass-card">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">Recent Courses</span>
+                            <button class="admin-btn-outline">View all</button>
+                        </div>
+                        
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/course/course-laravel.jpg" alt="Laravel" class="course-thumb" onerror="this.src='https://placehold.co/70x50/1e293b/fff?text=Laravel'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">Revolutionize how you build...</div>
+                                <div class="admin-list-meta" style="margin-top: 0.3rem;">
+                                    <span style="color:var(--tech-blue)">Brooklyn Simmons</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/course/course-gatsby.jpg" alt="Gatsby" class="course-thumb" onerror="this.src='https://placehold.co/70x50/1e293b/fff?text=Gatsby'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">Guide to Static Sites with Gatsby</div>
+                                <div class="admin-list-meta" style="margin-top: 0.3rem;">
+                                    <span style="color:var(--tech-blue)">Jenny Wilson</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+
+                        <div class="admin-list-item">
+                            <img src="../../assets/images/course/course-javascript.jpg" alt="JS" class="course-thumb" onerror="this.src='https://placehold.co/70x50/1e293b/fff?text=JS'">
+                            <div class="admin-list-info">
+                                <div class="admin-list-name">The Modern JavaScript Course</div>
+                                <div class="admin-list-meta" style="margin-top: 0.3rem;">
+                                    <span style="color:var(--tech-blue)">Guy Hawkins</span>
+                                </div>
+                            </div>
+                            <div class="admin-list-action"><i class="fa-solid fa-ellipsis-vertical"></i></div>
+                        </div>
+                    </div>
+
+                    <!-- Activity -->
+                    <div class="glass-card">
+                        <div class="admin-list-header">
+                            <span class="admin-list-title">Activity</span>
+                        </div>
+                        
+                        <div style="padding-top: 0.5rem;">
+                            <div class="activity-item">
+                                <div class="activity-text"><strong>Dianna Smiley</strong> just bought the course "Build React App".</div>
+                                <div class="activity-time">2m ago</div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-text"><strong>Irene Hargrove</strong> commented on "Bootstrap Tutorial".</div>
+                                <div class="activity-time">1 hour ago</div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-text"><strong>Trevor Bradle</strong> shared your article on Social Media.</div>
+                                <div class="activity-time">2 days ago</div>
+                            </div>
+                            
+                            <div class="activity-item">
+                                <div class="activity-text"><strong>John Deo</strong> published a new article.</div>
+                                <div class="activity-time">1 week ago</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+</body>
+</html>
