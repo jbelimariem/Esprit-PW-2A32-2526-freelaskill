@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/Notification.php';
+require_once __DIR__ . '/NotificationContrat.php';
 
 /**
  * Repository OOP pour les notifications — accès PDO uniquement.
@@ -14,7 +14,7 @@ class NotificationRepository
     }
 
     /** Crée une notification en base. */
-    public function create(Notification $notification): bool
+    public function create(NotificationContrat $notification): bool
     {
         try {
             $stmt = $this->pdo->prepare(
@@ -41,7 +41,7 @@ class NotificationRepository
             $stmt = $this->pdo->query(
                 'SELECT * FROM notifications WHERE lu = 0 ORDER BY date_creation DESC LIMIT 50'
             );
-            return array_map([Notification::class, 'fromArray'], $stmt->fetchAll());
+            return array_map([NotificationContrat::class, 'fromArray'], $stmt->fetchAll());
         } catch (PDOException $e) {
             return [];
         }
@@ -56,7 +56,7 @@ class NotificationRepository
             );
             $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
-            return array_map([Notification::class, 'fromArray'], $stmt->fetchAll());
+            return array_map([NotificationContrat::class, 'fromArray'], $stmt->fetchAll());
         } catch (PDOException $e) {
             return [];
         }

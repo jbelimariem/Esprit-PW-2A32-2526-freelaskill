@@ -143,6 +143,9 @@ function statutBadge($statut) {
                 <a href="client_freelancers.php" class="nav-item ">
                     <i class="fa-solid fa-users"></i> Freelancers
                 </a>
+                <a href="front_contrat_index.php" class="nav-item">
+                    <i class="fa-solid fa-file-signature"></i> Mes Contrats
+                </a>
                 <a href="#" id="download-pdf-home" class="nav-item">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>

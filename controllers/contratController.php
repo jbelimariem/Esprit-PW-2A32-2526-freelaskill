@@ -179,7 +179,7 @@ function updateContrat(int $id, array $data) {
         $newStatut = $data['statut'] ?? $old['statut'];
         if (isset($data['statut']) && $data['statut'] !== $old['statut']) {
             $notifRepo = new NotificationRepository($pdo);
-            $notif     = new Notification(
+            $notif     = new NotificationContrat(
                 $id,
                 $old['titre'],
                 $old['statut'],
@@ -236,8 +236,37 @@ function deleteContrat(int $id) {
 }
 
 function assignRulesToContrat($contratId, $ruleIds) {
-    // Cette fonction n'est plus utilisée car les règles sont liées par titre_contrat
-    // Conservée pour compatibilité ascendante
+    if (empty($ruleIds) || !is_array($ruleIds)) return;
+    $pdo = config::getConnexion();
+    $contrat = getContratById($contratId);
+    if (!$contrat) return;
+    
+    // Associer les règles sélectionnées au titre du contrat
+    $inQuery = implode(',', array_fill(0, count($ruleIds), '?'));
+    $stmt = $pdo->prepare("UPDATE rules SET titre_contrat = ? WHERE id_rule IN ($inQuery)");
+    $params = array_merge([$contrat['titre']], $ruleIds);
+    $stmt->execute($params);
+}
+
+function saveSuggestedRules(array $data) {
+    if (!empty($_POST['suggested_rules_json'])) {
+        $suggestedRules = json_decode($_POST['suggested_rules_json'], true);
+        if (is_array($suggestedRules)) {
+            $contratTitre = $data['titre'];
+            foreach ($suggestedRules as $sr) {
+                if (!empty($sr['titre']) && !empty($sr['description'])) {
+                    createRule([
+                        'titre'         => htmlspecialchars($sr['titre'],       ENT_QUOTES, 'UTF-8'),
+                        'description'   => htmlspecialchars($sr['description'], ENT_QUOTES, 'UTF-8'),
+                        'type'          => htmlspecialchars($sr['type']   ?? 'Général', ENT_QUOTES, 'UTF-8'),
+                        'valeur'        => htmlspecialchars($sr['valeur'] ?? '',         ENT_QUOTES, 'UTF-8'),
+                        'statut'        => 'actif',
+                        'titre_contrat' => $contratTitre,
+                    ]);
+                }
+            }
+        }
+    }
 }
 
 function getAvailableRulesForContrat($contratId = null) {
@@ -419,6 +448,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $editedId = intval($_POST['id_contrat']);
             if (updateContrat($editedId, $data)) {
                 assignRulesToContrat($editedId, $selected_rules);
+                saveSuggestedRules($data); // Sauvegarder les règles IA en édition aussi
+
                 if (!empty($_POST['redirect_to'])) {
                     $redirectUrl = $_POST['redirect_to'] . '?success=update';
                     if (!headers_sent()) {
@@ -437,26 +468,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $newId = createContrat($data);
             if ($newId) {
                 assignRulesToContrat($newId, $selected_rules);
-
-                // ── Sauvegarder les règles suggérées par l'IA ──────────
-                if (!empty($_POST['suggested_rules_json'])) {
-                    $suggestedRules = json_decode($_POST['suggested_rules_json'], true);
-                    if (is_array($suggestedRules)) {
-                        $contratTitre = $data['titre'];
-                        foreach ($suggestedRules as $sr) {
-                            if (!empty($sr['titre']) && !empty($sr['description'])) {
-                                createRule([
-                                    'titre'         => htmlspecialchars($sr['titre'],       ENT_QUOTES, 'UTF-8'),
-                                    'description'   => htmlspecialchars($sr['description'], ENT_QUOTES, 'UTF-8'),
-                                    'type'          => htmlspecialchars($sr['type']   ?? 'Général', ENT_QUOTES, 'UTF-8'),
-                                    'valeur'        => htmlspecialchars($sr['valeur'] ?? '',         ENT_QUOTES, 'UTF-8'),
-                                    'statut'        => 'actif',
-                                    'titre_contrat' => $contratTitre,
-                                ]);
-                            }
-                        }
-                    }
-                }
+                saveSuggestedRules($data); // Sauvegarder les règles IA en création
 
                 if (!empty($_POST['redirect_to'])) {
                     $redirectUrl = $_POST['redirect_to'] . '?success=create';

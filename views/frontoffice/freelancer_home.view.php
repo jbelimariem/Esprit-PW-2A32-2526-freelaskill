@@ -75,6 +75,9 @@
                 <a href="freelancer_applications.php" class="nav-item ">
                     <i class="fa-solid fa-paper-plane"></i> Candidatures
                 </a>
+                <a href="front_contrat_index.php" class="nav-item">
+                    <i class="fa-solid fa-file-signature"></i> Mes Contrats
+                </a>
                 <a href="#" id="export-pdf" class="nav-item">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>

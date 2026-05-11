@@ -247,6 +247,9 @@ $chartColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
                     <a href="mes_achats.php" class="submenu-item">
                         <i class="fa-solid fa-user-tag"></i> Mes produits admin
                     </a>
+                    <a href="admin_contrat.php" class="submenu-item">
+                        <i class="fa-solid fa-file-signature"></i> Gestion Contrats
+                    </a>
                     <a href="pending_products.php" class="submenu-item">
                         <i class="fa-solid fa-clock"></i> Validation Produits
                     </a>

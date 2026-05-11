@@ -1,87 +1,118 @@
 <?php
-/**
- * Contrôleur des notifications — endpoints AJAX.
- * Actions : get_unread, mark_read, mark_all_read, get_all
- */
-require_once __DIR__ . '/../config.php';
+// controllers/NotificationController.php
+
 require_once __DIR__ . '/../Models/Notification.php';
-require_once __DIR__ . '/../Models/NotificationRepository.php';
+require_once __DIR__ . '/../config.php';
 
-header('Content-Type: application/json; charset=utf-8');
+class NotificationController {
+    private $pdo;
 
-$pdo    = config::getConnexion();
-$repo   = new NotificationRepository($pdo);
-$action = $_GET['action'] ?? $_POST['action'] ?? 'get_unread';
+    public function __construct() {
+        $this->pdo = config::getConnexion();
+    }
 
-switch ($action) {
+    public function createData($user_id, $message, $type = 'info') {
+        $sql = "INSERT INTO notification (user_id, message, type) VALUES (?, ?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user_id, $message, $type]);
+    }
 
-    case 'get_unread':
-        $notifications = $repo->findUnread();
-        $count         = $repo->countUnread();
-        echo json_encode([
-            'success' => true,
-            'count'   => $count,
-            'items'   => array_map(fn(Notification $n) => [
-                'id'             => $n->getIdNotification(),
-                'id_contrat'     => $n->getIdContrat(),
-                'titre_contrat'  => $n->getTitreContrat(),
-                'ancien_statut'  => $n->getAncienStatut(),
-                'nouveau_statut' => $n->getNouveauStatut(),
-                'message'        => $n->getMessage(),
-                'icon'           => $n->getIconNouveauStatut(),
-                'color'          => $n->getColorNouveauStatut(),
-                'date'           => $n->getDateCreation(),
-                'date_relative'  => timeAgo($n->getDateCreation()),
-            ], $notifications),
-        ]);
-        break;
+    public function getByUser($user_id) {
+        $sql = "SELECT * FROM notification WHERE user_id = ? ORDER BY date_notif DESC";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-    case 'get_all':
-        $notifications = $repo->findAll(50);
-        echo json_encode([
-            'success' => true,
-            'items'   => array_map(fn(Notification $n) => [
-                'id'             => $n->getIdNotification(),
-                'id_contrat'     => $n->getIdContrat(),
-                'titre_contrat'  => $n->getTitreContrat(),
-                'ancien_statut'  => $n->getAncienStatut(),
-                'nouveau_statut' => $n->getNouveauStatut(),
-                'message'        => $n->getMessage(),
-                'lu'             => $n->isLu(),
-                'icon'           => $n->getIconNouveauStatut(),
-                'color'          => $n->getColorNouveauStatut(),
-                'date_relative'  => timeAgo($n->getDateCreation()),
-            ], $notifications),
-        ]);
-        break;
+    public function getByUserPaginated($user_id, $limit, $offset) {
+        $sql = "SELECT * FROM notification WHERE user_id = :user_id ORDER BY date_notif DESC LIMIT :limit OFFSET :offset";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->bindValue(':user_id', (int)$user_id, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', (int)$limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', (int)$offset, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-    case 'mark_read':
-        $id = intval($_POST['id'] ?? $_GET['id'] ?? 0);
-        if ($id > 0) {
-            $repo->markAsRead($id);
-            echo json_encode(['success' => true]);
-        } else {
-            echo json_encode(['success' => false, 'error' => 'ID requis.']);
+    public function getTotalCount($user_id) {
+        $sql = "SELECT COUNT(*) FROM notification WHERE user_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchColumn();
+    }
+
+    public function getUnreadCount($user_id) {
+        $sql = "SELECT COUNT(*) FROM notification WHERE user_id = ? AND is_read = 0";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+        return $stmt->fetchColumn();
+    }
+
+    public function markAsRead($idNotification, $user_id = null) {
+        $sql = "UPDATE notification SET is_read = 1 WHERE idNotification = ?";
+        $params = [$idNotification];
+        if ($user_id !== null) {
+            $sql .= " AND user_id = ?";
+            $params[] = $user_id;
         }
-        break;
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+    }
 
-    case 'mark_all_read':
-        $repo->markAllAsRead();
-        echo json_encode(['success' => true]);
-        break;
+    public function markAllAsRead($user_id) {
+        $sql = "UPDATE notification SET is_read = 1 WHERE user_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$user_id]);
+    }
 
-    default:
-        http_response_code(400);
-        echo json_encode(['success' => false, 'error' => 'Action inconnue.']);
+    public function deleteData($idNotification) {
+        $sql = "DELETE FROM notification WHERE idNotification = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$idNotification]);
+    }
 }
 
-// ── Helper : temps relatif ────────────────────────────────────────────
-function timeAgo(string $datetime): string
-{
-    $diff = time() - strtotime($datetime);
-    if ($diff < 60)     return 'À l\'instant';
-    if ($diff < 3600)   return floor($diff / 60) . ' min';
-    if ($diff < 86400)  return floor($diff / 3600) . 'h';
-    if ($diff < 604800) return floor($diff / 86400) . 'j';
-    return date('d/m/Y', strtotime($datetime));
+// ── API ROUTING POUR LES NOTIFICATIONS AJAX ───────────────────────────
+if (isset($_GET['action']) && basename($_SERVER['PHP_SELF']) === 'notificationController.php') {
+    header('Content-Type: application/json; charset=utf-8');
+    require_once __DIR__ . '/../Models/NotificationRepository.php';
+    $pdo = config::getConnexion();
+    $repo = new NotificationRepository($pdo);
+    
+    $action = $_GET['action'];
+    
+    if ($action === 'get_unread') {
+        $unread = $repo->findUnread();
+        $count  = $repo->countUnread();
+        
+        $items = [];
+        foreach ($unread as $n) {
+            $items[] = [
+                'id'            => $n->getIdNotification(),
+                'titre_contrat' => $n->getTitreContrat(),
+                'message'       => $n->getMessage(),
+                'date_relative' => date('d/m H:i', strtotime($n->getDateCreation())),
+                'icon'          => $n->getIconNouveauStatut(),
+                'color'         => $n->getColorNouveauStatut()
+            ];
+        }
+        
+        echo json_encode(['success' => true, 'count' => $count, 'items' => $items]);
+        exit;
+    }
+    
+    if ($action === 'mark_read') {
+        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        if ($id > 0) {
+            $repo->markAsRead($id);
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    }
+    
+    if ($action === 'mark_all_read') {
+        $repo->markAllAsRead();
+        echo json_encode(['success' => true]);
+        exit;
+    }
 }

@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../controllers/session.php';
+// requireAdmin(); // Temporairement désactivé pour test
 $activePage = 'contrats';
 require_once __DIR__ . '/../../controllers/contratController.php';
 $stats = getContratStatistics();
@@ -9,7 +11,7 @@ $stats = getContratStatistics();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Liste des Contrats · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css?v=3">
+    <link rel="stylesheet" href="css/admin.css?v=5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
@@ -27,32 +29,32 @@ $stats = getContratStatistics();
 <main class="admin-main">
 
     <!-- Topbar -->
-    <div class="admin-topbar animate-in">
-        <div>
-            <div class="admin-breadcrumb">
-                <i class="fa-solid fa-house"></i>
-                <span class="sep">/</span>
-                <a href="admin_contrat.php">Contrats</a>
-                <span class="sep">/</span>
-                <span class="current">Liste</span>
-            </div>
-            <h1 class="admin-page-title">Liste des <span>Contrats</span></h1>
+    <div class="animate-in" style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
+        <div class="admin-breadcrumb">
+            <i class="fa-solid fa-house"></i>
+            <span class="sep">/</span>
+            <a href="admin_contrat.php">Contrats</a>
+            <span class="sep">/</span>
+            <span class="current">Liste</span>
         </div>
-        <div class="topbar-actions">
-            <a href="admin_contrat.php" class="btn btn-secondary btn-back" style="margin-bottom:0;">
-                <i class="fa-solid fa-arrow-left"></i> Retour
-            </a>
-            <button id="statsToggleBtn" onclick="toggleStats()" class="btn btn-secondary">
-                <i class="fa-solid fa-chart-bar"></i> Statistiques
-            </button>
-            <a href="admin_export_pdf.php?action=export_all" class="btn btn-purple" target="_blank">
-                <i class="fa-solid fa-file-pdf"></i> Exporter tout
-            </a>
-            <a href="admin_contrat_form.php" class="btn btn-primary">
-                <i class="fa-solid fa-plus"></i> Nouveau contrat
-            </a>
-            <div class="admin-badge">
-                <i class="fa-solid fa-user-shield"></i> SuperAdmin
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-top:0.25rem;">
+            <h1 class="admin-page-title" style="margin:0;">Liste des <span>Contrats</span></h1>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+                <a href="admin_contrat.php" class="btn btn-secondary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-arrow-left"></i> Retour
+                </a>
+                <button id="statsToggleBtn" onclick="toggleStats()" class="btn btn-secondary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-chart-bar"></i> Statistiques
+                </button>
+                <a href="admin_export_pdf.php?action=export_all" class="btn btn-purple" target="_blank" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-file-pdf"></i> Exporter tout
+                </a>
+                <a href="admin_contrat_form.php" class="btn btn-primary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
+                    <i class="fa-solid fa-plus"></i> Nouveau contrat
+                </a>
+                <div class="admin-badge" style="margin-left:1rem;">
+                    <i class="fa-solid fa-user-shield"></i> SuperAdmin
+                </div>
             </div>
         </div>
     </div>
@@ -163,29 +165,21 @@ $stats = getContratStatistics();
         </div>
     </div>
 
-    <!-- Barre de recherche -->
-    <form method="GET" action="admin_contrat_list.php" class="search-bar animate-in delay-1">
+    <!-- Recherche -->
+    <form method="GET" action="admin_contrat_list.php" class="search-bar-advanced animate-in delay-1">
         <div class="search-field" style="flex:2;">
             <i class="fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" value="<?php echo htmlspecialchars($_GET['search'] ?? '', ENT_QUOTES, 'UTF-8'); ?>" placeholder="Rechercher par titre ou description...">
         </div>
-        <div>
-            <select name="sort" class="search-select">
-                <?php
-                $sortOptions = ['date_creation'=>'Date','titre'=>'Titre','budget'=>'Budget','delai'=>'Délai','statut'=>'Statut'];
-                $currentSort = $_GET['sort'] ?? 'date_creation';
-                foreach ($sortOptions as $val => $label) {
-                    echo "<option value=\"$val\"" . ($val === $currentSort ? ' selected' : '') . ">$label</option>";
-                }
-                ?>
-            </select>
-        </div>
-        <div>
-            <select name="order" class="search-select">
-                <option value="DESC" <?php echo ($_GET['order'] ?? 'DESC') === 'DESC' ? 'selected' : ''; ?>>Décroissant</option>
-                <option value="ASC"  <?php echo ($_GET['order'] ?? '') === 'ASC' ? 'selected' : ''; ?>>Croissant</option>
-            </select>
-        </div>
+        <select name="sort" class="search-select">
+            <?php foreach (['date_creation'=>'Date','titre'=>'Titre','budget'=>'Budget','delai'=>'Délai','statut'=>'Statut'] as $v => $l): ?>
+                <option value="<?php echo $v; ?>" <?php echo ($_GET['sort'] ?? 'date_creation') === $v ? 'selected' : ''; ?>><?php echo $l; ?></option>
+            <?php endforeach; ?>
+        </select>
+        <select name="order" class="search-select">
+            <option value="DESC" <?php echo ($_GET['order'] ?? 'DESC') === 'DESC' ? 'selected' : ''; ?>>Décroissant</option>
+            <option value="ASC"  <?php echo ($_GET['order'] ?? '') === 'ASC' ? 'selected' : ''; ?>>Croissant</option>
+        </select>
         <button type="submit" class="btn btn-primary"><i class="fa-solid fa-filter"></i> Filtrer</button>
         <a href="admin_contrat_list.php" class="btn btn-secondary">Réinitialiser</a>
     </form>
@@ -198,6 +192,9 @@ $stats = getContratStatistics();
                 Tous les contrats
                 <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);margin-left:0.5rem;">(<?php echo count($contrats); ?> résultat<?php echo count($contrats) > 1 ? 's' : ''; ?>)</span>
             </div>
+            <a href="admin_contrat_form.php" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.82rem;">
+                <i class="fa-solid fa-plus"></i> Nouveau
+            </a>
         </div>
 
         <table class="admin-table">
@@ -235,15 +232,19 @@ $stats = getContratStatistics();
                             </td>
                             <td>
                                 <div style="display:flex;gap:0.4rem;justify-content:flex-end;flex-wrap:wrap;">
-                                    <a href="admin_contrat_form.php?action=edit&id=<?php echo intval($c['id_contrat']); ?>"
-                                       class="btn btn-secondary btn-icon" title="Modifier">
-                                        <i class="fa-solid fa-pen"></i>
-                                    </a>
-                                    <a href="admin_contrat_versions.php?action=history&id_contrat=<?php echo intval($c['id_contrat']); ?>"
-                                       class="btn btn-secondary btn-icon" title="Historique des versions" style="background:rgba(99,102,241,0.12);color:#818CF8;border-color:rgba(99,102,241,0.2);">
-                                        <i class="fa-solid fa-clock-rotate-left"></i>
-                                    </a>
-                                    <!-- Workflow statut rapide -->
+                                    <a href="../Frontoffice/front_contrat_details.php?id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-success btn-icon" title="Détails (Preview)"><i class="fa-solid fa-eye"></i></a>
+                                    <a href="admin_export_pdf.php?id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-purple btn-icon" title="Exporter PDF" target="_blank"><i class="fa-solid fa-file-pdf"></i></a>
+                                    <a href="admin_contrat_form.php?action=edit&id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-secondary btn-icon" title="Modifier"><i class="fa-solid fa-pen"></i></a>
+                                    <a href="admin_contrat_versions.php?action=history&id_contrat=<?php echo intval($c['id_contrat']); ?>" class="btn btn-secondary btn-icon" title="Historique" style="background:rgba(99,102,241,0.12);color:#818CF8;border-color:rgba(99,102,241,0.2);"><i class="fa-solid fa-clock-rotate-left"></i></a>
+                                    <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
+                                        <input type="hidden" name="action" value="delete">
+                                        <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
+                                        <button type="submit" class="btn btn-danger btn-icon" onclick="return confirm('Supprimer définitivement ce contrat ?');" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+                                    </form>
+
+                                    <!-- Actions spécifiques Admin -->
+                                    <span style="border-left:1px solid rgba(255,255,255,0.1);margin:0 0.2rem;"></span>
+                                    
                                     <?php if ($c['statut'] === 'brouillon'): ?>
                                         <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
                                             <input type="hidden" name="action" value="change_status">
@@ -272,28 +273,14 @@ $stats = getContratStatistics();
                                             </button>
                                         </form>
                                     <?php endif; ?>
-                                    <a href="admin_contrat_list.php?action=verify&id=<?php echo intval($c['id_contrat']); ?>"
-                                       class="btn btn-success btn-icon" title="Vérifier conformité">
+                                    <a href="admin_contrat_list.php?action=verify&id=<?php echo intval($c['id_contrat']); ?>" class="btn btn-success btn-icon" title="Vérifier conformité">
                                         <i class="fa-solid fa-clipboard-check"></i>
-                                    </a>
-                                    <a href="admin_export_pdf.php?id=<?php echo intval($c['id_contrat']); ?>"
-                                       class="btn btn-purple btn-icon" title="Exporter PDF" target="_blank">
-                                        <i class="fa-solid fa-file-pdf"></i>
                                     </a>
                                     <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
                                         <input type="hidden" name="action" value="archive">
                                         <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
-                                        <button type="submit" class="btn btn-warning btn-icon"
-                                                onclick="return confirm('Archiver ce contrat ?');" title="Archiver">
+                                        <button type="submit" class="btn btn-warning btn-icon" onclick="return confirm('Archiver ce contrat ?');" title="Archiver">
                                             <i class="fa-solid fa-box-archive"></i>
-                                        </button>
-                                    </form>
-                                    <form method="post" action="<?php echo htmlspecialchars($_SERVER['PHP_SELF'], ENT_QUOTES, 'UTF-8'); ?>" style="margin:0;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="<?php echo intval($c['id_contrat']); ?>">
-                                        <button type="submit" class="btn btn-danger btn-icon"
-                                                onclick="return confirm('Supprimer définitivement ce contrat ?');" title="Supprimer">
-                                            <i class="fa-solid fa-trash"></i>
                                         </button>
                                     </form>
                                 </div>

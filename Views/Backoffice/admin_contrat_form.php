@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../../controllers/session.php';
+// requireAdmin(); // Temporairement désactivé pour test
 $activePage = 'contrats';
 require_once __DIR__ . '/../../controllers/contratController.php';
 

@@ -80,6 +80,7 @@ $s = $statutConfig[$offre->getStatut()] ?? $statutConfig['pending'];
         <a href="users_dashboard.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
         <a href="admin_missions.php" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
         <a href="admin_freelancers.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-user-tie"></i> Freelancers</a>
+        <a href="admin_contrat.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-file-signature"></i> Contrats</a>
 
         <div class="nav-item-wrapper">
             <a href="dashboard.php" class="nav-item" style="text-decoration:none;">

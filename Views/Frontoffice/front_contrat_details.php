@@ -1,5 +1,6 @@
-﻿<?php
-session_start();
+<?php
+require_once __DIR__ . '/../../controllers/session.php';
+requireLogin();
 if (!isset($_SESSION['user_role'])) { header('Location: front_rules_role.php'); exit; }
 require_once __DIR__ . '/../../controllers/contratController.php';
 require_once __DIR__ . '/../../controllers/ruleController.php';
