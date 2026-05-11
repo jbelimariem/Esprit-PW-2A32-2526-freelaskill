@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - FreelaSkill</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .auth-container {
+      max-width: 400px;
+      margin: 4rem auto;
+      padding: 2rem;
+      background: var(--bg-primary);
+      border: 1px solid #e5e7eb;
+      border-radius: 0.75rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .auth-container h2 {
+      text-align: center;
+      margin-bottom: 2rem;
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--tech-blue);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .auth-links {
+      text-align: center;
+      margin-top: 1.5rem;
+    }
+
+    .auth-links a {
+      color: var(--tech-blue);
+      text-decoration: none;
+    }
+
+    .auth-links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="logo"><i class="fa-solid fa-shapes"></i> Freela<span>Skill</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Accueil</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <div class="auth-container">
+      <h2>Inscription</h2>
+      <form id="register-form">
+        <div class="form-group">
+          <label for="name">Nom complet</label>
+          <input type="text" id="name" name="name">
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="text" id="email" name="email">
+        </div>
+        <div class="form-group">
+          <label for="password">Mot de passe</label>
+          <input type="password" id="password" name="password">
+        </div>
+        <div class="form-group">
+          <label for="confirm-password">Confirmer le mot de passe</label>
+          <input type="password" id="confirm-password" name="confirm-password">
+        </div>
+        <div class="form-group">
+          <label for="role">Je suis</label>
+          <select id="role" name="role">
+            <option value="">Sélectionner</option>
+            <option value="client">Client</option>
+            <option value="freelance">Freelance</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">S'inscrire</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2023 FreelaSkill. Tous droits réservés.</p>
+  </footer>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      const role = document.getElementById('role').value;
+
+      if (password !== confirmPassword) {
+        alert('Les mots de passe ne correspondent pas.');
+        return;
+      }
+
+      if (name && email && password && role) {
+        alert('Inscription réussie !');
+        // Redirect to login
+        window.location.href = 'index.html';
+      } else {
+        alert('Veuillez remplir tous les champs.');
+      }
+    });
+  </script>
+</body>
+</html>
