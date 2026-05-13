@@ -13,7 +13,7 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Choisir votre profil Â· FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css?v=4">
+    <link rel="stylesheet" href="css/front.css?v=1778626722">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="css/front.js" defer></script>
     <style>
@@ -31,8 +31,8 @@ if (isset($_GET['role']) && in_array($_GET['role'], ['client', 'freelancer'])) {
 </head>
 <body>
 
-<div class="glow-orb" style="width:500px;height:500px;background:#2563EB;top:-150px;right:-100px;"></div>
-<div class="glow-orb" style="width:400px;height:400px;background:#EF4444;bottom:-100px;left:-100px;"></div>
+
+
 
 <div class="role-page">
 

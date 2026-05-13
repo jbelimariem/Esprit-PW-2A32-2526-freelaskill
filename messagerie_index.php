@@ -15,7 +15,7 @@ require_once __DIR__ . '/config.php';
 
 // 3. Sécurité : si pas connecté → page de login
 if (!isLoggedIn()) {
-    header('Location: /freelaskill/Views/Frontoffice/login.php');
+    header('Location: /Esprit-PW-2A32-2526-TalentBridge-job/Views/Frontoffice/login.html');
     exit;
 }
 

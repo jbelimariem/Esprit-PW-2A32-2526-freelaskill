@@ -1,7 +1,7 @@
 <?php
 // Views/Backoffice/dashboard.php
 if (!isset($stats) || !isset($allConversations) || !isset($flaggedMessages)) {
-    header('Location: /freelaskill/messagerie_index.php?page=admin');
+    header('Location: /Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin');
     exit;
 }
 $currentSearch = htmlspecialchars($_GET['search'] ?? '');
@@ -646,48 +646,7 @@ $pFlagged  = $msgTotal > 0 ? round(($stats['msg_flagged'] / $msgTotal) * 100) : 
     <!-- ══════════════════════════════════════
          SIDEBAR
     ══════════════════════════════════════ -->
-    <aside class="sidebar">
-        <div style="padding: 0 0.5rem; margin-bottom: 2rem;">
-            <div class="logo">
-                <i class="fa-solid fa-shapes" style="color: #3b82f6;"></i>
-                Freela<span>Skill</span>
-            </div>
-            <p style="font-size: 0.75rem; color: #475569; margin-top: 0.5rem; letter-spacing: 1px;">Admin Control v1.0</p>
-        </div>
-
-        <a href="/freelaskill/views/backoffice/users_dashboard.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
-        <a href="/freelaskill/views/backoffice/admin_missions.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
-        <a href="/freelaskill/views/backoffice/admin_freelancers.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-user-tie"></i> Freelancers</a>
-        <a href="/freelaskill/views/backoffice/admin_contrat.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-file-signature"></i> Contrats</a>
-
-        <div class="nav-item-wrapper">
-            <a href="/freelaskill/views/backoffice/dashboard.php" class="nav-item" style="text-decoration:none;">
-                <i class="fa-solid fa-store"></i> Marketplace
-                <i class="fa-solid fa-chevron-right" style="margin-left:auto; font-size:0.7rem; opacity:0.5;"></i>
-            </a>
-            <div class="submenu">
-                <div class="submenu-title">Marketplace Admin</div>
-                <a href="/freelaskill/views/backoffice/dashboard.php" class="submenu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="/freelaskill/views/backoffice/produits.php" class="submenu-item"><i class="fa-solid fa-box"></i> Gestion Produits</a>
-                <a href="/freelaskill/views/backoffice/mes_achats.php" class="submenu-item"><i class="fa-solid fa-user-tag"></i> Mes produits admin</a>
-                <a href="/freelaskill/views/backoffice/pending_products.php" class="submenu-item"><i class="fa-solid fa-clock"></i> Validation Produits</a>
-                <a href="/freelaskill/views/backoffice/ajouter_produit.php" class="submenu-item"><i class="fa-solid fa-plus"></i> Ajouter Produit</a>
-                <a href="/freelaskill/views/backoffice/liste_categories.php" class="submenu-item"><i class="fa-solid fa-list"></i> Liste Catégories</a>
-                <a href="/freelaskill/views/backoffice/ajouter_categorie.php" class="submenu-item"><i class="fa-solid fa-folder-plus"></i> Ajouter Catégorie</a>
-                <a href="/freelaskill/views/backoffice/liste_commandes.php" class="submenu-item"><i class="fa-solid fa-cart-shopping"></i> Commandes</a>
-            </div>
-        </div>
-
-        <a href="/freelaskill/views/backoffice/admin_rules_list.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-shield-halved"></i> Securite</a>
-        <a href="/freelaskill/messagerie_index.php?page=admin" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-comments"></i> Messagerie</a>
-
-        <div style="margin-top: auto; padding-top: 2rem;">
-            <a href="/freelaskill/views/frontoffice/home.php"
-               style="width:100%;font-size:.85rem;padding:.75rem;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:.5rem; color: #ef4444; border: 1px solid rgba(239,68,68,0.2); background: transparent; text-decoration: none; cursor: pointer; transition: all 0.2s;">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Retour au Hub
-            </a>
-        </div>
-    </aside>
+    <?php include __DIR__ . '/../partials/sidebar.php'; ?>
 
     <!-- ══════════════════════════════════════
          MAIN PANEL
@@ -704,7 +663,7 @@ $pFlagged  = $msgTotal > 0 ? round(($stats['msg_flagged'] / $msgTotal) * 100) : 
                 <div class="admin-badge-pill">
                     <i class="fa-solid fa-shield-halved"></i> Administrateur
                 </div>
-                <a href="/freelaskill/messagerie_index.php?page=admin" class="topbar-icon-btn" title="Actualiser">
+                <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin" class="topbar-icon-btn" title="Actualiser">
                     <i class="fa-solid fa-rotate-right"></i>
                 </a>
                 <button class="topbar-icon-btn" style="position:relative;" onclick="scrollTo('sec-flagged')">
@@ -732,7 +691,7 @@ $pFlagged  = $msgTotal > 0 ? round(($stats['msg_flagged'] / $msgTotal) * 100) : 
                     <p class="admin-page-sub"><?= date('l d F Y') ?> · Vue d'ensemble de la plateforme</p>
                 </div>
                 <div style="display:flex;gap:0.75rem;flex-wrap:wrap;align-items:center;">
-                    <a href="/freelaskill/messagerie_index.php?page=admin&action=export-pdf" target="_blank" class="admin-btn-outline">
+                    <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=export-pdf" target="_blank" class="admin-btn-outline">
                         <i class="fa-regular fa-file-pdf"></i> Exporter PDF
                     </a>
                     <button class="admin-btn" onclick="location.reload()">
@@ -923,7 +882,7 @@ $pFlagged  = $msgTotal > 0 ? round(($stats['msg_flagged'] / $msgTotal) * 100) : 
                         <span class="count-chip red"><?= count($flaggedMessages) ?></span>
                     </div>
                     <div style="display:flex;gap:0.5rem;">
-                        <a href="/freelaskill/messagerie_index.php?page=admin&action=export-pdf" target="_blank"
+                        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=export-pdf" target="_blank"
                            class="btn-sm btn-sm-primary" style="text-decoration:none;">
                             <i class="fa-regular fa-file-pdf"></i> Exporter PDF
                         </a>
@@ -1263,14 +1222,14 @@ function scrollTo(id) {
     document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
 function viewConv(id) {
-    window.open('/freelaskill/messagerie_index.php?page=chat&id=' + id, '_blank');
+    window.open('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=chat&id=' + id, '_blank');
 }
 function openChat(convId, msgId) {
-    window.open('/freelaskill/messagerie_index.php?page=chat&id=' + convId + '&highlight=' + msgId, '_blank');
+    window.open('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=chat&id=' + convId + '&highlight=' + msgId, '_blank');
 }
 function archiveConv(id) {
     if (!confirm('Archiver cette conversation ?')) return;
-    fetch('/freelaskill/messagerie_index.php?page=admin&action=archive', {
+    fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=archive', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_conversation=' + id
@@ -1278,7 +1237,7 @@ function archiveConv(id) {
 }
 function deleteConv(id) {
     if (!confirm('Supprimer définitivement cette conversation et tous ses messages ?')) return;
-    fetch('/freelaskill/messagerie_index.php?page=admin&action=delete-conv', {
+    fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=delete-conv', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_conversation=' + id
@@ -1286,7 +1245,7 @@ function deleteConv(id) {
 }
 function deleteMsg(id) {
     if (!confirm('Supprimer ce message ?')) return;
-    fetch('/freelaskill/messagerie_index.php?page=admin&action=delete-msg', {
+    fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=delete-msg', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_message=' + id
@@ -1294,7 +1253,7 @@ function deleteMsg(id) {
 }
 function ignoreMsg(id) {
     if (!confirm('Ignorer ce signalement ?')) return;
-    fetch('/freelaskill/messagerie_index.php?page=admin&action=ignore-flag', {
+    fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=ignore-flag', {
         method: 'POST',
         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body: 'id_message=' + id

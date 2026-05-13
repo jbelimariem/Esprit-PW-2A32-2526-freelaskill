@@ -47,7 +47,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tous les produits | FreelaSkill Admin</title>
     <link rel="stylesheet" href="../assets/style.css?v=2">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin_v2.css">
     <link rel="stylesheet" href="css.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -87,68 +87,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
     <div class="hero-glow-2" style="z-index: 0; position: fixed; left: 20%; bottom: -150px; top: auto;"></div>
 
     <div class="admin-layout" style="position: relative; z-index: 1;">
-        <aside class="sidebar">
-            <div style="padding: 0 0.5rem; margin-bottom: 2rem;">
-                <div class="logo">
-                    <i class="fa-solid fa-shapes" style="color: #3b82f6;"></i>
-                    Freela<span>Skill</span>
-                </div>
-                <p style="font-size: 0.75rem; color: #475569; margin-top: 0.5rem; letter-spacing: 1px;">Admin Control
-                    v1.0</p>
-            </div>
-
-            <a href="users_dashboard.php" class="nav-item active" style="text-decoration:none;"><i
-                    class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
-            <a href="admin_missions.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
-
-            <div class="nav-item-wrapper">
-                <a href="dashboard.php" class="nav-item" style="text-decoration:none;">
-                    <i class="fa-solid fa-store"></i> Marketplace
-                    <i class="fa-solid fa-chevron-right" style="margin-left:auto; font-size:0.7rem; opacity:0.5;"></i>
-                </a>
-                <div class="submenu">
-                    <div class="submenu-title">Marketplace Admin</div>
-                    <a href="dashboard.php" class="submenu-item">
-                        <i class="fa-solid fa-chart-line"></i> Dashboard
-                    </a>
-                    <a href="produits.php" class="submenu-item">
-                        <i class="fa-solid fa-box"></i> Gestion Produits
-                    </a>
-                    <a href="mes_achats.php" class="submenu-item">
-                        <i class="fa-solid fa-user-tag"></i> Mes produits admin
-                    </a>
-                    <a href="pending_products.php" class="submenu-item">
-                        <i class="fa-solid fa-clock"></i> Validation Produits
-                    </a>
-                    <a href="ajouter_produit.php" class="submenu-item">
-                        <i class="fa-solid fa-plus"></i> Ajouter Produit
-                    </a>
-                    <a href="liste_categories.php" class="submenu-item">
-                        <i class="fa-solid fa-list"></i> Liste Catégories
-                    </a>
-                    <a href="ajouter_categorie.php" class="submenu-item">
-                        <i class="fa-solid fa-folder-plus"></i> Ajouter Catégorie
-                    </a>
-                    <a href="liste_commandes.php" class="submenu-item">
-                        <i class="fa-solid fa-cart-shopping"></i> Commandes
-                    </a>
-                </div>
-            </div>
-
-            <div class="nav-item"><i class="fa-solid fa-shield-halved"></i> Securite</div>
-<<<<<<< HEAD
-            <a href="/freelaskill/messagerie_index.php?page=admin" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-comments"></i> Messagerie</a>
-=======
-            <div class="nav-item"><i class="fa-solid fa-comments"></i> Messagerie</div>
->>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
-
-            <div style="margin-top: auto; padding-top: 2rem;">
-                <a href="../frontoffice/home.php" class="btn btn-outline"
-                    style="width:100%;font-size:.85rem;padding:.75rem;border-radius:999px;display:flex;align-items:center;justify-content:center;gap:.5rem; color: #ef4444; border-color: rgba(239,68,68,0.2);">
-                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Retour au Hub
-                </a>
-            </div>
-        </aside>
+        <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
         <main class="admin-main">
             <header class="admin-topbar">

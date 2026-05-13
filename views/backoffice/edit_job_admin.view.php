@@ -10,7 +10,7 @@
     <meta name="description" content="Modifier une mission existante sur la plateforme FreelaSkill.">
     <script src="../assets/theme-init.js"></script>
     <link rel="stylesheet" href="../assets/style.css">
-    <link rel="stylesheet" href="admin.css">
+    <link rel="stylesheet" href="admin_v2.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="../assets/theme.js" defer></script>
@@ -100,48 +100,7 @@
 <div class="admin-layout">
 
     <!-- SIDEBAR -->
-    <aside class="sidebar">
-        <div style="padding: 0 0.5rem; margin-bottom: 2.5rem;">
-            <div class="logo">
-                <i class="fa-solid fa-shapes" style="color: #3b82f6;"></i>
-                Freela<span>Skill</span>
-            </div>
-            <p style="font-size: 0.72rem; color: #475569; margin-top: 0.5rem; letter-spacing: 1.2px; font-weight: 600; text-transform: uppercase;">Admin Control v1.0</p>
-        </div>
-
-        <a href="users_dashboard.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-users-viewfinder"></i> Gestion Users</a>
-        <a href="admin_missions.php" class="nav-item active" style="text-decoration:none;"><i class="fa-solid fa-network-wired"></i> Flux de Missions</a>
-        <a href="admin_freelancers.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-user-tie"></i> Freelancers</a>
-        <a href="admin_contrat.php" class="nav-item" style="text-decoration:none;"><i class="fa-solid fa-file-signature"></i> Contrats</a>
-
-        <div class="nav-item-wrapper">
-            <a href="dashboard.php" class="nav-item" style="text-decoration:none;">
-                <i class="fa-solid fa-store"></i> Marketplace
-                <i class="fa-solid fa-chevron-right" style="margin-left:auto; font-size:0.7rem; opacity:0.5;"></i>
-            </a>
-            <div class="submenu">
-                <div class="submenu-title">Marketplace Admin</div>
-                <a href="dashboard.php"         class="submenu-item"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-                <a href="produits.php"           class="submenu-item"><i class="fa-solid fa-box"></i> Gestion Produits</a>
-                <a href="mes_achats.php"         class="submenu-item"><i class="fa-solid fa-user-tag"></i> Mes produits admin</a>
-                <a href="pending_products.php"   class="submenu-item"><i class="fa-solid fa-clock"></i> Validation Produits</a>
-                <a href="ajouter_produit.php"    class="submenu-item"><i class="fa-solid fa-plus"></i> Ajouter Produit</a>
-                <a href="liste_categories.php"   class="submenu-item"><i class="fa-solid fa-list"></i> Liste Catégories</a>
-                <a href="ajouter_categorie.php"  class="submenu-item"><i class="fa-solid fa-folder-plus"></i> Ajouter Catégorie</a>
-                <a href="liste_commandes.php"    class="submenu-item"><i class="fa-solid fa-cart-shopping"></i> Commandes</a>
-            </div>
-        </div>
-
-        <div class="nav-item" style="opacity:.4;cursor:not-allowed;"><i class="fa-solid fa-shield-halved"></i> Securite</div>
-        <div class="nav-item" style="opacity:.4;cursor:not-allowed;"><i class="fa-solid fa-comments"></i> Messagerie</div>
-
-        <div style="margin-top: auto; padding-top: 2rem;">
-            <a href="../frontoffice/home.php" class="btn btn-outline"
-               style="width:100%;font-size:.85rem;padding:.85rem;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:.6rem;color:#f87171;border-color:rgba(239,68,68,0.15); background: rgba(239,68,68,0.05);">
-                <i class="fa-solid fa-arrow-right-from-bracket"></i> Quitter l'Admin
-            </a>
-        </div>
-    </aside>
+    <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
     <!-- MAIN -->
     <main class="main-panel">

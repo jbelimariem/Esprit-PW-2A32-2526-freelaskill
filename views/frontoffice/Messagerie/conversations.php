@@ -712,7 +712,7 @@ $totalMsgs    = array_sum(array_column($conversations, 'total_messages'));
 <nav class="navbar">
 
     <!-- Logo (left) -->
-    <a href="/freelaskill/views/frontoffice/home.php" class="navbar-logo">
+    <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/home.php" class="navbar-logo">
         <i class="fa-solid fa-shapes"></i>
         Freela<span>Skill</span>
     </a>
@@ -720,14 +720,14 @@ $totalMsgs    = array_sum(array_column($conversations, 'total_messages'));
     <!-- Center nav links -->
     <div class="navbar-center">
         <span style="color:var(--text-muted);cursor:default;" class="nav-link-btn">Accueil</span>
-        <a href="/freelaskill/views/frontoffice/home.php" class="nav-link-btn">Marketplace</a>
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/home.php" class="nav-link-btn">Marketplace</a>
         <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
-            <a href="/freelaskill/views/frontoffice/missions.php" class="nav-link-btn">Missions</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/missions.php" class="nav-link-btn">Missions</a>
         <?php else: ?>
-            <a href="/freelaskill/views/frontoffice/freelancer_home.php" class="nav-link-btn">Freelancers</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/freelancer_home.php" class="nav-link-btn">Freelancers</a>
         <?php endif; ?>
         <a href="messagerie_index.php?page=conversations" class="nav-link-btn active">Messagerie</a>
-        <a href="/freelaskill/views/frontoffice/profile.php" class="nav-link-btn">Mon Profil</a>
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/profile.php" class="nav-link-btn">Mon Profil</a>
     </div>
 
     <!-- Right controls -->
@@ -811,12 +811,12 @@ $totalMsgs    = array_sum(array_column($conversations, 'total_messages'));
         <!-- Outils -->
         <div class="sidebar-nav-label" style="margin-top: 1rem;">OUTILS</div>
         
-        <a href="/freelaskill/views/frontoffice/home.php" class="nav-item">
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/home.php" class="nav-item">
             <i class="fa-solid fa-house"></i>
             Accueil
         </a>
         
-        <a href="/freelaskill/views/frontoffice/missions.php" class="nav-item">
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/missions.php" class="nav-item">
             <i class="fa-solid fa-briefcase"></i>
             Missions
         </a>
@@ -841,7 +841,7 @@ $totalMsgs    = array_sum(array_column($conversations, 'total_messages'));
                     </button>
                 </div>
 
-                <form class="search-tri-form" method="GET" action="/freelaskill/messagerie_index.php" id="searchTriForm">
+                <form class="search-tri-form" method="GET" action="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php" id="searchTriForm">
                     <input type="hidden" name="page" value="conversations">
                     <div class="search-box">
                         <button type="button" onclick="checkAndShowSuggestion()"><i class="fa-solid fa-magnifying-glass"></i></button>

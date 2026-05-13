@@ -307,21 +307,21 @@ $roleName   = trim(($_SESSION['user_prenom'] ?? '') . ' ' . ($_SESSION['user_nom
 ?>
 
 <nav class="navbar" style="display:flex; justify-content:space-between; align-items:center;">
-    <a href="/freelaskill/views/frontoffice/home.php" class="logo"><i class="fa-solid fa-shapes"></i> <span class="logo-freela">Freela</span><span class="logo-skill">Skill</span></a>
+    <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/home.php" class="logo"><i class="fa-solid fa-shapes"></i> <span class="logo-freela">Freela</span><span class="logo-skill">Skill</span></a>
     
     <div style="display:flex; gap:2rem; align-items:center; list-style:none;">
         <span style="color:var(--muted);cursor:default; font-size:0.9rem;">Accueil</span>
-        <a href="/freelaskill/views/frontoffice/home.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Marketplace</a>
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/home.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Marketplace</a>
         <?php if (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'client'): ?>
-            <a href="/freelaskill/views/frontoffice/missions.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Missions</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/missions.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Missions</a>
         <?php else: ?>
-            <a href="/freelaskill/views/frontoffice/freelancer_home.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Freelancers</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/freelancer_home.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Freelancers</a>
         <?php endif; ?>
         <a href="messagerie_index.php?page=conversations" style="color:white; text-decoration:none; font-size:0.9rem; position:relative; font-weight:500;">
             Messagerie
             <span style="position:absolute; bottom:-4px; left:0; right:0; height:2px; background:var(--blue); border-radius:2px;"></span>
         </a>
-        <a href="/freelaskill/views/frontoffice/profile.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Mon Profil</a>
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/views/frontoffice/profile.php" style="color:var(--muted); text-decoration:none; font-size:0.9rem; font-weight:500;">Mon Profil</a>
     </div>
 
     <div class="nav-right" style="display:flex; gap:1rem;">

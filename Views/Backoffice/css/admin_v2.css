@@ -962,3 +962,71 @@ body.light-mode .form-select option { background: #ffffff; color: #0f172a; }
 
 .btn-submit:hover { transform: translateY(-2px); box-shadow: var(--neon-blue); }
 
+
+/* =========================================
+   OVERRIDE SIDEBAR TO MATCH MARKETPLACE
+   ========================================= */
+.sidebar {
+    width: 260px !important;
+    min-height: 100vh !important;
+    background: #0f172a !important; /* var(--surface-elevated) */
+    border-right: 1px solid rgba(255,255,255,0.05) !important;
+    padding: 2rem 1.25rem !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: .75rem !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    z-index: 100 !important;
+    overflow: visible !important;
+}
+
+.sidebar-header { display: none !important; }
+
+.sidebar .logo {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.75rem !important;
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
+    margin-bottom: .5rem !important;
+}
+.sidebar .logo span { color: #3b82f6 !important; }
+.sidebar .logo i { color: #ef4444 !important; }
+
+.nav-item {
+    color: #94a3b8 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: .85rem !important;
+    padding: .85rem 1.1rem !important;
+    border-radius: 12px !important;
+    cursor: pointer !important;
+    transition: all .2s !important;
+    border: 1px solid transparent !important;
+    border-left: none !important; /* override the old border-left */
+    font-size: .88rem !important;
+    background: transparent !important;
+}
+.nav-item:hover, .nav-item.active {
+    background: rgba(59, 130, 246, .14) !important;
+    color: #f8fafc !important;
+    border-color: rgba(59, 130, 246, .35) !important;
+    border-left: 1px solid rgba(59, 130, 246, .35) !important;
+}
+
+.admin-main {
+    margin-left: 260px !important; /* match new sidebar width */
+}
+
+/* -- SUBMENU -- */
+.nav-item-wrapper { position: relative !important; width: 100% !important; }
+.submenu { position: absolute !important; left: calc(100% + 12px) !important; top: 0 !important; background: rgba(15, 23, 42, 0.95) !important; backdrop-filter: blur(12px) !important; border: 1px solid rgba(255, 255, 255, 0.1) !important; border-radius: 16px !important; padding: 0.75rem !important; min-width: 220px !important; opacity: 0 !important; visibility: hidden !important; transform: translateX(10px) !important; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important; z-index: 1000 !important; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5) !important; pointer-events: none !important; display: block !important; }
+.nav-item-wrapper:hover .submenu { opacity: 1 !important; visibility: visible !important; transform: translateX(0) !important; pointer-events: auto !important; }
+.submenu-title { font-size: 0.7rem !important; text-transform: uppercase !important; color: #475569 !important; padding: 0.5rem 0.75rem !important; font-weight: 800 !important; letter-spacing: 1px !important; margin-bottom: 0.25rem !important; }
+.submenu-item { display: flex !important; align-items: center !important; gap: 0.75rem !important; padding: 0.7rem 0.85rem !important; color: #94a3b8 !important; text-decoration: none !important; font-size: 0.82rem !important; border-radius: 10px !important; transition: all 0.2s ease !important; background: transparent !important; }
+.submenu-item i { font-size: 0.9rem !important; width: 18px !important; text-align: center !important; color: #3b82f6 !important; }
+.submenu-item:hover, .submenu-item.active { background: rgba(255, 255, 255, 0.05) !important; color: white !important; transform: translateX(4px) !important; }
+.nav-item-wrapper::after { content: '' !important; position: absolute !important; right: -12px !important; top: 0 !important; width: 12px !important; height: 100% !important; }

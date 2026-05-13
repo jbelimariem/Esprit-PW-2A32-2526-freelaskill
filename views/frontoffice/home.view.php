@@ -68,7 +68,22 @@ function statutBadge($statut) {
         .btn-modal-confirm { background: #ef4444; color: white; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3); }
         .btn-modal-confirm:hover { background: #dc2626; transform: translateY(-2px); }
     </style>
+
+<style>
+/* FLYOUT MENU STYLES */
+.nav-item-wrapper { position: relative; width: 100%; z-index: 1000; }
+.submenu { position: absolute; left: calc(100% + 12px); top: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 0.75rem; min-width: 220px; opacity: 0; visibility: hidden; transform: translateX(10px); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); pointer-events: none; }
+.nav-item-wrapper:hover .submenu { opacity: 1; visibility: visible; transform: translateX(0); pointer-events: auto; }
+.submenu-title { font-size: 0.7rem; text-transform: uppercase; color: #475569; padding: 0.5rem 0.75rem; font-weight: 800; letter-spacing: 1px; margin-bottom: 0.25rem; }
+.submenu-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.7rem 0.85rem; color: #94a3b8; text-decoration: none; font-size: 0.82rem; border-radius: 10px; transition: all 0.2s ease; }
+.submenu-item i { font-size: 0.9rem; width: 18px; text-align: center; color: #3b82f6; }
+.submenu-item:hover { background: rgba(255, 255, 255, 0.05); color: white; transform: translateX(4px); }
+.nav-item-wrapper::after { content: ''; position: absolute; right: -12px; top: 0; width: 12px; height: 100%; }
+.mkt-sidebar { overflow: visible !important; }
+.marketplace-layout { overflow: visible !important; }
+</style>
 </head>
+
 <body class="page-anim home-page">
 
 <nav>
@@ -84,7 +99,7 @@ function statutBadge($statut) {
         <?php else: ?>
             <li><a href="freelancer_home.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'freelancer_home.php') ? 'active' : '' ?>">Freelancers</a></li>
         <?php endif; ?>
-        <li><a href="<?= (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/freelaskill/messagerie_index.php?page=admin' : '/freelaskill/messagerie_index.php?page=conversations' ?>" class="<?= (strpos($_SERVER['PHP_SELF'], 'essagerie') !== false) ? 'active' : '' ?>">Messagerie</a></li>
+        <li><a href="<?= (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin' : '/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=conversations' ?>" class="<?= (strpos($_SERVER['PHP_SELF'], 'essagerie') !== false) ? 'active' : '' ?>">Messagerie</a></li>
         <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
     </ul>
     <div class="nav-right">
@@ -144,9 +159,27 @@ function statutBadge($statut) {
                 <a href="client_freelancers.php" class="nav-item ">
                     <i class="fa-solid fa-users"></i> Freelancers
                 </a>
-                <a href="front_contrat_index.php" class="nav-item">
-                    <i class="fa-solid fa-file-signature"></i> Mes Contrats
-                </a>
+                <div class="nav-item-wrapper">
+                    <a href="front_contrat_index.php" class="nav-item">
+                        <i class="fa-solid fa-file-contract"></i> Contrats
+                        <i class="fa-solid fa-chevron-right" style="margin-left:auto;font-size:0.75rem;"></i>
+                    </a>
+                    <div class="submenu">
+                        <div class="submenu-title">Gestion Légale</div>
+                        <a href="front_contrat_list.php" class="submenu-item">
+                            <i class="fa-solid fa-list-check"></i> Liste des contrats
+                        </a>
+                        <a href="front_contrat_form.php" class="submenu-item">
+                            <i class="fa-solid fa-file-signature"></i> Nouveau contrat
+                        </a>
+                        <a href="front_rules_list.php" class="submenu-item">
+                            <i class="fa-solid fa-gavel"></i> Liste des règles
+                        </a>
+                        <a href="front_rules_form.php" class="submenu-item">
+                            <i class="fa-solid fa-plus-circle"></i> Nouvelle règle
+                        </a>
+                    </div>
+                </div>
                 <a href="#" id="download-pdf-home" class="nav-item">
                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                 </a>

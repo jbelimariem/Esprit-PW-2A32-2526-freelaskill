@@ -11,24 +11,23 @@ $stats = getContratStatistics();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Liste des Contrats · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css?v=5">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin_v2.css">
+    <link rel="stylesheet" href="css.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-<<<<<<< HEAD
-        window.API_BASE = '/freelaskill/controllers/apiController.php';
-=======
         window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
->>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/admin.js" defer></script>
     <script src="../assets/api.js" defer></script>
 </head>
 <body>
 
+<div class="admin-layout">
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-<div class="glow-orb" style="width:500px;height:500px;background:#2563EB;top:-150px;right:-150px;"></div>
+
 
 <main class="admin-main">
 
@@ -196,12 +195,10 @@ $stats = getContratStatistics();
                 Tous les contrats
                 <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);margin-left:0.5rem;">(<?php echo count($contrats); ?> résultat<?php echo count($contrats) > 1 ? 's' : ''; ?>)</span>
             </div>
-            <a href="admin_contrat_form.php" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.82rem;">
-                <i class="fa-solid fa-plus"></i> Nouveau
-            </a>
+            
         </div>
 
-        <table class="admin-table">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Titre</th>
@@ -297,7 +294,7 @@ $stats = getContratStatistics();
     </div>
 
 </main>
-
+</div>
 <script>
 function toggleStats() {
     const el  = document.getElementById('stats-container');

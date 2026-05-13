@@ -46,25 +46,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — <?php echo $isEdit ? 'Modifier' : 'Créer'; ?> un Contrat · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css?v=3">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin_v2.css">
+    <link rel="stylesheet" href="css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script>
-<<<<<<< HEAD
-        window.API_BASE = '/freelaskill/controllers/apiController.php';
-=======
         window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
->>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/admin.js" defer></script>
     <script src="../assets/api.js" defer></script>
 </head>
 <body>
 
+<div class="admin-layout">
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-<div class="glow-orb" style="width:400px;height:400px;background:#2563EB;top:-100px;right:-100px;"></div>
+
 
 <main class="admin-main">
 
@@ -321,7 +320,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !empty($errors)) {
     </form>
 
 </main>
-
+</div>
 <script>
 let padClient = null, padFreelance = null;
 
@@ -350,7 +349,7 @@ document.getElementById('contratForm').addEventListener('submit', function () {
 });
 
 // ── RULES PAGINATION ──
-const RULES_PER_PAGE = 5;
+const RULES_PER_PAGE = 3;
 let currentPage = 1;
 let filteredItems = [];
 

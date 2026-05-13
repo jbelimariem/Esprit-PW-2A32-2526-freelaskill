@@ -596,7 +596,7 @@ $produitsPagines = array_slice($produits, $startIndex, $itemsPerPage);
         <?php else: ?>
             <li><a href="freelancer_home.php">Freelancers</a></li>
         <?php endif; ?>
-        <li><a href="<?= (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/freelaskill/messagerie_index.php?page=admin' : '/freelaskill/messagerie_index.php?page=conversations' ?>" class="<?= (strpos($_SERVER['PHP_SELF'], 'essagerie') !== false) ? 'active' : '' ?>">Messagerie</a></li>
+        <li><a href="<?= (!empty($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin') ? '/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin' : '/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=conversations' ?>" class="<?= (strpos($_SERVER['PHP_SELF'], 'essagerie') !== false) ? 'active' : '' ?>">Messagerie</a></li>
         <li><a href="profile.php" class="<?= (basename($_SERVER['PHP_SELF']) == 'profile.php') ? 'active' : '' ?>">Mon Profil</a></li>
     </ul>
     <div class="nav-right">

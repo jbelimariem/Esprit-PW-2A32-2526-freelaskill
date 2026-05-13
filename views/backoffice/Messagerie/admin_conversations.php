@@ -385,7 +385,7 @@ if (!isset($allConversations) || !isset($flaggedMessages) || !isset($stats)) {
 
 <nav class="navbar">
     <div class="container">
-        <a href="/freelaskill/messagerie_index.php?page=home" class="logo">
+        <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=home" class="logo">
             <i class="fa-solid fa-shapes"></i>
             <span class="logo-freela">Freela</span>
             <span class="logo-skill">Skill</span>
@@ -394,8 +394,8 @@ if (!isset($allConversations) || !isset($flaggedMessages) || !isset($stats)) {
             <i class="fa-solid fa-shield-halved"></i> Panel Administrateur
         </div>
         <div class="nav-links">
-            <a href="/freelaskill/messagerie_index.php?page=conversations">Messagerie</a>
-            <a href="/freelaskill/messagerie_index.php?page=admin" class="active">Admin</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=conversations">Messagerie</a>
+            <a href="/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin" class="active">Admin</a>
         </div>
     </div>
 </nav>
@@ -574,12 +574,12 @@ filterTabs.forEach(tab => {
 });
 
 function viewConversation(id) {
-    window.open('/freelaskill/messagerie_index.php?page=chat&id=' + id, '_blank');
+    window.open('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=chat&id=' + id, '_blank');
 }
 
 function archiveConversation(id) {
     if (confirm('Archiver cette conversation ?')) {
-        fetch('/freelaskill/messagerie_index.php?page=admin&action=archive', {
+        fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=archive', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'id_conversation=' + id
@@ -591,7 +591,7 @@ function archiveConversation(id) {
 
 function deleteConversation(id) {
     if (confirm('Supprimer définitivement cette conversation ?')) {
-        fetch('/freelaskill/messagerie_index.php?page=admin&action=delete-conv', {
+        fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=delete-conv', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'id_conversation=' + id
@@ -603,7 +603,7 @@ function deleteConversation(id) {
 
 function deleteMessage(id) {
     if (confirm('Supprimer ce message ?')) {
-        fetch('/freelaskill/messagerie_index.php?page=admin&action=delete-msg', {
+        fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=delete-msg', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'id_message=' + id
@@ -615,7 +615,7 @@ function deleteMessage(id) {
 
 function ignoreMessage(id) {
     if (confirm('Ignorer ce signalement ?')) {
-        fetch('/freelaskill/messagerie_index.php?page=admin&action=ignore-flag', {
+        fetch('/Esprit-PW-2A32-2526-TalentBridge-job/messagerie_index.php?page=admin&action=ignore-flag', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: 'id_message=' + id

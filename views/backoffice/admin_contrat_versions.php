@@ -10,7 +10,9 @@ if (!$contrat) { header('Location: admin_contrat_list.php'); exit; }
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Historique — <?php echo htmlspecialchars($contrat['titre'], ENT_QUOTES, 'UTF-8'); ?> · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css?v=3">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin_v2.css">
+    <link rel="stylesheet" href="css.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="css/admin.js" defer></script>
     <style>

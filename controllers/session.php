@@ -56,7 +56,7 @@ function getCurrentUserFullName(): string {
  * Redirige vers la page de login si l'utilisateur n'est pas connecté.
  * @param string $loginUrl URL de la page de login
  */
-function requireLogin(string $loginUrl = '/freelaskill/Views/Frontoffice/home.php'): void {
+function requireLogin(string $loginUrl = '/Esprit-PW-2A32-2526-TalentBridge-job/Views/Frontoffice/home.php'): void {
     if (!isLoggedIn()) {
         header('Location: ' . $loginUrl);
         exit;
@@ -67,7 +67,7 @@ function requireLogin(string $loginUrl = '/freelaskill/Views/Frontoffice/home.ph
  * Vérifie que l'utilisateur est admin (role = 'admin').
  * Redirige vers accueil sinon.
  */
-function requireAdmin(string $redirectUrl = '/freelaskill/Views/Frontoffice/discover.php'): void {
+function requireAdmin(string $redirectUrl = '/Esprit-PW-2A32-2526-TalentBridge-job/Views/Frontoffice/discover.php'): void {
     if (($_SESSION['user_role'] ?? '') !== 'admin') {
         header('Location: ' . $redirectUrl);
         exit;

@@ -8,23 +8,22 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin — Liste des Règles · FreelaSkill</title>
-    <link rel="stylesheet" href="css/admin.css?v=3">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="stylesheet" href="admin_v2.css">
+    <link rel="stylesheet" href="css.css?v=2">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-<<<<<<< HEAD
-        window.API_BASE = '/freelaskill/controllers/apiController.php';
-=======
         window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
->>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/admin.js" defer></script>
     <script src="../assets/api.js" defer></script>
 </head>
 <body>
 
+<div class="admin-layout">
 <?php include __DIR__ . '/partials/sidebar.php'; ?>
 
-<div class="glow-orb" style="width:450px;height:450px;background:#A855F7;top:-100px;right:-100px;"></div>
+
 
 <main class="admin-main">
 
@@ -110,12 +109,10 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
                 Toutes les règles
                 <span style="font-size:0.78rem;font-weight:400;color:var(--text-muted);margin-left:0.5rem;">(<?php echo $totalRules; ?> règle<?php echo $totalRules > 1 ? 's' : ''; ?>)</span>
             </div>
-            <a href="admin_rules_form.php" class="btn btn-primary" style="padding:0.5rem 1rem;font-size:0.82rem;">
-                <i class="fa-solid fa-plus"></i> Ajouter
-            </a>
+            
         </div>
 
-        <table class="admin-table">
+        <table class="data-table">
             <thead>
                 <tr>
                     <th>Titre</th>
@@ -180,5 +177,6 @@ require_once __DIR__ . '/../../controllers/ruleController.php';
     </div>
 
 </main>
+</div>
 </body>
 </html>

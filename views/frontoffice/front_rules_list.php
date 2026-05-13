@@ -1,8 +1,11 @@
-﻿<?php
-session_start();
-if (!isset($_SESSION['user_role'])) { header('Location: front_rules_index.php'); exit; }
+<?php
+require_once __DIR__ . '/../../controllers/session.php';
+requireLogin();
+require_once __DIR__ . '/../../controllers/session.php';
+requireLogin();
+
 require_once __DIR__ . '/../../controllers/ruleController.php';
-$role     = $_SESSION['user_role'];
+$role     = $_SESSION['user_role'] ?? 'freelancer';
 $isClient = ($role === 'client');
 $roleName = $isClient ? 'Client' : 'Freelancer';
 $activePage = 'rules';
@@ -13,27 +16,24 @@ $activePage = 'rules';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Espace <?php echo $roleName; ?> &ndash; Mes Règles &middot; FreelaSkill</title>
-    <link rel="stylesheet" href="css/front.css?v=4">
+    <link rel="stylesheet" href="css/front.css?v=1778626722">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
-<<<<<<< HEAD
-        window.API_BASE = '/freelaskill/controllers/apiController.php';
-=======
         window.API_BASE = '/Esprit-PW-2A32-2526-TalentBridge-job/controllers/apiController.php';
->>>>>>> 82705c67f6dd52e299a9ffa6fb62a7b16335bcf5
     </script>
     <script src="css/front.js" defer></script>
     <script src="../assets/api.js" defer></script>
 </head>
 <body>
 
-<?php include __DIR__ . '/partials/sidebar.php'; ?>
-
 <?php include __DIR__ . '/partials/navbar.php'; ?>
 
-<div class="glow-orb" style="width:450px;height:450px;background:#A855F7;top:-100px;right:-100px;"></div>
+<div class="marketplace-layout">
 
-<main class="admin-main" style="padding-top:1.5rem;">
+<?php include __DIR__ . '/partials/sidebar.php'; ?>
+
+<main class="mkt-main" style="padding-top:1.5rem; position:relative;">
+
 
     <!-- Topbar -->
     <div class="animate-in" style="margin-bottom:2rem;padding-bottom:1.5rem;border-bottom:1px solid var(--border);">
@@ -44,9 +44,9 @@ $activePage = 'rules';
             <span class="sep">/</span>
             <span class="current">Liste</span>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.75rem;margin-top:0.25rem;">
-            <h1 class="admin-page-title">Liste des <span>Règles</span></h1>
-            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;margin-top:0.5rem;width:100%;">
+            <h1 class="admin-page-title" style="margin:0; text-align:left; flex: 0 0 auto;">Liste des <span>Règles</span></h1>
+            <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;justify-content:flex-end;">
                 <a href="front_rules_index.php" class="btn btn-secondary" style="padding:0.5rem 0.9rem;font-size:0.82rem;">
                     <i class="fa-solid fa-arrow-left"></i> Retour
                 </a>
@@ -160,5 +160,6 @@ $activePage = 'rules';
     </div>
 
 </main>
+</div>
 </body>
 </html>
