@@ -16,7 +16,7 @@ FreelaSkill est une plateforme de mise en relation entre freelances et clients. 
 
 ## Architecture MVC
 
-```
+exemple de tache "user"
 projet2222/
 ├── Models/                  # Modèles (classes métier)
 │   └── User.php
@@ -84,16 +84,19 @@ Variables de session standardisées :
 | Membre | Tâche | Branche Git |
 |--------|-------|-------------|
 | Mariem Tounsi | Gestion Utilisateurs (Auth, Profil, Admin) | `user` |
-| ... | ... | ... |
-| ... | ... | ... |
-| ... | ... | ... |
-| ... | ... | ... |
+| afra haouat | contrat/rules |`contrat` |
+| mariem jbeli | freelencers/client | `job`|
+| malek derbal | Produit /Commande/category_prod | `marketplace` |
+| ahmed abidi | conversation/message| `messagerie` |
 
 ## Branches Git
 
 - `main` — branche d'intégration commune
 - `user` — module utilisateurs (Mariem Tounsi)
-- Autres branches selon les équipes
+- `contrat`(afra haouat)
+- `job`(mariem jbeli)
+- `marketplace`(malek derbal)
+- `messagerie`(abidi ahmed)
 
 ## Règles d'intégration
 
